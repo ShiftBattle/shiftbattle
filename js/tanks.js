@@ -7,8 +7,7 @@ var player;
 var tanksList;
 var explosions;
 
-var logo;
-var speed = 2;
+var speed = 3;
 
 var cursors;
 
@@ -108,8 +107,12 @@ Tank = function (index, game, player) {
     this.fireRate = 500;
     this.nextFire = 0;
     this.alive = true;
-
-    this.tank = game.add.sprite(x, y, 'enemy', 'tank');
+	
+	
+	var startX = Math.round(Math.random() * (1000) - 500)
+  	var startY = Math.round(Math.random() * (1000) - 500)
+    this.tank = game.add.sprite(startX, startY, 'tank');
+    this.tank.hitArea = new Phaser.Rectangle(0, 0, 20, 20);
 
     this.tank.anchor.set(0.5);
     
@@ -124,8 +127,6 @@ Tank = function (index, game, player) {
     this.tank.body.bounce.setTo(0, 0);
 
     this.tank.angle = 0;
-
-    // game.physics.arcade.velocityFromRotation(this.tank.rotation, 0, this.tank.body.velocity);
 
 };
 
@@ -259,11 +260,9 @@ function create () {
 	player = new Tank(myId, game, tank);
 	tanksList[myId] = player;
 	tank = player.tank;
-	// turret = player.turret;
 	tank.x=0;
 	tank.y=0;
 	bullets = player.bullets;
-	// shadow = player.shadow;	
 
     //  Explosion pool
     explosions = game.add.group();
@@ -276,12 +275,11 @@ function create () {
     }
 
     tank.bringToTop();
-    // turret.bringToTop();
 		
-    logo = game.add.sprite(0, 200, 'logo');
-    logo.fixedToCamera = true;
+    // logo = game.add.sprite(0, 200, 'logo');
+    // logo.fixedToCamera = true;
 
-    game.input.onDown.add(removeLogo, this);
+    // game.input.onDown.add(removeLogo, this);
 
     game.camera.follow(tank);
     game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
@@ -289,14 +287,14 @@ function create () {
 
     cursors = game.input.keyboard.createCursorKeys();
 	
-	setTimeout(removeLogo, 1000);
+	// setTimeout(removeLogo, 1000);
 	
 }
 
-function removeLogo () {
-    game.input.onDown.remove(removeLogo, this);
-    logo.kill();
-}
+// function removeLogo () {
+//     game.input.onDown.remove(removeLogo, this);
+//     logo.kill();
+// }
 
 function update () {
 	//do not update if client not ready
