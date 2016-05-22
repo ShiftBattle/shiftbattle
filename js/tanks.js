@@ -2,9 +2,9 @@ var myId=0;
 
 var land;
 
-var tank;
 var player;
-var tanksList;
+var user;
+var playersList;
 var explosions;
 
 var speed = 3;
@@ -40,9 +40,9 @@ var eurecaClientSetup = function() {
 	
 	eurecaClient.exports.kill = function(id)
 	{	
-		if (tanksList[id]) {
-			tanksList[id].kill();
-			console.log('killing ', id, tanksList[id]);
+		if (playersList[id]) {
+			playersList[id].kill();
+			console.log('killing ', id, playersList[id]);
 		}
 	}	
 	
@@ -52,25 +52,25 @@ var eurecaClientSetup = function() {
 		if (i == myId) return; //this is me
 		
 		console.log('SPAWN');
-		var tnk = new Tank(i, game, tank);
-		tanksList[i] = tnk;
+		var plyr = new Player(i, game, player);
+		playersList[i] = plyr;
 	}
 	
 	eurecaClient.exports.updateState = function(id, state)
 	{
-		if (tanksList[id])  {
-			tanksList[id].cursor = state;
-			tanksList[id].tank.x = state.x;
-			tanksList[id].tank.y = state.y;
-			tanksList[id].tank.angle = state.angle;
-			tanksList[id].tank.rotation = state.rot;
-			tanksList[id].update();
+		if (playersList[id])  {
+			playersList[id].cursor = state;
+			playersList[id].player.x = state.x;
+			playersList[id].player.y = state.y;
+			playersList[id].player.angle = state.angle;
+			playersList[id].player.rotation = state.rot;
+			playersList[id].update();
 		}
 	}
 }
 
 
-Tank = function (index, game, player) {
+Player = function (index, game, user) {
 	this.cursor = {
 		left:false,
 		right:false,
@@ -91,8 +91,8 @@ Tank = function (index, game, player) {
     var y = 0;
 
     this.game = game;
-    this.health = 30;
-    this.player = player;
+    this.health = 5;
+    this.user = user;
     this.bullets = game.add.group();
     this.bullets.enableBody = true;
     this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -111,26 +111,38 @@ Tank = function (index, game, player) {
 	
 	var startX = Math.round(Math.random() * (1000) - 500)
   	var startY = Math.round(Math.random() * (1000) - 500)
-    this.tank = game.add.sprite(startX, startY, 'tank');
-    this.tank.hitArea = new Phaser.Rectangle(0, 0, 20, 20);
+    this.player = game.add.sprite(startX, startY, 'player');
 
-    this.tank.anchor.set(0.5);
+    this.player.anchor.set(0.5);
     
-    this.tank.animations.add('move', [0], 20, false);
-  	this.tank.animations.add('attack', [1, 2, 3], 10, false);
+    this.player.animations.add('move', [0], 20, false);
+  	this.player.animations.add('attack', [1, 2, 3], 10, false);
     
 
-    this.tank.id = index;
-    game.physics.enable(this.tank, Phaser.Physics.ARCADE);
-    this.tank.body.immovable = false;
-    this.tank.body.collideWorldBounds = true;
-    this.tank.body.bounce.setTo(0, 0);
+    this.player.id = index;
+    game.physics.enable(this.player, Phaser.Physics.ARCADE);
+    this.player.body.setSize(20, 20);
+    this.player.body.immovable = false;
+    this.player.body.collideWorldBounds = true;
+    this.player.body.bounce.setTo(0, 0);
 
-    this.tank.angle = 0;
+    this.player.angle = 0;
 
 };
 
-Tank.prototype.update = function() {
+Player.prototype.damage = function(){
+    console.log(this.player.id + " IS GETTING POUNDED!");
+    this.health--;
+    if (this.health <= 0)
+    {
+        this.alive = false;
+        this.player.kill();
+        return true;
+    }
+    return false;
+}
+
+Player.prototype.update = function() {
 	var inputChanged = (
 		this.cursor.left != this.input.left ||
 		this.cursor.right != this.input.right ||
@@ -144,13 +156,13 @@ Tank.prototype.update = function() {
 	{
 		//Handle input change here
 		//send new values to the server		
-		if (this.tank.id == myId)
+		if (this.player.id == myId)
 		{
 			// send latest valid state to the server
-			this.input.x = this.tank.x;
-			this.input.y = this.tank.y;
-			this.input.angle = this.tank.angle;
-			this.input.rot = this.tank.rotation;
+			this.input.x = this.player.x;
+			this.input.y = this.player.y;
+			this.input.angle = this.player.angle;
+			this.input.rot = this.player.rotation;
 			
 			eurecaServer.handleKeys(this.input);
 			
@@ -162,82 +174,82 @@ Tank.prototype.update = function() {
 	
 	if (this.cursor.left) {
 		if (this.cursor.up) {
-			this.tank.body.x -= speed;
-			this.tank.body.y -= speed;
-			this.tank.animations.play('move');
+			this.player.body.x -= speed;
+			this.player.body.y -= speed;
+			this.player.animations.play('move');
 		}
 		else if (this.cursor.down) {
-			this.tank.body.x -= speed;
-			this.tank.body.y += speed;
-			this.tank.animations.play('move');
+			this.player.body.x -= speed;
+			this.player.body.y += speed;
+			this.player.animations.play('move');
 		}
 		else {
-			this.tank.body.x -= speed;
-			this.tank.animations.play('move');
+			this.player.body.x -= speed;
+			this.player.animations.play('move');
 		}
 	}
 	else if (this.cursor.right) {
 		if (this.cursor.up) {
-			this.tank.body.x += speed;
-			this.tank.body.y -= speed;
-			this.tank.animations.play('move');
+			this.player.body.x += speed;
+			this.player.body.y -= speed;
+			this.player.animations.play('move');
 		}
 		else if (this.cursor.down) {
-			this.tank.body.x += speed;
-			this.tank.body.y += speed;
-			this.tank.animations.play('move');
+			this.player.body.x += speed;
+			this.player.body.y += speed;
+			this.player.animations.play('move');
 		}
 		else {
-			this.tank.body.x += speed;
-			this.tank.animations.play('move');
+			this.player.body.x += speed;
+			this.player.animations.play('move');
 		}
 	}
 	else if (this.cursor.up) {
-		this.tank.body.y -= speed;
-		this.tank.animations.play('move');
+		this.player.body.y -= speed;
+		this.player.animations.play('move');
 	}
 	else if (this.cursor.down) {
-		this.tank.body.y += speed;
-		this.tank.animations.play('move');
+		this.player.body.y += speed;
+		this.player.animations.play('move');
 	}
 	 if (this.cursor.fire) {
 		this.fire({
 			x: this.cursor.tx,
 			y: this.cursor.ty
 		});
-		this.tank.animations.play('attack');
+		this.player.animations.play('attack');
 	}
 		
 };
 
 
-Tank.prototype.fire = function(target) {
+Player.prototype.fire = function(target) {
 		if (!this.alive) return;
         if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0)
         {
             this.nextFire = this.game.time.now + this.fireRate;
             var bullet = this.bullets.getFirstDead();
-            bullet.reset(this.tank.x, this.tank.y, this.tank.rotation);
-			bullet.rotation = this.tank.rotation;      
-            game.physics.arcade.velocityFromRotation(this.tank.rotation, 500, bullet.body.velocity); 
+            bullet.reset(this.player.x, this.player.y, this.player.rotation);
+			bullet.rotation = this.player.rotation;      
+            game.physics.arcade.velocityFromRotation(this.player.rotation, 600, bullet.body.velocity); 
 
         }
 }
 
 
-Tank.prototype.kill = function() {
+Player.prototype.kill = function() {
 	this.alive = false;
-	this.tank.kill();
+	this.player.kill();
 }
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 function preload () {
 
-    game.load.spritesheet('tank', 'assets/test_guy.png', 150, 150);
+    game.load.spritesheet('player', 'assets/test_guy.png', 150, 150);
     game.load.spritesheet('enemy', 'assets/test_guy.png', 150, 150);
     game.load.image('logo', 'assets/logo.png');
-    game.load.image('bullet', 'assets/bullet2.png');
+    game.load.image('bullet', 'assets/bullet4.png');
     game.load.image('earth', 'assets/scorched_earth.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     
@@ -255,14 +267,14 @@ function create () {
     land = game.add.tileSprite(0, 0, 800, 600, 'earth');
     land.fixedToCamera = true;
     
-    tanksList = {};
+    playersList = {};
 	
-	player = new Tank(myId, game, tank);
-	tanksList[myId] = player;
-	tank = player.tank;
-	tank.x=0;
-	tank.y=0;
-	bullets = player.bullets;
+	user = new Player(myId, game, player);
+	playersList[myId] = user;
+	player = user.player;
+	player.x=0;
+	player.y=0;
+	bullets = user.bullets;
 
     //  Explosion pool
     explosions = game.add.group();
@@ -274,14 +286,14 @@ function create () {
         explosionAnimation.animations.add('kaboom');
     }
 
-    tank.bringToTop();
+    player.bringToTop();
 		
     // logo = game.add.sprite(0, 200, 'logo');
     // logo.fixedToCamera = true;
 
     // game.input.onDown.add(removeLogo, this);
 
-    game.camera.follow(tank);
+    game.camera.follow(player);
     game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
     game.camera.focusOnXY(0, 0);
 
@@ -300,48 +312,51 @@ function update () {
 	//do not update if client not ready
 	if (!ready) return;
 	
-	player.input.left = cursors.left.isDown;
-	player.input.right = cursors.right.isDown;
-	player.input.up = cursors.up.isDown;
-	player.input.down = cursors.down.isDown;
-	player.input.fire = game.input.activePointer.isDown;
-	player.input.tx = game.input.x+ game.camera.x;
-	player.input.ty = game.input.y+ game.camera.y;
+	user.input.left = cursors.left.isDown;
+	user.input.right = cursors.right.isDown;
+	user.input.up = cursors.up.isDown;
+	user.input.down = cursors.down.isDown;
+	user.input.fire = game.input.activePointer.isDown;
+	user.input.tx = game.input.x+ game.camera.x;
+	user.input.ty = game.input.y+ game.camera.y;
 	
-	tank.rotation = game.physics.arcade.angleToPointer(tank);	
+	player.rotation = game.physics.arcade.angleToPointer(player);	
 	
     land.tilePosition.x = -game.camera.x;
     land.tilePosition.y = -game.camera.y;
 
     	
 	
-    for (var i in tanksList)
+    for (var i in playersList)
     {
-		if (!tanksList[i]) continue;
-		var curBullets = tanksList[i].bullets;
-		var curTank = tanksList[i].tank;
-		for (var j in tanksList)
-		{
-			if (!tanksList[j]) continue;
-			if (j!=i) 
-			{
-			
-				var targetTank = tanksList[j].tank;
-				
-				game.physics.arcade.overlap(curBullets, targetTank, bulletHitPlayer, null, this);
-			
-			}
-			if (tanksList[j].alive)
-			{
-				tanksList[j].update();
-			}			
-		}
+        if (!playersList[i]) continue;
+        var curBullets = playersList[i].bullets;
+        var curPlayer = playersList[i].player;
+        for (var j in playersList)
+        {
+            if (!playersList[j]) continue;
+            if (j!=i) 
+            {
+            
+                var targetPlayer = playersList[j].player;
+                // game.physics.arcade.collide(player, playersList[i].player);
+                game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
+            
+            }
+            if (playersList[j].alive)
+            {
+                playersList[j].update();
+            }           
+        }
     }
 }
 
-function bulletHitPlayer (tank, bullet) {
-
+function bulletHitPlayer (player, bullet) {
     bullet.kill();
+    console.log(myId, "THIS IS YOUR PLAYER!");
+    playersList[player.id].damage();
+    console.log(player.id, 'THE PLAYER')
+    console.log(player, 'TANKINFO')
 }
 
 function render () {
