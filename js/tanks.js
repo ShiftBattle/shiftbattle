@@ -2,15 +2,13 @@ var myId=0;
 
 var land;
 
-// var shadow;
 var tank;
-// var turret;
 var player;
 var tanksList;
 var explosions;
 
 var logo;
-var speed = 3;
+var speed = 2;
 
 var cursors;
 
@@ -66,7 +64,7 @@ var eurecaClientSetup = function() {
 			tanksList[id].tank.x = state.x;
 			tanksList[id].tank.y = state.y;
 			tanksList[id].tank.angle = state.angle;
-			// tanksList[id].turret.rotation = state.rot;
+			tanksList[id].tank.rotation = state.rot;
 			tanksList[id].update();
 		}
 	}
@@ -78,14 +76,16 @@ Tank = function (index, game, player) {
 		left:false,
 		right:false,
 		up:false,
-		fire:false		
+		fire:false	,
+		down: false
 	}
 
 	this.input = {
 		left:false,
 		right:false,
 		up:false,
-		fire:false
+		fire:false,
+		down:false
 	}
 
     var x = 0;
@@ -109,13 +109,9 @@ Tank = function (index, game, player) {
     this.nextFire = 0;
     this.alive = true;
 
-    // this.shadow = game.add.sprite(x, y, 'enemy', 'shadow');
     this.tank = game.add.sprite(x, y, 'enemy', 'tank');
-    // this.turret = game.add.sprite(x, y, 'enemy', 'turret');
 
-    // this.shadow.anchor.set(0.5);
     this.tank.anchor.set(0.5);
-    // this.turret.anchor.set(0.3, 0.5);
     
     this.tank.animations.add('move', [0], 20, false);
   	this.tank.animations.add('attack', [1, 2, 3], 10, false);
@@ -134,7 +130,6 @@ Tank = function (index, game, player) {
 };
 
 Tank.prototype.update = function() {
-	
 	var inputChanged = (
 		this.cursor.left != this.input.left ||
 		this.cursor.right != this.input.right ||
@@ -154,8 +149,7 @@ Tank.prototype.update = function() {
 			this.input.x = this.tank.x;
 			this.input.y = this.tank.y;
 			this.input.angle = this.tank.angle;
-			// this.input.rot = this.turret.rotation;
-			
+			this.input.rot = this.tank.rotation;
 			
 			eurecaServer.handleKeys(this.input);
 			
@@ -205,7 +199,7 @@ Tank.prototype.update = function() {
 		this.tank.body.y += speed;
 		this.tank.animations.play('move');
 	}
-	if (this.cursor.fire) {
+	 if (this.cursor.fire) {
 		this.fire({
 			x: this.cursor.tx,
 			y: this.cursor.ty
@@ -213,57 +207,6 @@ Tank.prototype.update = function() {
 		this.tank.animations.play('attack');
 	}
 		
-	this.tank.rotation = game.physics.arcade.angleToPointer(this.tank);
- //   if (this.cursor.left)
- //   {
- //       // this.tank.body.x -= speed;
- //       this.game.physics.arcade.velocityFromAngle((this.tank.rotation - 1.57), 300, this.tank.body.velocity);
- //       this.tank.animations.play('move');
- //   }
- //   else if (this.cursor.right)
- //   {
- //       this.tank.body.x += speed;
- //       this.tank.animations.play('move');
- //   }	
- //   if (this.cursor.up)
- //   {
- //       this.currentSpeed = 300;
- //       this.tank.animations.play('move');
- //   }
- //   else
- //   {
- //       if (this.currentSpeed > 0)
- //       {
- //           this.currentSpeed -= 4;
- //       }
- //   }
- //   if (this.cursor.fire)
- //   {	
-	// 	this.fire({x:this.cursor.tx, y:this.cursor.ty});
-	// 	this.tank.animations.play('attack');
- //   }
-	
-	
-	
- //   if (this.currentSpeed > 0)
- //   {
- //       game.physics.arcade.velocityFromRotation(this.tank.rotation, this.currentSpeed, this.tank.body.velocity);
- //   }	
-	// else
-	// {
-	// 	game.physics.arcade.velocityFromRotation(this.tank.rotation, 0, this.tank.body.velocity);
-	// }
-	
-	
-	
-
-	
-    // this.shadow.x = this.tank.x;
-    // this.shadow.y = this.tank.y;
-    // this.shadow.rotation = this.tank.rotation;
-
-    // this.turret.x = this.tank.x;
-    // this.turret.y = this.tank.y;
 };
 
 
@@ -276,8 +219,7 @@ Tank.prototype.fire = function(target) {
             bullet.reset(this.tank.x, this.tank.y, this.tank.rotation);
 			bullet.rotation = this.tank.rotation;      
             game.physics.arcade.velocityFromRotation(this.tank.rotation, 500, bullet.body.velocity); 
-			// bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 500);
-			console.log(this.tank.rotation)
+
         }
 }
 
@@ -285,11 +227,9 @@ Tank.prototype.fire = function(target) {
 Tank.prototype.kill = function() {
 	this.alive = false;
 	this.tank.kill();
-	// this.turret.kill();
-	// this.shadow.kill();
 }
 
-var game = new Phaser.Game(3840, 2860, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 function preload () {
 
@@ -307,11 +247,11 @@ function preload () {
 function create () {
 
     //  Resize our game world to be a 2000 x 2000 square
-    game.world.setBounds(-10000, -10000, 20000, 20000);
+    game.world.setBounds(-1000, -1000, 2000, 2000);
 	game.stage.disableVisibilityChange  = true;
 	
     //  Our tiled scrolling background
-    land = game.add.tileSprite(0, 0, 3840, 2860, 'earth');
+    land = game.add.tileSprite(0, 0, 800, 600, 'earth');
     land.fixedToCamera = true;
     
     tanksList = {};
@@ -370,9 +310,8 @@ function update () {
 	player.input.tx = game.input.x+ game.camera.x;
 	player.input.ty = game.input.y+ game.camera.y;
 	
+	tank.rotation = game.physics.arcade.angleToPointer(tank);	
 	
-	
-	// turret.rotation = game.physics.arcade.angleToPointer(turret);	
     land.tilePosition.x = -game.camera.x;
     land.tilePosition.y = -game.camera.y;
 
