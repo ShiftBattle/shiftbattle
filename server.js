@@ -85,4 +85,4 @@ eurecaServer.exports.handleKeys = function (keys) {
 		clients[c].laststate = keys;
 	}
 }
-server.listen(process.env.PORT || 3000);
+server.listen(process.env.PORT || 3500);
