@@ -1,7 +1,8 @@
 var myId=0;
 
-var land;
-
+var map;
+var layer;
+var walls;
 var player;
 var user;
 var playersList;
@@ -111,7 +112,7 @@ Player = function (index, game, user) {
 	
 	var startX = Math.round(Math.random() * (1000) - 500)
   	var startY = Math.round(Math.random() * (1000) - 500)
-    this.player = game.add.sprite(startX, startY, 'player');
+    this.player = game.add.sprite(startX, startY, 'player');	//Changed where player spawn
 
     this.player.anchor.set(0.5);
     
@@ -246,12 +247,16 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: p
 
 function preload () {
 
-    game.load.spritesheet('player', 'assets/test_guy.png', 150, 150);
+	game.load.tilemap('map2', 'assets/map2.json', null, Phaser.Tilemap.TILED_JSON);
+	game.load.image('newtiles', 'assets/newtiles.png');	//64x64 tiles
+	game.load.spritesheet('player', 'assets/test_guy.png', 150, 150);
     game.load.spritesheet('enemy', 'assets/test_guy.png', 150, 150);
     game.load.image('logo', 'assets/logo.png');
     game.load.image('bullet', 'assets/bullet4.png');
     game.load.image('earth', 'assets/scorched_earth.png');
     game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
+    game.load.image('ground_1x1', 'assets/ground_1x1.png');
+
     
 }
 
@@ -260,12 +265,34 @@ function preload () {
 function create () {
 
     //  Resize our game world to be a 2000 x 2000 square
-    game.world.setBounds(-1000, -1000, 2000, 2000);
-	game.stage.disableVisibilityChange  = true;
+    // game.world.setBounds(-1280, -1280, 2560, 2560);	//2560
+	// game.stage.disableVisibilityChange  = true;
 	
     //  Our tiled scrolling background
-    land = game.add.tileSprite(0, 0, 800, 600, 'earth');
-    land.fixedToCamera = true;
+
+	//  The 'mario' key here is the Loader key given in game.load.tilemap
+    map = game.add.tilemap('map2');
+
+    //  The first parameter is the tileset name, as specified in the Tiled map editor (and in the tilemap json file)
+    //  The second parameter maps this name to the Phaser.Cache key 'tiles'
+    map.addTilesetImage('newtiles', 'newtiles');
+    
+    //  Creates a layer from the World1 layer in the map data.
+    //  A Layer is effectively like a Phaser.Sprite, so is added to the display list.
+    layer = map.createLayer('backgroundLayer');
+    walls = map.createLayer('blockedLayer')
+    console.log(map, 'HERE IS MAP')
+    console.log(walls, 'WALLS')
+    
+        walls.enableBody = true;
+    walls.physicsBodyType = Phaser.Physics.ARCADE;
+
+
+    //  This resizes the game world to match the layer dimensions
+    layer.resizeWorld();
+
+    
+    map.fixedToCamera = true;
     
     playersList = {};
 	
@@ -322,8 +349,6 @@ function update () {
 	
 	player.rotation = game.physics.arcade.angleToPointer(player);	
 	
-    land.tilePosition.x = -game.camera.x;
-    land.tilePosition.y = -game.camera.y;
 
     	
 	
@@ -341,6 +366,7 @@ function update () {
                 var targetPlayer = playersList[j].player;
                 // game.physics.arcade.collide(player, playersList[i].player);
                 game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
+ 
             
             }
             if (playersList[j].alive)
