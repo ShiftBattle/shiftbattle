@@ -122,7 +122,7 @@ Player = function (index, game, user) {
 
     this.player.id = index;
     game.physics.enable(this.player, Phaser.Physics.ARCADE);
-    this.player.body.setSize(20, 20);
+    this.player.body.setSize(30, 30);
     this.player.body.immovable = false;
     this.player.body.collideWorldBounds = true;
     this.player.body.bounce.setTo(0, 0);
@@ -248,7 +248,10 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: p
 function preload () {
 
 	game.load.tilemap('map2', 'assets/map2.json', null, Phaser.Tilemap.TILED_JSON);
+	game.load.tilemap('simplemap', 'assets/simplemap.json', null, Phaser.Tilemap.TILED_JSON);
 	game.load.image('newtiles', 'assets/newtiles.png');	//64x64 tiles
+	game.load.image('desert64', 'assets/desert64.png')
+	game.load.image('wall64', 'assets/wall64.png')
 	game.load.spritesheet('player', 'assets/test_guy.png', 150, 150);
     game.load.spritesheet('enemy', 'assets/test_guy.png', 150, 150);
     game.load.image('logo', 'assets/logo.png');
@@ -263,29 +266,21 @@ function preload () {
 
 
 function create () {
+    // map = game.add.tilemap('map2');
+    		game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    //  Resize our game world to be a 2000 x 2000 square
-    // game.world.setBounds(-1280, -1280, 2560, 2560);	//2560
-	// game.stage.disableVisibilityChange  = true;
+map = game.add.tilemap('simplemap')
 	
-    //  Our tiled scrolling background
+    // map.addTilesetImage('newtiles', 'newtiles');
+    map.addTilesetImage('desert64', 'desert64')
+  	map.addTilesetImage('wall64', 'wall64')
 
-	//  The 'mario' key here is the Loader key given in game.load.tilemap
-    map = game.add.tilemap('map2');
-
-    //  The first parameter is the tileset name, as specified in the Tiled map editor (and in the tilemap json file)
-    //  The second parameter maps this name to the Phaser.Cache key 'tiles'
-    map.addTilesetImage('newtiles', 'newtiles');
     
-    //  Creates a layer from the World1 layer in the map data.
-    //  A Layer is effectively like a Phaser.Sprite, so is added to the display list.
-    layer = map.createLayer('backgroundLayer');
-    walls = map.createLayer('blockedLayer')
-    console.log(map, 'HERE IS MAP')
-    console.log(walls, 'WALLS')
-    
-        walls.enableBody = true;
-    walls.physicsBodyType = Phaser.Physics.ARCADE;
+     layer = map.createLayer('Tile Layer 1');
+   	// layer = map.createLayer('backgroundLayer')
+   	// walls = map.createLayer('blockedLayer')
+   	map.setCollision([2])
+	
 
 
     //  This resizes the game world to match the layer dimensions
@@ -314,11 +309,6 @@ function create () {
     }
 
     player.bringToTop();
-		
-    // logo = game.add.sprite(0, 200, 'logo');
-    // logo.fixedToCamera = true;
-
-    // game.input.onDown.add(removeLogo, this);
 
     game.camera.follow(player);
     game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
@@ -326,14 +316,9 @@ function create () {
 
     cursors = game.input.keyboard.createCursorKeys();
 	
-	// setTimeout(removeLogo, 1000);
-	
+
 }
 
-// function removeLogo () {
-//     game.input.onDown.remove(removeLogo, this);
-//     logo.kill();
-// }
 
 function update () {
 	//do not update if client not ready
@@ -348,7 +333,6 @@ function update () {
 	user.input.ty = game.input.y+ game.camera.y;
 	
 	player.rotation = game.physics.arcade.angleToPointer(player);	
-	
 
     	
 	
@@ -366,7 +350,8 @@ function update () {
                 var targetPlayer = playersList[j].player;
                 // game.physics.arcade.collide(player, playersList[i].player);
                 game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
- 
+			    game.physics.arcade.collide(player, layer); 
+				game.physics.arcade.collide(curBullets, layer, bulletHitWall, null, this);
             
             }
             if (playersList[j].alive)
@@ -375,6 +360,10 @@ function update () {
             }           
         }
     }
+}
+
+function bulletHitWall (bullet) {
+	bullet.kill();
 }
 
 function bulletHitPlayer (player, bullet) {
@@ -387,4 +376,3 @@ function bulletHitPlayer (player, bullet) {
 
 function render () {
 }
-
