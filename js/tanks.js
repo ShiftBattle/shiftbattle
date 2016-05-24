@@ -5,9 +5,6 @@ var land;
 var player;
 var user;
 var playersList;
-
-var speed = 3;
-
 var cursors;
 
 var ready = false;
@@ -152,6 +149,17 @@ Player.prototype.damage = function(){
 }
 
 Player.prototype.update = function() {
+	
+	user.input.left = cursors.left.isDown;
+	user.input.right = cursors.right.isDown;
+	user.input.up = cursors.up.isDown;
+	user.input.down = cursors.down.isDown;
+	user.input.fire = game.input.activePointer.isDown;
+	user.input.tx = game.input.x+ game.camera.x;
+	user.input.ty = game.input.y+ game.camera.y;
+	
+	land.tilePosition.x = -game.camera.x;
+    land.tilePosition.y = -game.camera.y;
 
 	var inputChanged = (
 		this.cursor.left != this.input.left ||
@@ -164,6 +172,7 @@ Player.prototype.update = function() {
 	
 	if (inputChanged)
 	{
+		console.log("input changed") 
 		//Handle input change here
 		//send new values to the server		
 		if (this.player.id == myId)
@@ -180,6 +189,8 @@ Player.prototype.update = function() {
 	}
 
 	//cursor value is now updated by eurecaClient.exports.updateState method
+	var speed = 2;
+	player.rotation = game.physics.arcade.angleToPointer(player);	
 	if (this.cursor.left) {
 		if (this.cursor.up) {
 			this.player.body.x -= speed;
@@ -255,7 +266,6 @@ function preload () {
 
     game.load.spritesheet('player', 'assets/test_guy.png', 150, 150);
     game.load.spritesheet('enemy', 'assets/test_guy.png', 150, 150);
-    game.load.image('logo', 'assets/logo.png');
     game.load.image('earth', 'assets/scorched_earth.png');
     // game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     
@@ -309,20 +319,6 @@ function update () {
 	//do not update if client not ready
 	if (!ready) return;
 
-	user.input.left = cursors.left.isDown;
-	user.input.right = cursors.right.isDown;
-	user.input.up = cursors.up.isDown;
-	user.input.down = cursors.down.isDown;
-	user.input.fire = game.input.activePointer.isDown;
-	user.input.tx = game.input.x+ game.camera.x;
-	user.input.ty = game.input.y+ game.camera.y;
-	
-	player.rotation = game.physics.arcade.angleToPointer(player);	
-	
-    land.tilePosition.x = -game.camera.x;
-    land.tilePosition.y = -game.camera.y;
-
-	
     for (var i in playersList)
     {
         if (!playersList[i]) continue;
