@@ -1,6 +1,7 @@
 var myId=0;
 
-var land;
+var map;
+var layer;
 
 var player;
 var user;
@@ -102,8 +103,12 @@ Player = function (index, game, user) {
     // this.bullets.setAll('anchor.y', -2);
     
     // anchoring for the large bullet
-    this.bullets.setAll('anchor.x', -3.2);
-    this.bullets.setAll('anchor.y', -0.4);
+    // this.bullets.setAll('setSize', 1, 1);
+    // this.bullets.setAll('anchor.x', -3.2);
+    // this.bullets.setAll('anchor.y', -0.4);
+    this.bullets.setAll('anchor.x', 0);
+    this.bullets.setAll('anchor.y', -0.3);
+    // this.bullets.setAll('offset', -3.2, -0.4);
     
     this.bullets.setAll('outOfBoundsKill', true);
     this.bullets.setAll('checkWorldBounds', true);
@@ -116,8 +121,10 @@ Player = function (index, game, user) {
     this.alive = true;
 	
 	
-	var startX = 500//Math.round(Math.random() * (1000) - 500)
-  	var startY = 500//Math.round(Math.random() * (1000) - 500)
+	// var startX = Math.round(Math.random() * (1000) - 500);
+  	// var startY = Math.round(Math.random() * (1000) - 500);
+ 	var startX = 2063;
+  	var startY = 269;
     this.player = game.add.sprite(startX, startY, 'player');
 
     this.player.anchor.set(0.5);
@@ -131,7 +138,7 @@ Player = function (index, game, user) {
     this.player.body.setSize(30, 30);
     this.player.body.immovable = false;
     this.player.body.collideWorldBounds = true;
-    this.player.body.bounce.setTo(0, 0);
+    this.player.body.bounce.setTo(1, 1);
 
     this.player.angle = 0;
 };
@@ -158,21 +165,21 @@ Player.prototype.update = function() {
 	user.input.tx = game.input.x+ game.camera.x;
 	user.input.ty = game.input.y+ game.camera.y;
 	
-	land.tilePosition.x = -game.camera.x;
-    land.tilePosition.y = -game.camera.y;
+	// land.tilePosition.x = -game.camera.x;
+ //   land.tilePosition.y = -game.camera.y;
 
 	var inputChanged = (
 		this.cursor.left != this.input.left ||
 		this.cursor.right != this.input.right ||
 		this.cursor.up != this.input.up ||
 		this.cursor.down != this.input.down ||
-		this.cursor.fire != this.input.fire ||
-		this.cursor.rot != this.player.rotation
+		this.cursor.fire != this.input.fire 
+		//this.cursor.rot != this.player.rotation
 	);
 	
 	if (inputChanged)
 	{
-		console.log("input changed") 
+		// console.log("input changed") 
 		//Handle input change here
 		//send new values to the server		
 		if (this.player.id == myId)
@@ -182,7 +189,7 @@ Player.prototype.update = function() {
 			this.input.y = this.player.y;
 			this.input.angle = this.player.angle;
 			this.input.rot = this.player.rotation;
-		
+			this.input.fire = this.player.fire
 			eurecaServer.handleKeys(this.input);
 			
 		}
@@ -232,6 +239,7 @@ Player.prototype.update = function() {
 		this.player.animations.play('move');
 	}
 	 if (this.cursor.fire) {
+	 	// console.log(this.bullets);
 		this.fire({
 			x: this.cursor.tx,
 			y: this.cursor.ty
@@ -247,7 +255,14 @@ Player.prototype.fire = function(target) {
         {
             this.nextFire = this.game.time.now + this.fireRate;
             var bullet = this.bullets.getFirstDead();
+
+            
+            var degrees = this.player.rotation * 180/Math.PI;
+            if (degrees < 0) {
+            	degrees = degrees + 360;
+            }
             bullet.reset(this.player.x, this.player.y, this.player.rotation);
+            // bullet.reset((this.player.x + (73*Math.cos(this.player.rotation))), (this.player.y + (73*Math.sin(this.player.rotation))), this.player.rotation);
 			bullet.rotation = this.player.rotation;      
             game.physics.arcade.velocityFromRotation(this.player.rotation, 600, bullet.body.velocity); 
 
@@ -255,7 +270,7 @@ Player.prototype.fire = function(target) {
 }
 
 Player.prototype.kill = function() {
-	// this.alive = false;
+	this.alive = false;
 	this.player.kill();
 	
 }
@@ -267,6 +282,12 @@ function preload () {
     game.load.spritesheet('player', 'assets/test_guy.png', 150, 150);
     game.load.spritesheet('enemy', 'assets/test_guy.png', 150, 150);
     game.load.image('earth', 'assets/scorched_earth.png');
+    // game.load.tilemap('map2', 'assets/map2.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('simplemap', 'assets/simplemap.json', null, Phaser.Tilemap.TILED_JSON);
+    // game.load.image('newtiles', 'assets/newtiles.png'); //64x64 tiles
+    game.load.image('desert64', 'assets/desert64.png');
+    game.load.image('wall64', 'assets/wall64.png');
+    // game.load.image('ground_1x1', 'assets/ground_1x1.png');
     // game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     
     // small bullet. the anchoring is different for each bullet!
@@ -279,12 +300,34 @@ function preload () {
 function create () {
 
     //  Resize our game world to be a 2000 x 2000 square
-    game.world.setBounds(-1000, -1000, 2000, 2000);
-	game.stage.disableVisibilityChange  = true;
+ //   game.world.setBounds(-1000, -1000, 2000, 2000);
+	// game.stage.disableVisibilityChange  = true;
+	
+	// map.addTilesetImage('newtiles', 'newtiles');
+	game.physics.startSystem(Phaser.Physics.ARCADE);
+	
+	map = game.add.tilemap('simplemap');
+	
+    layer = map.createLayer('Tile Layer 1');
+    map.addTilesetImage('desert64', 'desert64');
+    map.addTilesetImage('wall64', 'wall64');
+    
+
+    // layer = map.createLayer('backgroundLayer')
+    // walls = map.createLayer('blockedLayer')
+    map.setCollision([2]);
+	
+
+	
+	
+	//  This resizes the game world to match the layer dimensions
+    layer.resizeWorld();
+    
+    map.fixedToCamera = true;
 	
     //  Our tiled scrolling background
-    land = game.add.tileSprite(0, 0, 800, 600, 'earth');
-    land.fixedToCamera = true;
+    // land = game.add.tileSprite(0, 0, 800, 600, 'earth');
+    // land.fixedToCamera = true;
     
     playersList = {};
 	
@@ -315,7 +358,10 @@ function create () {
 	
 }
 
+
+
 function update () {
+
 	//do not update if client not ready
 	if (!ready) return;
 
@@ -323,18 +369,19 @@ function update () {
     {
         if (!playersList[i]) continue;
         var curBullets = playersList[i].bullets;
+      
         var curPlayer = playersList[i].player;
         for (var j in playersList)
         {
             if (!playersList[j]) continue;
             if (j!=i) 
             {
-            
+             
                 var targetPlayer = playersList[j].player;
                 // game.physics.arcade.collide(player, playersList[i].player);
                 game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
-                // console.log(curPlayer);
-                // console.log(curBullets);
+                game.physics.arcade.collide(player, layer);
+                game.physics.arcade.collide(curBullets, layer, bulletHitWall, null, this);
             
             }
             if (playersList[j].alive)
@@ -344,17 +391,16 @@ function update () {
         }
     }
 }
-
+function bulletHitWall (bullet) {
+	// console.log(game.physics.arcade.collide)
+    bullet.kill();
+}
 function bulletHitPlayer (player, bullet) {
     bullet.kill();
-
+    // console.log(myId, "THIS IS YOUR PLAYER!");
     playersList[player.id].damage();
     // console.log(player.id, 'THE PLAYER')
     // console.log(player, 'TANKINFO')
-    // console.log(myId + " JUST KILLED " + player.id);
-    
 }
-
 function render () {
 }
-
