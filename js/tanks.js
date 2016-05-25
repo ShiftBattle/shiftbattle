@@ -4,12 +4,12 @@ var myId=0;
 
 var map;
 var layer;
-
+var healthView;
 var localPlayerSprite;
 var localPlayer;
 var playersList;
 // var explosions;
-
+var trail;
 var speed = 5;
 
 var ready = false;
@@ -96,7 +96,8 @@ function Player(index, game, user) {
 		right:false,
 		up:false,
 		fire:false,
-		down: false
+		down: false,
+		alive: true
 	}
 
     var x = 0;
@@ -130,7 +131,6 @@ function Player(index, game, user) {
     this.fireRate = 300;
     this.nextFire = 100;
     this.alive = true;
-	
 	
 	var startX = 500//Math.round(Math.random() * (1000) - 500)
   	var startY = 500//Math.round(Math.random() * (1000) - 500)
@@ -246,7 +246,7 @@ Player.prototype.fire = function(target) {
             var bullet = this.bullets.getFirstDead();
             bullet.reset((this.playerSprite.x + (73*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (73*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 			bullet.rotation = this.playerSprite.rotation;      
-            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 900, bullet.body.velocity); 
+            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 850, bullet.body.velocity); 
 
         }
 }
@@ -298,13 +298,25 @@ function create () {
 
     
     playersList = {};
-	
 	localPlayer = new Player(myId, game, localPlayerSprite);
 	playersList[myId] = localPlayer;
 	localPlayerSprite = localPlayer.playerSprite;
+	
+
+	
+	
 	localPlayerSprite.x=0;
 	localPlayerSprite.y=0;
-
+	// trail = game.add.emitter(localPlayerSprite.x, localPlayerSprite.y + 10, 400);
+	// trail.width = 10;
+	// trail.makeParticles('bullet');
+	// trail.setXSpeed(30, -30);
+	// trail.setYSpeed(200, 180);
+	// trail.setRotation(50,-50);
+	// trail.setAlpha(1, 0.01, 800);
+	// trail.setScale(0.05, 0.4, 0.05, 0.4, 2000, Phaser.Easing.Quintic.Out);
+	// trail.start(false, 5000, 10);
+	// trail.x = localPlayerSprite.x;	//Enable for a trail.
 
     localPlayerSprite.bringToTop();
 
@@ -338,6 +350,16 @@ function update () {
 	};
 	
 	localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
+	// trail.x = localPlayerSprite.x
+	// trail.y = localPlayerSprite.y	//Enable for a trail.
+		healthView = game.add.sprite(0, 0);
+	healthView.fixedToCamera = true; 
+	//addChild of my text at x:0, y:0
+
+	var text = game.add.text(0,0, localPlayer.health);
+	healthView.addChild(text);
+	//position the cameraOffset of my Spritesprite.cameraOffset.x = 10;sprite.cameraOffset.y = 100;
+
 
 	var inputChanged = (
 		localPlayer.cursor.left != input.left ||
@@ -350,8 +372,6 @@ function update () {
 	
 	if (inputChanged)
 	{
-	
-
 		// send latest valid state to the server
 		input.x = localPlayerSprite.x;
 		input.y = localPlayerSprite.y;
@@ -395,6 +415,7 @@ function update () {
     
     game.physics.arcade.collide(localPlayerSprite, layer);
     game.physics.arcade.collide(localPlayerSprite.children[0], layer);
+    game.add.text(300, 300, "HELLO")
     
 }
 
