@@ -1,15 +1,45 @@
+/* global Eureca, Phaser */
+
 var myId=0;
 
-var map;
-var layer;
+var land;
 
 var player;
 var user;
 var playersList;
+// var explosions;
+
+var speed = 5;
+
 var cursors;
 
 var ready = false;
 var eurecaServer;
+
+
+
+
+function updatePlayerState(id, state, myself)
+	{
+		
+		if (playersList[id] && (id != myId || myself))  {
+			// playersList[id].alive = playerAlive
+			playersList[id].cursor = state;
+			playersList[id].player.x = state.x;
+			playersList[id].player.y = state.y;
+			playersList[id].player.angle = state.angle;
+			playersList[id].player.rotation = state.rot;
+			
+			if (!myself) {
+				playersList[id].update();
+			}
+		}
+	}
+
+
+
+
+
 //this function will handle client communication with the server
 var eurecaClientSetup = function() {
 	//create an instance of eureca.io client
@@ -34,9 +64,15 @@ var eurecaClientSetup = function() {
 	
 	eurecaClient.exports.kill = function(id)
 	{	
-
+		
+		
 		if (playersList[id]) {
+			
+			
 			playersList[id].kill();
+			
+			
+			
 			console.log('killing ', id, playersList[id]);
 		}
 	}	
@@ -52,23 +88,11 @@ var eurecaClientSetup = function() {
 	}
 	
 	// eurecaClient.exports.updateState = function(id, state, playerAlive)
-	eurecaClient.exports.updateState = function(id, state)
-	{
-		
-		if (playersList[id])  {
-			// playersList[id].alive = playerAlive
-			playersList[id].cursor = state;
-			playersList[id].player.x = state.x;
-			playersList[id].player.y = state.y;
-			playersList[id].player.angle = state.angle;
-			playersList[id].player.rotation = state.rot;
-			playersList[id].update();
-		}
-	}
+	eurecaClient.exports.updateState = updatePlayerState
 }
 
 
-Player = function (index, game, user) {
+function Player(index, game, user) {
 	this.cursor = {
 		left:false,
 		right:false,
@@ -103,17 +127,11 @@ Player = function (index, game, user) {
     // this.bullets.setAll('anchor.y', -2);
     
     // anchoring for the large bullet
-    // this.bullets.setAll('setSize', 1, 1);
-    // this.bullets.setAll('anchor.x', -3.2);
-    // this.bullets.setAll('anchor.y', -0.4);
-    this.bullets.setAll('anchor.x', 0);
-    this.bullets.setAll('anchor.y', -0.3);
-    // this.bullets.setAll('offset', -3.2, -0.4);
+    this.bullets.setAll('anchor.x', -3.2);
+    this.bullets.setAll('anchor.y', -0.4);
     
     this.bullets.setAll('outOfBoundsKill', true);
     this.bullets.setAll('checkWorldBounds', true);
-    
-	this.currentSpeed = 0;
 	
 	// this should be set to 500 for normal gameplay, 100 for 'Codrin' gameplay
     this.fireRate = 100;
@@ -121,10 +139,8 @@ Player = function (index, game, user) {
     this.alive = true;
 	
 	
-	// var startX = Math.round(Math.random() * (1000) - 500);
-  	// var startY = Math.round(Math.random() * (1000) - 500);
- 	var startX = 2063;
-  	var startY = 269;
+	var startX = 500//Math.round(Math.random() * (1000) - 500)
+  	var startY = 500//Math.round(Math.random() * (1000) - 500)
     this.player = game.add.sprite(startX, startY, 'player');
 
     this.player.anchor.set(0.5);
@@ -138,18 +154,31 @@ Player = function (index, game, user) {
     this.player.body.setSize(30, 30);
     this.player.body.immovable = false;
     this.player.body.collideWorldBounds = true;
-    this.player.body.bounce.setTo(1, 1);
+    this.player.body.bounce.setTo(0, 0);
 
     this.player.angle = 0;
 };
+
+
+
 
 Player.prototype.damage = function(){
     console.log(this.player.id + " IS GETTING POUNDED BY " + player.id);
     this.health--;
     if (this.health <= 0)
     {
+        // this.alive = false;
         this.player.kill();
-
+        
+        
+	// setTimeout(function(){
+	// 	console.log("SHIT IS RUNNIG")
+	// 		 this.player.visible = true
+	// 		this.player.alive = true
+	// 		this.player.exists = true
+	// }, 50)
+	
+		
         return true;
     }
     return false;
@@ -157,6 +186,9 @@ Player.prototype.damage = function(){
 
 Player.prototype.update = function() {
 	
+	var cursors;
+	cursors = game.input.keyboard.createCursorKeys();
+
 	user.input.left = cursors.left.isDown;
 	user.input.right = cursors.right.isDown;
 	user.input.up = cursors.up.isDown;
@@ -164,40 +196,21 @@ Player.prototype.update = function() {
 	user.input.fire = game.input.activePointer.isDown;
 	user.input.tx = game.input.x+ game.camera.x;
 	user.input.ty = game.input.y+ game.camera.y;
+	player.rotation = game.physics.arcade.angleToPointer(player);
+	// game.input.moveCallback = function(pointer, x, y) { 
+		
+	//player.rotation = game.physics.arcade.angleToPointer(player);
+		
+		
+		
+	// }
 	
-	// land.tilePosition.x = -game.camera.x;
- //   land.tilePosition.y = -game.camera.y;
+	
 
-	var inputChanged = (
-		this.cursor.left != this.input.left ||
-		this.cursor.right != this.input.right ||
-		this.cursor.up != this.input.up ||
-		this.cursor.down != this.input.down ||
-		this.cursor.fire != this.input.fire 
-		//this.cursor.rot != this.player.rotation
-	);
-	
-	if (inputChanged)
-	{
-		// console.log("input changed") 
-		//Handle input change here
-		//send new values to the server		
-		if (this.player.id == myId)
-		{
-			// send latest valid state to the server
-			this.input.x = this.player.x;
-			this.input.y = this.player.y;
-			this.input.angle = this.player.angle;
-			this.input.rot = this.player.rotation;
-			this.input.fire = this.player.fire
-			eurecaServer.handleKeys(this.input);
-			
-		}
-	}
 
 	//cursor value is now updated by eurecaClient.exports.updateState method
-	var speed = 2;
-	player.rotation = game.physics.arcade.angleToPointer(player);	
+	
+	
 	if (this.cursor.left) {
 		if (this.cursor.up) {
 			this.player.body.x -= speed;
@@ -216,7 +229,7 @@ Player.prototype.update = function() {
 	}
 	else if (this.cursor.right) {
 		if (this.cursor.up) {
-			this.player.body.x += speed
+			this.player.body.x += speed;
 			this.player.body.y -= speed;
 			this.player.animations.play('move');
 		}
@@ -239,7 +252,6 @@ Player.prototype.update = function() {
 		this.player.animations.play('move');
 	}
 	 if (this.cursor.fire) {
-	 	// console.log(this.bullets);
 		this.fire({
 			x: this.cursor.tx,
 			y: this.cursor.ty
@@ -247,6 +259,34 @@ Player.prototype.update = function() {
 		this.player.animations.play('attack');
 	}
 		
+	var inputChanged = (
+		this.cursor.left != this.input.left ||
+		this.cursor.right != this.input.right ||
+		this.cursor.up != this.input.up ||
+		this.cursor.down != this.input.down ||
+		this.cursor.fire != this.input.fire ||
+		this.cursor.rot != this.player.rotation
+	);
+	
+	if (inputChanged)
+	{
+	
+		//Handle input change here
+		//send new values to the server		
+		if (this.player.id == myId)
+		{
+			// send latest valid state to the server
+			this.input.x = this.player.x;
+			this.input.y = this.player.y;
+			this.input.angle = this.player.angle;
+			this.input.rot = this.player.rotation;
+			this.input.fire = this.cursor.fire;
+		
+			eurecaServer.handleKeys(this.input);
+			updatePlayerState(myId, this.input, true);
+		} 
+	}
+	
 };
 
 Player.prototype.fire = function(target) {
@@ -255,25 +295,24 @@ Player.prototype.fire = function(target) {
         {
             this.nextFire = this.game.time.now + this.fireRate;
             var bullet = this.bullets.getFirstDead();
-
-            
-            var degrees = this.player.rotation * 180/Math.PI;
-            if (degrees < 0) {
-            	degrees = degrees + 360;
-            }
             bullet.reset(this.player.x, this.player.y, this.player.rotation);
-            // bullet.reset((this.player.x + (73*Math.cos(this.player.rotation))), (this.player.y + (73*Math.sin(this.player.rotation))), this.player.rotation);
 			bullet.rotation = this.player.rotation;      
             game.physics.arcade.velocityFromRotation(this.player.rotation, 600, bullet.body.velocity); 
 
         }
 }
 
+
 Player.prototype.kill = function() {
-	this.alive = false;
+	// this.alive = false;
 	this.player.kill();
 	
 }
+
+
+
+
+
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
@@ -281,13 +320,8 @@ function preload () {
 
     game.load.spritesheet('player', 'assets/test_guy.png', 150, 150);
     game.load.spritesheet('enemy', 'assets/test_guy.png', 150, 150);
+    game.load.image('logo', 'assets/logo.png');
     game.load.image('earth', 'assets/scorched_earth.png');
-    // game.load.tilemap('map2', 'assets/map2.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.tilemap('simplemap', 'assets/simplemap.json', null, Phaser.Tilemap.TILED_JSON);
-    // game.load.image('newtiles', 'assets/newtiles.png'); //64x64 tiles
-    game.load.image('desert64', 'assets/desert64.png');
-    game.load.image('wall64', 'assets/wall64.png');
-    // game.load.image('ground_1x1', 'assets/ground_1x1.png');
     // game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     
     // small bullet. the anchoring is different for each bullet!
@@ -297,37 +331,17 @@ function preload () {
     game.load.image('bullet', 'assets/bullet2.png');
 }
 
+
+
 function create () {
 
     //  Resize our game world to be a 2000 x 2000 square
- //   game.world.setBounds(-1000, -1000, 2000, 2000);
-	// game.stage.disableVisibilityChange  = true;
-	
-	// map.addTilesetImage('newtiles', 'newtiles');
-	game.physics.startSystem(Phaser.Physics.ARCADE);
-	
-	map = game.add.tilemap('simplemap');
-	
-    layer = map.createLayer('Tile Layer 1');
-    map.addTilesetImage('desert64', 'desert64');
-    map.addTilesetImage('wall64', 'wall64');
-    
-
-    // layer = map.createLayer('backgroundLayer')
-    // walls = map.createLayer('blockedLayer')
-    map.setCollision([2]);
-	
-
-	
-	
-	//  This resizes the game world to match the layer dimensions
-    layer.resizeWorld();
-    
-    map.fixedToCamera = true;
+    game.world.setBounds(-1000, -1000, 2000, 2000);
+	game.stage.disableVisibilityChange  = true;
 	
     //  Our tiled scrolling background
-    // land = game.add.tileSprite(0, 0, 800, 600, 'earth');
-    // land.fixedToCamera = true;
+    land = game.add.tileSprite(0, 0, 800, 600, 'earth');
+    land.fixedToCamera = true;
     
     playersList = {};
 	
@@ -349,39 +363,51 @@ function create () {
     // }
 
     player.bringToTop();
+		
+    // logo = game.add.sprite(0, 200, 'logo');
+    // logo.fixedToCamera = true;
+
+    // game.input.onDown.add(removeLogo, this);
 
     game.camera.follow(player);
     game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
     game.camera.focusOnXY(0, 0);
 
-    cursors = game.input.keyboard.createCursorKeys();
+  
+	
+	// setTimeout(removeLogo, 1000);
 	
 }
 
-
+// function removeLogo () {
+//     game.input.onDown.remove(removeLogo, this);
+//     logo.kill();
+// }
 
 function update () {
-
 	//do not update if client not ready
 	if (!ready) return;
 
+
+	
+
+	
     for (var i in playersList)
     {
         if (!playersList[i]) continue;
         var curBullets = playersList[i].bullets;
-      
         var curPlayer = playersList[i].player;
         for (var j in playersList)
         {
             if (!playersList[j]) continue;
             if (j!=i) 
             {
-             
+            
                 var targetPlayer = playersList[j].player;
                 // game.physics.arcade.collide(player, playersList[i].player);
                 game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
-                game.physics.arcade.collide(player, layer);
-                game.physics.arcade.collide(curBullets, layer, bulletHitWall, null, this);
+                // console.log(curPlayer);
+                // console.log(curBullets);
             
             }
             if (playersList[j].alive)
@@ -391,16 +417,17 @@ function update () {
         }
     }
 }
-function bulletHitWall (bullet) {
-	// console.log(game.physics.arcade.collide)
-    bullet.kill();
-}
+
 function bulletHitPlayer (player, bullet) {
     bullet.kill();
     // console.log(myId, "THIS IS YOUR PLAYER!");
     playersList[player.id].damage();
-    // console.log(player.id, 'THE PLAYER')
-    // console.log(player, 'TANKINFO')
+    console.log(player.id, 'THE PLAYER')
+    console.log(player, 'TANKINFO')
+    console.log(myId + " JUST KILLED " + player.id);
+    
 }
+
 function render () {
 }
+

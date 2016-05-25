@@ -73,30 +73,16 @@ eurecaServer.exports.handshake = function()
 
 //be exposed to client side
 eurecaServer.exports.handleKeys = function (keys) {
-// eurecaServer.exports.handleKeys = function (keys, playerAlive) {	
-	
 	var conn = this.connection;
 	var updatedClient = clients[conn.id];
 	
 	for (var c in clients)
 	{
 		var remote = clients[c].remote;
-		// remote.updateState(updatedClient.id, keys, playerAlive);
 		remote.updateState(updatedClient.id, keys);
 		
 		//keep last known state so we can send it to new connected clients
 		clients[c].laststate = keys;
 	}
 }
-
-eurecaServer.exports.handleDeath = function (player) {
-	var conn = this.connection;
-	var updatedClient = clients[conn.id];
-	
-	for(var c in clients){
-		
-	}
-	
-}
-
 server.listen(process.env.PORT);
