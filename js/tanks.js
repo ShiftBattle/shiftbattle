@@ -9,7 +9,7 @@ var localPlayer;
 var playersList;
 // var explosions;
 
-var speed = 5;
+var speed = 2;
 
 var cursors;
 
@@ -19,10 +19,10 @@ var eurecaServer;
 
 
 
-function updatePlayerState(id, state, myself)
+function updatePlayerState(id, state)
 	{
 		
-		if (playersList[id] && (id != myId || myself))  {
+		if (playersList[id] && id != myId)  {
 			// playersList[id].alive = playerAlive
 			playersList[id].cursor = state;
 			playersList[id].playerSprite.x = state.x;
@@ -30,9 +30,7 @@ function updatePlayerState(id, state, myself)
 			playersList[id].playerSprite.angle = state.angle;
 			playersList[id].playerSprite.rotation = state.rot;
 			
-			if (!myself) {
-				playersList[id].update();
-			}
+			playersList[id].update();
 		}
 	}
 
@@ -99,14 +97,6 @@ function Player(index, game, user) {
 		up:false,
 		fire:false,
 		down: false
-	}
-
-	this.input = {
-		left:false,
-		right:false,
-		up:false,
-		fire:false,
-		down:false
 	}
 
     var x = 0;
@@ -186,28 +176,6 @@ Player.prototype.damage = function(){
 
 Player.prototype.update = function() {
 	
-	var cursors;
-	cursors = game.input.keyboard.createCursorKeys();
-
-	localPlayer.input.left = cursors.left.isDown;
-	localPlayer.input.right = cursors.right.isDown;
-	localPlayer.input.up = cursors.up.isDown;
-	localPlayer.input.down = cursors.down.isDown;
-	localPlayer.input.fire = game.input.activePointer.isDown;
-	localPlayer.input.tx = game.input.x+ game.camera.x;
-	localPlayer.input.ty = game.input.y+ game.camera.y;
-	localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
-	// game.input.moveCallback = function(pointer, x, y) { 
-		
-	//player.rotation = game.physics.arcade.angleToPointer(player);
-		
-		
-		
-	// }
-	
-	
-
-
 	//cursor value is now updated by eurecaClient.exports.updateState method
 	
 	
@@ -257,34 +225,6 @@ Player.prototype.update = function() {
 			y: this.cursor.ty
 		});
 		this.playerSprite.animations.play('attack');
-	}
-		
-	var inputChanged = (
-		this.cursor.left != this.input.left ||
-		this.cursor.right != this.input.right ||
-		this.cursor.up != this.input.up ||
-		this.cursor.down != this.input.down ||
-		this.cursor.fire != this.input.fire ||
-		this.cursor.rot != this.playerSprite.rotation
-	);
-	
-	if (inputChanged)
-	{
-	
-		//Handle input change here
-		//send new values to the server		
-		if (this.playerSprite.id == myId)
-		{
-			// send latest valid state to the server
-			this.input.x = this.playerSprite.x;
-			this.input.y = this.playerSprite.y;
-			this.input.angle = this.playerSprite.angle;
-			this.input.rot = this.playerSprite.rotation;
-			this.input.fire = this.cursor.fire;
-		
-			eurecaServer.handleKeys(this.input);
-			updatePlayerState(myId, this.input, true);
-		} 
 	}
 	
 };
@@ -389,9 +329,45 @@ function update () {
 	if (!ready) return;
 
 
+	var cursors = game.input.keyboard.createCursorKeys();
+
+	var input = {
+		left: cursors.left.isDown,
+		right: cursors.right.isDown,
+		up: cursors.up.isDown,
+		down: cursors.down.isDown,
+		fire: game.input.activePointer.isDown,
+		tx: game.input.x + game.camera.x,
+		ty: game.input.y + game.camera.y
+	};
+	
+	localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
+
+	var inputChanged = (
+		localPlayer.cursor.left != input.left ||
+		localPlayer.cursor.right != input.right ||
+		localPlayer.cursor.up != input.up ||
+		localPlayer.cursor.down != input.down ||
+		localPlayer.cursor.fire != input.fire ||
+		localPlayer.cursor.rot != localPlayerSprite.rotation
+	);
+	
+	if (inputChanged)
+	{
 	
 
+		// send latest valid state to the server
+		input.x = localPlayerSprite.x;
+		input.y = localPlayerSprite.y;
+		input.angle = localPlayerSprite.angle;
+		input.rot = localPlayerSprite.rotation;
 	
+		eurecaServer.handleKeys(input);
+		localPlayer.cursor = input;
+	}
+	
+	
+	// This loop checks who should be killed
     for (var i in playersList)
     {
         if (!playersList[i]) continue;
@@ -410,11 +386,15 @@ function update () {
                 // console.log(curBullets);
             
             }
-            if (playersList[j].alive)
-            {
-                playersList[j].update();
-            }           
         }
+    }
+    
+    // This loop updates all the players
+    for (var i  in playersList) {
+            if (playersList[i].alive)
+            {
+                playersList[i].update();
+            }           
     }
 }
 
