@@ -4,8 +4,8 @@ var myId=0;
 
 var land;
 
-var player;
-var user;
+var localPlayerSprite;
+var localPlayer;
 var playersList;
 // var explosions;
 
@@ -25,10 +25,10 @@ function updatePlayerState(id, state, myself)
 		if (playersList[id] && (id != myId || myself))  {
 			// playersList[id].alive = playerAlive
 			playersList[id].cursor = state;
-			playersList[id].player.x = state.x;
-			playersList[id].player.y = state.y;
-			playersList[id].player.angle = state.angle;
-			playersList[id].player.rotation = state.rot;
+			playersList[id].playerSprite.x = state.x;
+			playersList[id].playerSprite.y = state.y;
+			playersList[id].playerSprite.angle = state.angle;
+			playersList[id].playerSprite.rotation = state.rot;
 			
 			if (!myself) {
 				playersList[id].update();
@@ -83,7 +83,7 @@ var eurecaClientSetup = function() {
 		if (i == myId) return; //this is me
 		
 		console.log('SPAWN');
-		var plyr = new Player(i, game, player);
+		var plyr = new Player(i, game, localPlayerSprite);
 		playersList[i] = plyr;
 	}
 	
@@ -141,41 +141,41 @@ function Player(index, game, user) {
 	
 	var startX = 500//Math.round(Math.random() * (1000) - 500)
   	var startY = 500//Math.round(Math.random() * (1000) - 500)
-    this.player = game.add.sprite(startX, startY, 'player');
+    this.playerSprite = game.add.sprite(startX, startY, 'player');
 
-    this.player.anchor.set(0.5);
+    this.playerSprite.anchor.set(0.5);
     
-    this.player.animations.add('move', [0], 20, false);
-  	this.player.animations.add('attack', [1, 2, 3], 10, false);
+    this.playerSprite.animations.add('move', [0], 20, false);
+  	this.playerSprite.animations.add('attack', [1, 2, 3], 10, false);
     
 
-    this.player.id = index;
-    game.physics.enable(this.player, Phaser.Physics.ARCADE);
-    this.player.body.setSize(30, 30);
-    this.player.body.immovable = false;
-    this.player.body.collideWorldBounds = true;
-    this.player.body.bounce.setTo(0, 0);
+    this.playerSprite.id = index;
+    game.physics.enable(this.playerSprite, Phaser.Physics.ARCADE);
+    this.playerSprite.body.setSize(30, 30);
+    this.playerSprite.body.immovable = false;
+    this.playerSprite.body.collideWorldBounds = true;
+    this.playerSprite.body.bounce.setTo(0, 0);
 
-    this.player.angle = 0;
+    this.playerSprite.angle = 0;
 };
 
 
 
 
 Player.prototype.damage = function(){
-    console.log(this.player.id + " IS GETTING POUNDED BY " + player.id);
+    console.log(this.playerSprite.id + " IS GETTING POUNDED BY " + localPlayerSprite.id);
     this.health--;
     if (this.health <= 0)
     {
         // this.alive = false;
-        this.player.kill();
+        this.playerSprite.kill();
         
         
 	// setTimeout(function(){
 	// 	console.log("SHIT IS RUNNIG")
-	// 		 this.player.visible = true
-	// 		this.player.alive = true
-	// 		this.player.exists = true
+	// 		 this.playerSprite.visible = true
+	// 		this.playerSprite.alive = true
+	// 		this.playerSprite.exists = true
 	// }, 50)
 	
 		
@@ -189,14 +189,14 @@ Player.prototype.update = function() {
 	var cursors;
 	cursors = game.input.keyboard.createCursorKeys();
 
-	user.input.left = cursors.left.isDown;
-	user.input.right = cursors.right.isDown;
-	user.input.up = cursors.up.isDown;
-	user.input.down = cursors.down.isDown;
-	user.input.fire = game.input.activePointer.isDown;
-	user.input.tx = game.input.x+ game.camera.x;
-	user.input.ty = game.input.y+ game.camera.y;
-	player.rotation = game.physics.arcade.angleToPointer(player);
+	localPlayer.input.left = cursors.left.isDown;
+	localPlayer.input.right = cursors.right.isDown;
+	localPlayer.input.up = cursors.up.isDown;
+	localPlayer.input.down = cursors.down.isDown;
+	localPlayer.input.fire = game.input.activePointer.isDown;
+	localPlayer.input.tx = game.input.x+ game.camera.x;
+	localPlayer.input.ty = game.input.y+ game.camera.y;
+	localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
 	// game.input.moveCallback = function(pointer, x, y) { 
 		
 	//player.rotation = game.physics.arcade.angleToPointer(player);
@@ -213,50 +213,50 @@ Player.prototype.update = function() {
 	
 	if (this.cursor.left) {
 		if (this.cursor.up) {
-			this.player.body.x -= speed;
-			this.player.body.y -= speed;
-			this.player.animations.play('move');
+			this.playerSprite.body.x -= speed;
+			this.playerSprite.body.y -= speed;
+			this.playerSprite.animations.play('move');
 		}
 		else if (this.cursor.down) {
-			this.player.body.x -= speed;
-			this.player.body.y += speed;
-			this.player.animations.play('move');
+			this.playerSprite.body.x -= speed;
+			this.playerSprite.body.y += speed;
+			this.playerSprite.animations.play('move');
 		}
 		else {
-			this.player.body.x -= speed;
-			this.player.animations.play('move');
+			this.playerSprite.body.x -= speed;
+			this.playerSprite.animations.play('move');
 		}
 	}
 	else if (this.cursor.right) {
 		if (this.cursor.up) {
-			this.player.body.x += speed;
-			this.player.body.y -= speed;
-			this.player.animations.play('move');
+			this.playerSprite.body.x += speed;
+			this.playerSprite.body.y -= speed;
+			this.playerSprite.animations.play('move');
 		}
 		else if (this.cursor.down) {
-			this.player.body.x += speed;
-			this.player.body.y += speed;
-			this.player.animations.play('move');
+			this.playerSprite.body.x += speed;
+			this.playerSprite.body.y += speed;
+			this.playerSprite.animations.play('move');
 		}
 		else {
-			this.player.body.x += speed;
-			this.player.animations.play('move');
+			this.playerSprite.body.x += speed;
+			this.playerSprite.animations.play('move');
 		}
 	}
 	else if (this.cursor.up) {
-			this.player.body.y -= speed;
-			this.player.animations.play('move');
+			this.playerSprite.body.y -= speed;
+			this.playerSprite.animations.play('move');
 	}
 	else if (this.cursor.down) {
-		this.player.body.y += speed;
-		this.player.animations.play('move');
+		this.playerSprite.body.y += speed;
+		this.playerSprite.animations.play('move');
 	}
 	 if (this.cursor.fire) {
 		this.fire({
 			x: this.cursor.tx,
 			y: this.cursor.ty
 		});
-		this.player.animations.play('attack');
+		this.playerSprite.animations.play('attack');
 	}
 		
 	var inputChanged = (
@@ -265,7 +265,7 @@ Player.prototype.update = function() {
 		this.cursor.up != this.input.up ||
 		this.cursor.down != this.input.down ||
 		this.cursor.fire != this.input.fire ||
-		this.cursor.rot != this.player.rotation
+		this.cursor.rot != this.playerSprite.rotation
 	);
 	
 	if (inputChanged)
@@ -273,13 +273,13 @@ Player.prototype.update = function() {
 	
 		//Handle input change here
 		//send new values to the server		
-		if (this.player.id == myId)
+		if (this.playerSprite.id == myId)
 		{
 			// send latest valid state to the server
-			this.input.x = this.player.x;
-			this.input.y = this.player.y;
-			this.input.angle = this.player.angle;
-			this.input.rot = this.player.rotation;
+			this.input.x = this.playerSprite.x;
+			this.input.y = this.playerSprite.y;
+			this.input.angle = this.playerSprite.angle;
+			this.input.rot = this.playerSprite.rotation;
 			this.input.fire = this.cursor.fire;
 		
 			eurecaServer.handleKeys(this.input);
@@ -295,9 +295,9 @@ Player.prototype.fire = function(target) {
         {
             this.nextFire = this.game.time.now + this.fireRate;
             var bullet = this.bullets.getFirstDead();
-            bullet.reset(this.player.x, this.player.y, this.player.rotation);
-			bullet.rotation = this.player.rotation;      
-            game.physics.arcade.velocityFromRotation(this.player.rotation, 600, bullet.body.velocity); 
+            bullet.reset(this.playerSprite.x, this.playerSprite.y, this.playerSprite.rotation);
+			bullet.rotation = this.playerSprite.rotation;      
+            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 600, bullet.body.velocity); 
 
         }
 }
@@ -305,7 +305,7 @@ Player.prototype.fire = function(target) {
 
 Player.prototype.kill = function() {
 	// this.alive = false;
-	this.player.kill();
+	this.playerSprite.kill();
 	
 }
 
@@ -345,11 +345,11 @@ function create () {
     
     playersList = {};
 	
-	user = new Player(myId, game, player);
-	playersList[myId] = user;
-	player = user.player;
-	player.x=0;
-	player.y=0;
+	localPlayer = new Player(myId, game, localPlayerSprite);
+	playersList[myId] = localPlayer;
+	localPlayerSprite = localPlayer.playerSprite;
+	localPlayerSprite.x=0;
+	localPlayerSprite.y=0;
 	// bullets = user.bullets;
 
     //  Explosion pool
@@ -362,14 +362,14 @@ function create () {
     //     explosionAnimation.animations.add('kaboom');
     // }
 
-    player.bringToTop();
+    localPlayerSprite.bringToTop();
 		
     // logo = game.add.sprite(0, 200, 'logo');
     // logo.fixedToCamera = true;
 
     // game.input.onDown.add(removeLogo, this);
 
-    game.camera.follow(player);
+    game.camera.follow(localPlayerSprite);
     game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
     game.camera.focusOnXY(0, 0);
 
@@ -396,14 +396,14 @@ function update () {
     {
         if (!playersList[i]) continue;
         var curBullets = playersList[i].bullets;
-        var curPlayer = playersList[i].player;
+        var curPlayer = playersList[i].playerSprite;
         for (var j in playersList)
         {
             if (!playersList[j]) continue;
             if (j!=i) 
             {
             
-                var targetPlayer = playersList[j].player;
+                var targetPlayer = playersList[j].playerSprite;
                 // game.physics.arcade.collide(player, playersList[i].player);
                 game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
                 // console.log(curPlayer);
