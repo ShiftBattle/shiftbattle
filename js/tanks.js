@@ -15,6 +15,7 @@ var speed = 5;
 var ready = false;
 var eurecaServer;
 
+var keys;
 
 
 
@@ -116,15 +117,18 @@ function Player(index, game, user) {
     // this.bullets.setAll('anchor.y', -2);
     
     // anchoring for the large bullet
-    this.bullets.setAll('anchor.x', -3.2);
-    this.bullets.setAll('anchor.y', -0.4);
+    // this.bullets.setAll('anchor.x', -3.2);
+    // this.bullets.setAll('anchor.y', -0.4);
+    
+    this.bullets.setAll('anchor.x', 0);
+    this.bullets.setAll('anchor.y', -0.3);
     
     this.bullets.setAll('outOfBoundsKill', true);
     this.bullets.setAll('checkWorldBounds', true);
 	
 	// this should be set to 500 for normal gameplay, 100 for 'Codrin' gameplay
-    this.fireRate = 100;
-    this.nextFire = 0;
+    this.fireRate = 300;
+    this.nextFire = 100;
     this.alive = true;
 	
 	
@@ -136,7 +140,13 @@ function Player(index, game, user) {
     
     this.playerSprite.animations.add('move', [0], 20, false);
   	this.playerSprite.animations.add('attack', [1, 2, 3], 10, false);
+  
+    // this.hitboxes = game.add.sprite(-0.5, 0.2, 'hitbox');
+    // this.hitboxes.enableBody = true;
+    // this.hitboxes.physicsBodyType = Phaser.Physics.ARCADE;
+    // this.hitboxes.body.setSize(93, 16);
     
+    this.playerSprite.addChild(game.add.sprite(-15, 10, 'hitbox'))
 
     this.playerSprite.id = index;
     game.physics.enable(this.playerSprite, Phaser.Physics.ARCADE);
@@ -144,7 +154,7 @@ function Player(index, game, user) {
     this.playerSprite.body.immovable = false;
     this.playerSprite.body.collideWorldBounds = true;
     this.playerSprite.body.bounce.setTo(0, 0);
-
+    
     this.playerSprite.angle = 0;
 };
 
@@ -234,9 +244,9 @@ Player.prototype.fire = function(target) {
         {
             this.nextFire = this.game.time.now + this.fireRate;
             var bullet = this.bullets.getFirstDead();
-            bullet.reset(this.playerSprite.x, this.playerSprite.y, this.playerSprite.rotation);
+            bullet.reset((this.playerSprite.x + (73*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (73*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 			bullet.rotation = this.playerSprite.rotation;      
-            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1000, bullet.body.velocity); 
+            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 900, bullet.body.velocity); 
 
         }
 }
@@ -262,7 +272,6 @@ function preload () {
 
     game.load.spritesheet('player', 'assets/test_guy.png', 150, 150);
     game.load.spritesheet('enemy', 'assets/test_guy.png', 150, 150);
-    game.load.image('logo', 'assets/logo.png');
     game.load.image('earth', 'assets/scorched_earth.png');
     // game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     
@@ -271,6 +280,7 @@ function preload () {
     
     // large bullet. the anchoring is different for each bullet!
     game.load.image('bullet', 'assets/bullet2.png');
+    game.load.image('hitbox', 'assets/93x16.png');
 }
 
 
@@ -294,53 +304,34 @@ function create () {
 	localPlayerSprite = localPlayer.playerSprite;
 	localPlayerSprite.x=0;
 	localPlayerSprite.y=0;
-	// bullets = user.bullets;
 
-    //  Explosion pool
-    // explosions = game.add.group();
-
-    // for (var i = 0; i < 10; i++)
-    // {
-    //     var explosionAnimation = explosions.create(0, 0, 'kaboom', [0], false);
-    //     explosionAnimation.anchor.setTo(0.5, 0.5);
-    //     explosionAnimation.animations.add('kaboom');
-    // }
 
     localPlayerSprite.bringToTop();
-		
-    // logo = game.add.sprite(0, 200, 'logo');
-    // logo.fixedToCamera = true;
-
-    // game.input.onDown.add(removeLogo, this);
 
     game.camera.follow(localPlayerSprite);
     game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
     game.camera.focusOnXY(0, 0);
 
-  
-	
-	// setTimeout(removeLogo, 1000);
-	
+	keys = { 
+		up: game.input.keyboard.addKey(Phaser.Keyboard.W),
+		down: game.input.keyboard.addKey(Phaser.Keyboard.S),
+		left: game.input.keyboard.addKey(Phaser.Keyboard.A),
+		right: game.input.keyboard.addKey(Phaser.Keyboard.D)
+	};
 }
-
-// function removeLogo () {
-//     game.input.onDown.remove(removeLogo, this);
-//     logo.kill();
-// }
 
 function update () {
 	//do not update if client not ready
 	if (!ready) return;
 
-
-	var cursors = game.input.keyboard.createCursorKeys();
 	
 
+
 	var input = {
-		left: cursors.left.isDown,
-		right: cursors.right.isDown,
-		up: cursors.up.isDown,
-		down: cursors.down.isDown,
+		left: keys.left.isDown,
+		right: keys.right.isDown,
+		up: keys.up.isDown,
+		down: keys.down.isDown,
 		fire: game.input.activePointer.isDown,
 		tx: game.input.x + game.camera.x,
 		ty: game.input.y + game.camera.y
@@ -378,6 +369,7 @@ function update () {
         if (!playersList[i]) continue;
         var curBullets = playersList[i].bullets;
         var curPlayer = playersList[i].playerSprite;
+
         for (var j in playersList)
         {
             if (!playersList[j]) continue;
@@ -387,7 +379,6 @@ function update () {
                 var targetPlayer = playersList[j].playerSprite;
                 // game.physics.arcade.collide(player, playersList[i].player);
                 game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
-                game.physics.arcade.collide(localPlayerSprite, layer); 
                 game.physics.arcade.collide(curBullets, layer, bulletHitWall, null, this);
             
             }
@@ -401,6 +392,10 @@ function update () {
                 playersList[i].update();
             }           
     }
+    
+    game.physics.arcade.collide(localPlayerSprite, layer);
+    game.physics.arcade.collide(localPlayerSprite.children[0], layer);
+    
 }
 
 function bulletHitWall (bullet) {
@@ -412,11 +407,9 @@ function bulletHitPlayer (player, bullet) {
     // console.log(myId, "THIS IS YOUR PLAYER!");
     playersList[player.id].damage();
     console.log(player.id, 'THE PLAYER')
-    console.log(player, 'TANKINFO')
     console.log(myId + " JUST KILLED " + player.id);
     
 }
 
 function render () {
 }
-
