@@ -2,7 +2,8 @@
 
 var myId=0;
 
-var land;
+var map;
+var layer;
 
 var localPlayerSprite;
 var localPlayer;
@@ -10,8 +11,6 @@ var playersList;
 // var explosions;
 
 var speed = 5;
-
-var cursors;
 
 var ready = false;
 var eurecaServer;
@@ -237,7 +236,7 @@ Player.prototype.fire = function(target) {
             var bullet = this.bullets.getFirstDead();
             bullet.reset(this.playerSprite.x, this.playerSprite.y, this.playerSprite.rotation);
 			bullet.rotation = this.playerSprite.rotation;      
-            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 600, bullet.body.velocity); 
+            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1000, bullet.body.velocity); 
 
         }
 }
@@ -257,6 +256,9 @@ Player.prototype.kill = function() {
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 function preload () {
+    game.load.tilemap('simplemap', 'assets/simplemap.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.image('desert64', 'assets/desert64.png')
+    game.load.image('wall64', 'assets/wall64.png')
 
     game.load.spritesheet('player', 'assets/test_guy.png', 150, 150);
     game.load.spritesheet('enemy', 'assets/test_guy.png', 150, 150);
@@ -274,14 +276,16 @@ function preload () {
 
 
 function create () {
-
-    //  Resize our game world to be a 2000 x 2000 square
-    game.world.setBounds(-1000, -1000, 2000, 2000);
-	game.stage.disableVisibilityChange  = true;
+	game.physics.startSystem(Phaser.Physics.ARCADE);
+	map = game.add.tilemap('simplemap');
+	layer = map.createLayer('Tile Layer 1');
+	map.addTilesetImage('desert64', 'desert64');
+	map.addTilesetImage('wall64', 'wall64');
+	map.setCollision([2]);
+	layer.resizeWorld();
 	
-    //  Our tiled scrolling background
-    land = game.add.tileSprite(0, 0, 800, 600, 'earth');
-    land.fixedToCamera = true;
+	map.fixedToCamera = true;
+
     
     playersList = {};
 	
@@ -330,6 +334,7 @@ function update () {
 
 
 	var cursors = game.input.keyboard.createCursorKeys();
+	
 
 	var input = {
 		left: cursors.left.isDown,
@@ -382,8 +387,8 @@ function update () {
                 var targetPlayer = playersList[j].playerSprite;
                 // game.physics.arcade.collide(player, playersList[i].player);
                 game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
-                // console.log(curPlayer);
-                // console.log(curBullets);
+                game.physics.arcade.collide(localPlayerSprite, layer); 
+                game.physics.arcade.collide(curBullets, layer, bulletHitWall, null, this);
             
             }
         }
@@ -396,6 +401,10 @@ function update () {
                 playersList[i].update();
             }           
     }
+}
+
+function bulletHitWall (bullet) {
+    bullet.kill();
 }
 
 function bulletHitPlayer (player, bullet) {
