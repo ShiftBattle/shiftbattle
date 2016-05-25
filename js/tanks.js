@@ -9,7 +9,7 @@ var localPlayer;
 var playersList;
 // var explosions;
 
-var speed = 2;
+var speed = 5;
 
 var cursors;
 
