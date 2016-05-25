@@ -23,6 +23,7 @@ function updatePlayerState(id, state)
 	{
 		
 		if (playersList[id] && id != myId)  {
+			// console.log(state)
 			// playersList[id].alive = playerAlive
 			playersList[id].cursor = state;
 			playersList[id].playerSprite.x = state.x;
@@ -71,7 +72,7 @@ var eurecaClientSetup = function() {
 			
 			
 			
-			console.log('killing ', id, playersList[id]);
+			console.log('Removing ' + id, playersList[id] + " from the game");
 		}
 	};
 	
@@ -244,10 +245,14 @@ Player.prototype.fire = function(target) {
 }
 
 Player.prototype.death = function() {
-	// this.alive = false;
-	
+	console.log(this.playerSprite, " this is the playerSprite before the kill function")
 	this.playerSprite.kill();
-	console.log(this.playerSprite + ' This is the dead sprite');
+	console.log(this.playerSprite, " this is the playerSprite after the kill function")
+	setTimeout(function(){
+		console.log(localPlayerSprite, " this is the localPlayerSprite before the revive function")
+		localPlayerSprite.revive();
+		console.log(localPlayerSprite, " this is the localPlayerSprite after the revive function")
+	}, 2000);
 
 	
 }
