@@ -67,6 +67,7 @@ var eurecaClientSetup = function() {
 		}
 	};
 	
+	
 	eurecaClient.exports.spawnEnemy = function(i, x, y)
 	{
 
@@ -124,7 +125,7 @@ function Player(index, game, user, x, y) {
     this.bullets.setAll('checkWorldBounds', true);
 	
 	// this should be set to 500 for normal gameplay, 100 for 'Codrin' gameplay
-    this.fireRate = 1;
+    this.fireRate = 300;
     this.nextFire = 100;
     this.alive = true;
 	
@@ -135,17 +136,37 @@ function Player(index, game, user, x, y) {
     this.playerSprite.anchor.set(0.5);
     
     this.playerSprite.animations.add('move', [0], 20, false);
-  	this.playerSprite.animations.add('attack', [1, 2, 3], 10, false);
+  	// this.playerSprite.animations.add('reload', [23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37], 20, false);
+  	this.playerSprite.animations.add('shoot', [1, 2, 3], 10, false);
+  	
+  	this.healthbar = game.add.sprite(x, y, 'healthbar');
+  	this.healthbar.animations.add('5health', [5], 20, false);
+  	this.healthbar.animations.add('4health', [4], 20, false);
+  	this.healthbar.animations.add('3health', [3], 20, false);
+  	this.healthbar.animations.add('2health', [2], 20, false);
+  	this.healthbar.animations.add('1health', [1], 20, false);
+    this.healthbar.animations.add('0health', [0], 20, false);
 
     // this.playerSprite.addChild(game.add.sprite(-15, 10, 'hitbox'));
 
     this.playerSprite.id = index;
     game.physics.enable(this.playerSprite, Phaser.Physics.ARCADE);
-    this.playerSprite.body.setSize(30, 30);
+    this.playerSprite.body.setSize(40, 40);
     this.playerSprite.body.immovable = false;
     this.playerSprite.body.collideWorldBounds = true;
     this.playerSprite.body.bounce.setTo(0, 0);
     
+    this.playerSprite.angle = 0;
+    
+    //name label
+    this.label = game.add.text(x, y, 'CODRIN', { font: "14px Arial", fill: "#ffffff", align: "center" });  //Creating player ID (here based on index)
+    this.label.x = this.playerSprite.x;       //Adding player id beneath player
+    this.label.y = this.playerSprite.y;       //
+    
+    
+    this.label.anchor.setTo(.5, -1.8);         //
+    //name label
+    /*player ID =>*/ //index
     this.playerSprite.angle = 0;
 }
 
@@ -159,49 +180,75 @@ Player.prototype.update = function() {
 		if (this.cursor.up) {
 			this.playerSprite.body.x -= speed;
 			this.playerSprite.body.y -= speed;
-			this.playerSprite.animations.play('move');
+			// this.playerSprite.animations.play('move');
 		}
 		else if (this.cursor.down) {
 			this.playerSprite.body.x -= speed;
 			this.playerSprite.body.y += speed;
-			this.playerSprite.animations.play('move');
+			// this.playerSprite.animations.play('move');
 		}
 		else {
 			this.playerSprite.body.x -= speed;
-			this.playerSprite.animations.play('move');
+			// this.playerSprite.animations.play('move');
 		}
 	}
 	else if (this.cursor.right) {
 		if (this.cursor.up) {
 			this.playerSprite.body.x += speed;
 			this.playerSprite.body.y -= speed;
-			this.playerSprite.animations.play('move');
+			// this.playerSprite.animations.play('move');
 		}
 		else if (this.cursor.down) {
 			this.playerSprite.body.x += speed;
 			this.playerSprite.body.y += speed;
-			this.playerSprite.animations.play('move');
+			// this.playerSprite.animations.play('move');
 		}
 		else {
 			this.playerSprite.body.x += speed;
-			this.playerSprite.animations.play('move');
+			// this.playerSprite.animations.play('move');
 		}
 	}
 	else if (this.cursor.up) {
 			this.playerSprite.body.y -= speed;
-			this.playerSprite.animations.play('move');
+			// this.playerSprite.animations.play('move');
 	}
 	else if (this.cursor.down) {
 		this.playerSprite.body.y += speed;
-		this.playerSprite.animations.play('move');
+		// this.playerSprite.animations.play('move');
 	}
 	 if (this.cursor.fire) {
 		this.fire({
 			x: this.cursor.tx,
 			y: this.cursor.ty
 		});
-		this.playerSprite.animations.play('attack');
+		this.playerSprite.animations.play('shoot');
 	}
+	
+
+    
+    if (this.health === 5){
+      		this.healthbar.animations.play('5health');
+    }
+    else if (this.health === 4){
+      		this.healthbar.animations.play('4health');
+    }
+    else if (this.health === 3){
+      		this.healthbar.animations.play('3health');
+    }
+    else if (this.health === 2){
+      		this.healthbar.animations.play('2health');
+    }
+    else if (this.health === 1){
+      		this.healthbar.animations.play('1health');
+    }
+    else if (this.health === 0){
+      		this.healthbar.animations.play('0health');
+    }
+    
+    this.healthbar.x = this.playerSprite.x;
+    this.healthbar.y = this.playerSprite.y; 
+    this.healthbar.anchor.setTo(.5, -4.7);
+	
 	
 };
 
@@ -213,7 +260,7 @@ Player.prototype.fire = function(target) {
             var bullet = this.bullets.getFirstDead();
             bullet.reset((this.playerSprite.x + (73*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (73*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 			bullet.rotation = this.playerSprite.rotation;      
-            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1000, bullet.body.velocity); 
+            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 700, bullet.body.velocity); 
 
         }
 };
@@ -234,6 +281,9 @@ Player.prototype.damage = function(){
 Player.prototype.death = function() {
 	var that= this;
 	this.playerSprite.kill();
+	this.healthbar.kill();
+	this.label.destroy();
+
 	
 	eurecaServer.handleKeys({
 		alive: false,
@@ -248,8 +298,13 @@ Player.prototype.death = function() {
 };
 
 Player.prototype.respawn = function() {
-	console.log("RESPAWNING AFTER DEATH");
+	this.health = 5;
 	this.playerSprite.reset(200, 200);
+	this.healthbar.revive();
+	this.label = game.add.text(this.playerSprite.x, this.playerSprite.y, 'Codrin', { font: "14px Arial", fill: "#ffffff", align: "center" });
+    this.label.anchor.setTo(.5, -1.8); 
+
+    // console.log(this);
 };
 
 Player.prototype.destroy = function() {
@@ -276,6 +331,8 @@ function preload () {
     // large bullet. the anchoring is different for each bullet!
     game.load.image('bullet', 'assets/bullet2.png');
     game.load.image('hitbox', 'assets/93x16.png');
+    
+    game.load.spritesheet('healthbar', 'assets/healthbarsprite.png', 75, 10);
 }
 
 
@@ -304,8 +361,8 @@ function create () {
     localPlayerSprite.bringToTop();
 
     game.camera.follow(localPlayerSprite);
-    game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
-    game.camera.focusOnXY(0, 0);
+    // game.camera.deadzone = new Phaser.Rectangle(150, 150, 300, 300);
+    // game.camera.focusOnXY(0, 0);
 
 	keys = { 
 		up: game.input.keyboard.addKey(Phaser.Keyboard.W),
