@@ -129,7 +129,7 @@ function Player(index, game, user) {
     this.bullets.setAll('checkWorldBounds', true);
 	
 	// this should be set to 500 for normal gameplay, 100 for 'Codrin' gameplay
-    this.fireRate = 300;
+    this.fireRate = 1;
     this.nextFire = 100;
     this.alive = true;
 	
@@ -157,15 +157,15 @@ function Player(index, game, user) {
 
 
 Player.prototype.damage = function(){
-    console.log(this.playerSprite.id + " IS GETTING POUNDED BY " + localPlayerSprite.id);
+    console.log(this.playerSprite.id, " IS GETTING POUNDED BY ", localPlayerSprite.id);
     this.health--;
-    console.log(this.health);
+    // console.log(this.health);
     // console.log(this);
     if (this.health <= 0)
     {
         // this.alive = false;
-        console.log(localPlayerSprite.id + " JUST KILLED " + this.playerSprite.id);
-        console.log(this.playerSprite + " this is the playerSprite in the Player.prototype.damage function");
+        console.log(localPlayerSprite.id, " JUST KILLED ", this.playerSprite.id);
+        console.log(this.playerSprite, " this is the playerSprite in the Player.prototype.damage function");
         this.death();
         // console.log(this);
         
@@ -245,15 +245,12 @@ Player.prototype.fire = function(target) {
 }
 
 Player.prototype.death = function() {
-	console.log(this.playerSprite, " this is the playerSprite before the kill function")
-	this.playerSprite.kill();
-	console.log(this.playerSprite, " this is the playerSprite after the kill function")
-	setTimeout(function(){
-		console.log(localPlayerSprite, " this is the localPlayerSprite before the revive function")
-		localPlayerSprite.revive();
-		console.log(localPlayerSprite, " this is the localPlayerSprite after the revive function")
-	}, 2000);
 
+	this.playerSprite.kill();
+
+
+	// localPlayerSprite.revive();
+	// this.playerSprite.revive();
 	
 }
 
@@ -287,7 +284,7 @@ function create () {
 	map.addTilesetImage('wall64', 'wall64');
 	map.setCollision([2]);
 	layer.resizeWorld();
-	
+	layer.bouncePadding = 0;
 	map.fixedToCamera = true;
 
     
@@ -312,14 +309,14 @@ function create () {
 		left: game.input.keyboard.addKey(Phaser.Keyboard.A),
 		right: game.input.keyboard.addKey(Phaser.Keyboard.D)
 	};
+	console.log(this.game.stage, "helloooooo");
+	
 }
 
 function update () {
 	//do not update if client not ready
 	if (!ready) return;
-
 	
-
 
 	var input = {
 		left: keys.left.isDown,
@@ -333,11 +330,11 @@ function update () {
 	
 	localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
 
- 	healthView = game.add.sprite(0, 0);
-    healthView.fixedToCamera = true; 
-    //addChild of my text at x:0, y:0
-    var text = game.add.text(0,0, localPlayer.health);
-    healthView.addChild(text);
+//  	healthView = game.add.sprite(0, 0);
+//     healthView.fixedToCamera = true; 
+//     //addChild of my text at x:0, y:0
+//     var text = game.add.text(0,0, localPlayer.health);
+//     healthView.addChild(text);
     //position the cameraOffset of my Spritesprite.cameraOffset.x = 10;sprite.cameraOffset.y = 100;
 
 
@@ -418,4 +415,3 @@ function bulletHitPlayer (player, bullet) {
 function render () {
 	// this.game.debug.spriteInfo(localPlayerSprite, 150, 150);
 }
-
