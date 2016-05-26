@@ -7,7 +7,7 @@ var layer;
 var localPlayerSprite;
 var localPlayer;
 var playersList;
-var myHealthBar
+var healthBar
 // var explosions;
 
 var speed = 5;
@@ -136,6 +136,17 @@ function Player(index, game, user) {
     
     this.playerSprite.animations.add('move', [0], 20, false);
   	this.playerSprite.animations.add('attack', [1, 2, 3], 10, false);
+  	
+  	this.healthbar = game.add.sprite(x, y, 'healthbar')
+  	this.healthbar.animations.add('5health', [5], 20, false)
+  	this.healthbar.animations.add('4health', [4], 20, false)
+  	this.healthbar.animations.add('3health', [3], 20, false)
+  	this.healthbar.animations.add('2health', [2], 20, false)
+  	this.healthbar.animations.add('1health', [1], 20, false)
+    this.healthbar.animations.add('0health', [0], 20, false)
+
+
+
   
     // this.hitboxes = game.add.sprite(-0.5, 0.2, 'hitbox');
     // this.hitboxes.enableBody = true;
@@ -159,7 +170,10 @@ function Player(index, game, user) {
     this.playerSprite.body.collideWorldBounds = true;
     this.playerSprite.body.bounce.setTo(0, 0);
     
-    this.label = game.add.text(x, y, index, { font: "14px Arial", fill: "#ffffff", align: "center" });
+    //name label
+    this.label = game.add.text(x, y, 'Codrin', { font: "14px Arial", fill: "#ffffff", align: "center" });  //Creating player ID (here based on index)
+    //name label
+    /*player ID =>*/ //index
     this.playerSprite.angle = 0;
 };
 
@@ -173,8 +187,6 @@ Player.prototype.damage = function(){
     {
         // this.alive = false;
         this.playerSprite.kill();
-	
-		
         return true;
     }
     return false;
@@ -237,9 +249,33 @@ Player.prototype.update = function() {
 		});
 		this.playerSprite.animations.play('attack');
 	}
-		this.label.x = this.playerSprite.x;
-    this.label.y = this.playerSprite.y;
-    this.label.anchor.setTo(.5,-1.8);
+	
+		this.label.x = this.playerSprite.x;       //Adding player id beneath player
+    this.label.y = this.playerSprite.y;       //
+    this.label.anchor.setTo(.5, -1.8);         //
+    
+    if (this.health === 5){
+      		this.healthbar.animations.play('5health');
+    }
+    else if (this.health === 4){
+      		this.healthbar.animations.play('4health');
+    }
+    else if (this.health === 3){
+      		this.healthbar.animations.play('3health');
+    }
+    else if (this.health === 2){
+      		this.healthbar.animations.play('2health');
+    }
+    else if (this.health === 1){
+      		this.healthbar.animations.play('1health');
+    }
+    else if (this.health === 0){
+      		this.healthbar.animations.play('0health');
+    }
+    
+    this.healthbar.x = this.playerSprite.x;
+    this.healthbar.y = this.playerSprite.y; 
+    this.healthbar.anchor.setTo(.5, -4.7)
 };
 
 Player.prototype.fire = function(target) {
@@ -281,6 +317,7 @@ function preload () {
     game.load.image('earth', 'assets/scorched_earth.png');
     // game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     
+    game.load.spritesheet('healthbar', 'assets/healthbarsprite.png', 75, 10)
     // small bullet. the anchoring is different for each bullet!
     // game.load.image('bullet', 'assets/bullet4.png');
     
@@ -310,6 +347,13 @@ function create () {
 	localPlayerSprite = localPlayer.playerSprite;
 	localPlayerSprite.x=0;
 	localPlayerSprite.y=0;
+	
+	var sprite = game.add.sprite(0, 0);
+  sprite.fixedToCamera = true; 
+  //addChild of my text at x:0, y:0
+
+  var text = game.add.text(0,0,"Score: ");
+  sprite.addChild(text);
 	
 	
 	  
@@ -361,9 +405,6 @@ function update () {
 	
 	localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
 
-	//Health bar starts here
-	    
-	//Health bar
 
 
 	var inputChanged = (
