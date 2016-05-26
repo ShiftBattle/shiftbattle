@@ -1,5 +1,6 @@
 /* global Eureca, Phaser */
 
+
 var myId=0;
 
 var map;
@@ -23,8 +24,7 @@ function updatePlayerState(id, state)
 	{
 		
 		if (playersList[id] && id != myId)  {
-			// console.log(state)
-			// playersList[id].alive = playerAlive
+
 			playersList[id].cursor = state;
 			playersList[id].playerSprite.x = state.x;
 			playersList[id].playerSprite.y = state.y;
@@ -36,9 +36,6 @@ function updatePlayerState(id, state)
 	}
 
 
-
-
-
 //this function will handle client communication with the server
 var eurecaClientSetup = function() {
 	//create an instance of eureca.io client
@@ -48,7 +45,6 @@ var eurecaClientSetup = function() {
 		eurecaServer = proxy;
 	});
 	
-	
 	//methods defined under "exports" namespace become available in the server side
 	
 	eurecaClient.exports.setId = function(id) 
@@ -56,7 +52,7 @@ var eurecaClientSetup = function() {
 		//create() is moved here to make sure nothing is created before uniq id assignation
 		myId = id;
 		create();
-		eurecaServer.handshake();
+		eurecaServer.handshake(myId);
 		ready = true;
 	};
 
@@ -66,24 +62,21 @@ var eurecaClientSetup = function() {
 		
 		
 		if (playersList[id]) {
-			
-			console.log(playersList)
-			playersList[id].death();
-			
-			
-			
-			console.log('Removing ' + id, playersList[id] + " from the game");
+			playersList[id].destroy();
+			console.log('Removing ', id, playersList[id], " from the game");
 		}
 	};
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y)
 	{
+
+		if (i === myId) return; //this is me
 		
-		if (i == myId) return; //this is me
-		
-		console.log('SPAWN');
-		var plyr = new Player(i, game, localPlayerSprite);
+		console.log('SPAWN', i);
+		var plyr = new Player(i, game, localPlayerSprite, x, y);
 		playersList[i] = plyr;
+		plyr.update();
+
 	};
 	
 	// eurecaClient.exports.updateState = function(id, state, playerAlive)
@@ -91,18 +84,20 @@ var eurecaClientSetup = function() {
 };
 
 
-function Player(index, game, user) {
+function Player(index, game, user, x, y) {
 	this.cursor = {
 		left:false,
 		right:false,
 		up:false,
 		fire:false,
 		down: false,
-		alive: true
+		alive: true,
+		visible: true,
+		exists: true
 	};
 
-    var x = 0;
-    var y = 0;
+    // var x = 0;
+    // var y = 0;
 
     this.game = game;
     this.health = 5;
@@ -134,9 +129,8 @@ function Player(index, game, user) {
     this.alive = true;
 	
 	
-	var startX = 500//Math.round(Math.random() * (1000) - 500)
-  	var startY = 500//Math.round(Math.random() * (1000) - 500)
-    this.playerSprite = game.add.sprite(startX, startY, 'player');
+    this.playerSprite = game.add.sprite(x || 0, y || 0, 'player');
+    
 
     this.playerSprite.anchor.set(0.5);
     
@@ -155,26 +149,6 @@ function Player(index, game, user) {
     this.playerSprite.angle = 0;
 }
 
-
-Player.prototype.damage = function(){
-    console.log(this.playerSprite.id, " IS GETTING POUNDED BY ", localPlayerSprite.id);
-    this.health--;
-    // console.log(this.health);
-    // console.log(this);
-    if (this.health <= 0)
-    {
-        // this.alive = false;
-        console.log(localPlayerSprite.id, " JUST KILLED ", this.playerSprite.id);
-        console.log(this.playerSprite, " this is the playerSprite in the Player.prototype.damage function");
-        this.death();
-        // console.log(this);
-        
-	
-		
-        return true;
-    }
-    return false;
-};
 
 Player.prototype.update = function() {
 	
@@ -242,24 +216,54 @@ Player.prototype.fire = function(target) {
             game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1000, bullet.body.velocity); 
 
         }
-}
+};
+
+Player.prototype.damage = function(){
+    console.log(this.playerSprite.id, " IS GETTING POUNDED BY ", localPlayerSprite.id);
+    this.health--;
+
+    if (this.health <= 0) {
+
+        console.log(localPlayerSprite.id, " JUST KILLED ", this.playerSprite.id);
+        console.log(this.playerSprite, " this is the playerSprite in the Player.prototype.damage function");
+        
+        this.death();
+    }
+};
 
 Player.prototype.death = function() {
-
+	var that= this;
 	this.playerSprite.kill();
-
-
-	// localPlayerSprite.revive();
-	// this.playerSprite.revive();
 	
-}
+	eurecaServer.handleKeys({
+		alive: false,
+		exists: false,
+		visible: false});
+		
+	setTimeout(function() {
+		console.log("RESPAWN TIMEOUT FUNCTION")
+		that.respawn();
+	}, 5000);
+
+};
+
+Player.prototype.respawn = function() {
+	console.log("RESPAWNING AFTER DEATH");
+	this.playerSprite.reset(200, 200);
+};
+
+Player.prototype.destroy = function() {
+	console.log("Destroying ", this);
+	this.playerSprite.destroy();
+};
+
 
 var game = new Phaser.Game(1200, 800, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 function preload () {
     game.load.tilemap('simplemap', 'assets/simplemap.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('desert64', 'assets/desert64.png')
-    game.load.image('wall64', 'assets/wall64.png')
+    game.load.image('desert64', 'assets/desert64.png');
+    game.load.image('wall64', 'assets/wall64.png');
 
     game.load.spritesheet('player', 'assets/test_guy.png', 150, 150);
     game.load.spritesheet('enemy', 'assets/test_guy.png', 150, 150);
@@ -309,7 +313,6 @@ function create () {
 		left: game.input.keyboard.addKey(Phaser.Keyboard.A),
 		right: game.input.keyboard.addKey(Phaser.Keyboard.D)
 	};
-	console.log(this.game.stage, "helloooooo");
 	
 }
 
@@ -330,14 +333,6 @@ function update () {
 	
 	localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
 
-//  	healthView = game.add.sprite(0, 0);
-//     healthView.fixedToCamera = true; 
-//     //addChild of my text at x:0, y:0
-//     var text = game.add.text(0,0, localPlayer.health);
-//     healthView.addChild(text);
-    //position the cameraOffset of my Spritesprite.cameraOffset.x = 10;sprite.cameraOffset.y = 100;
-
-
 	var inputChanged = (
 		localPlayer.cursor.left != input.left ||
 		localPlayer.cursor.right != input.right ||
@@ -349,17 +344,14 @@ function update () {
 		
 	);
 	
-	if (inputChanged)
-	{
-	
-		// console.log(localPlayer);
+	if (inputChanged){
+
 		// send latest valid state to the server
 		input.x = localPlayerSprite.x;
 		input.y = localPlayerSprite.y;
 		input.angle = localPlayerSprite.angle;
 		input.rot = localPlayerSprite.rotation;
-		input.alive = localPlayerSprite.alive;
-	
+
 		eurecaServer.handleKeys(input);
 		localPlayer.cursor = input;
 	}
@@ -405,8 +397,6 @@ function bulletHitWall (bullet) {
 }
 
 function bulletHitPlayer (player, bullet) {
-	// console.log(player + " this is the player in the bulletHitPlayer")
-	// console.log(player + " this is the bullet in the bulletHitPlayer")
     bullet.kill();
     playersList[player.id].damage();
     
