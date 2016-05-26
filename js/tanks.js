@@ -1,23 +1,21 @@
 /* global Eureca, Phaser */
-
 var myId=0;
 
 var map;
 var layer;
-var healthView;
+
 var localPlayerSprite;
 var localPlayer;
 var playersList;
+var myHealthBar
 // var explosions;
-var trail;
-var speed = 5;
 
+var speed = 5;
+var meters
 var ready = false;
 var eurecaServer;
 
 var keys;
-
-
 
 function updatePlayerState(id, state)
 	{
@@ -29,19 +27,16 @@ function updatePlayerState(id, state)
 			playersList[id].playerSprite.y = state.y;
 			playersList[id].playerSprite.angle = state.angle;
 			playersList[id].playerSprite.rotation = state.rot;
-			
 			playersList[id].update();
 		}
 	}
-
-
-
 
 
 //this function will handle client communication with the server
 var eurecaClientSetup = function() {
 	//create an instance of eureca.io client
 	var eurecaClient = new Eureca.Client();
+	console.log(eurecaClient);
 	
 	eurecaClient.ready(function (proxy) {		
 		eurecaServer = proxy;
@@ -96,8 +91,7 @@ function Player(index, game, user) {
 		right:false,
 		up:false,
 		fire:false,
-		down: false,
-		alive: true
+		down: false
 	}
 
     var x = 0;
@@ -131,8 +125,10 @@ function Player(index, game, user) {
     this.fireRate = 300;
     this.nextFire = 100;
     this.alive = true;
+	  
+
 	
-	var startX = 500//Math.round(Math.random() * (1000) - 500)
+  	var startX = 500//Math.round(Math.random() * (1000) - 500)
   	var startY = 500//Math.round(Math.random() * (1000) - 500)
     this.playerSprite = game.add.sprite(startX, startY, 'player');
 
@@ -146,7 +142,15 @@ function Player(index, game, user) {
     // this.hitboxes.physicsBodyType = Phaser.Physics.ARCADE;
     // this.hitboxes.body.setSize(93, 16);
     
-    this.playerSprite.addChild(game.add.sprite(-15, 10, 'hitbox'))
+    //this.playerSprite.addChild(game.add.sprite(-15, 10, 'hitbox'))
+    
+
+	//in prototype.update: this.shadow.x = this.tank.x; this.shadow.y = this.tank.y;
+	
+	// console.log(this.player.name)
+ //   this.player.name.y = this.player.y + 30
+	// this.player.name.x = this.player.x;
+ //   this.player.name.y = this.player.y + 30;
 
     this.playerSprite.id = index;
     game.physics.enable(this.playerSprite, Phaser.Physics.ARCADE);
@@ -155,6 +159,7 @@ function Player(index, game, user) {
     this.playerSprite.body.collideWorldBounds = true;
     this.playerSprite.body.bounce.setTo(0, 0);
     
+    this.label = game.add.text(x, y, index, { font: "14px Arial", fill: "#ffffff", align: "center" });
     this.playerSprite.angle = 0;
 };
 
@@ -168,14 +173,6 @@ Player.prototype.damage = function(){
     {
         // this.alive = false;
         this.playerSprite.kill();
-        
-        
-	// setTimeout(function(){
-	// 	console.log("SHIT IS RUNNIG")
-	// 		 this.playerSprite.visible = true
-	// 		this.playerSprite.alive = true
-	// 		this.playerSprite.exists = true
-	// }, 50)
 	
 		
         return true;
@@ -187,7 +184,12 @@ Player.prototype.update = function() {
 	
 	//cursor value is now updated by eurecaClient.exports.updateState method
 	
-	
+	 	//healthView = game.add.sprite(0, 0);
+		// healthView.fixedToCamera = true; 
+
+		// var text = game.add.text(0,0, localPlayer.health);
+		// healthView.addChild(text);
+
 	if (this.cursor.left) {
 		if (this.cursor.up) {
 			this.playerSprite.body.x -= speed;
@@ -235,7 +237,9 @@ Player.prototype.update = function() {
 		});
 		this.playerSprite.animations.play('attack');
 	}
-	
+		this.label.x = this.playerSprite.x;
+    this.label.y = this.playerSprite.y;
+    this.label.anchor.setTo(.5,-1.8);
 };
 
 Player.prototype.fire = function(target) {
@@ -246,7 +250,7 @@ Player.prototype.fire = function(target) {
             var bullet = this.bullets.getFirstDead();
             bullet.reset((this.playerSprite.x + (73*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (73*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 			bullet.rotation = this.playerSprite.rotation;      
-            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 850, bullet.body.velocity); 
+            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1000, bullet.body.velocity); 
 
         }
 }
@@ -255,9 +259,11 @@ Player.prototype.fire = function(target) {
 Player.prototype.kill = function() {
 	// this.alive = false;
 	this.playerSprite.kill();
-	
 }
 
+
+
+// Health bar over
 
 
 
@@ -298,30 +304,29 @@ function create () {
 
     
     playersList = {};
+	
 	localPlayer = new Player(myId, game, localPlayerSprite);
 	playersList[myId] = localPlayer;
 	localPlayerSprite = localPlayer.playerSprite;
-	
-
-	
-	
 	localPlayerSprite.x=0;
 	localPlayerSprite.y=0;
-	// trail = game.add.emitter(localPlayerSprite.x, localPlayerSprite.y + 10, 400);
-	// trail.width = 10;
-	// trail.makeParticles('bullet');
-	// trail.setXSpeed(30, -30);
-	// trail.setYSpeed(200, 180);
-	// trail.setRotation(50,-50);
-	// trail.setAlpha(1, 0.01, 800);
-	// trail.setScale(0.05, 0.4, 0.05, 0.4, 2000, Phaser.Easing.Quintic.Out);
-	// trail.start(false, 5000, 10);
-	// trail.x = localPlayerSprite.x;	//Enable for a trail.
+	
+	
+	  
+		 	//healthView = game.add.sprite(0, 0);
+		// healthView.fixedToCamera = true; 
 
+		// var text = game.add.text(0,0, localPlayer.health);
+		// healthView.addChild(text);fk
+        
+    // Healthbar constructor?
+    
+  	//Healthbar logic
+    
     localPlayerSprite.bringToTop();
 
     game.camera.follow(localPlayerSprite);
-    game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
+    game.camera.deadzone = new Phaser.Rectangle(150, 150, 100, 300);
     game.camera.focusOnXY(0, 0);
 
 	keys = { 
@@ -332,11 +337,16 @@ function create () {
 	};
 }
 
+
+
+
+
+
+
+
 function update () {
 	//do not update if client not ready
 	if (!ready) return;
-
-	
 
 
 	var input = {
@@ -350,15 +360,10 @@ function update () {
 	};
 	
 	localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
-	// trail.x = localPlayerSprite.x
-	// trail.y = localPlayerSprite.y	//Enable for a trail.
-		healthView = game.add.sprite(0, 0);
-	healthView.fixedToCamera = true; 
-	//addChild of my text at x:0, y:0
 
-	var text = game.add.text(0,0, localPlayer.health);
-	healthView.addChild(text);
-	//position the cameraOffset of my Spritesprite.cameraOffset.x = 10;sprite.cameraOffset.y = 100;
+	//Health bar starts here
+	    
+	//Health bar
 
 
 	var inputChanged = (
@@ -367,11 +372,13 @@ function update () {
 		localPlayer.cursor.up != input.up ||
 		localPlayer.cursor.down != input.down ||
 		localPlayer.cursor.fire != input.fire ||
-		localPlayer.cursor.rot != localPlayerSprite.rotation
+		localPlayer.cursor.rot != localPlayerSprite.rotation 
 	);
 	
 	if (inputChanged)
 	{
+	
+
 		// send latest valid state to the server
 		input.x = localPlayerSprite.x;
 		input.y = localPlayerSprite.y;
@@ -412,10 +419,7 @@ function update () {
                 playersList[i].update();
             }           
     }
-    
     game.physics.arcade.collide(localPlayerSprite, layer);
-    game.physics.arcade.collide(localPlayerSprite.children[0], layer);
-    game.add.text(300, 300, "HELLO")
     
 }
 
