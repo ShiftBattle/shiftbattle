@@ -4,13 +4,14 @@
 var myId=0;
 
 var map;
-var layer;
+var floor;
+var walls;
 
 var localPlayerSprite;
 var localPlayer;
 var playersList;
 // var explosions;
-
+var powerups;
 var speed = 5;
 
 var ready = false;
@@ -316,15 +317,16 @@ Player.prototype.destroy = function() {
 var game = new Phaser.Game(1200, 800, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 function preload () {
-    game.load.tilemap('simplemap', 'assets/simplemap.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('desert64', 'assets/desert64.png');
-    game.load.image('wall64', 'assets/wall64.png');
+    game.load.tilemap('map', 'assets/map2.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.image('newtiles', 'assets/newtiles.png');
 
     game.load.spritesheet('player', 'assets/test_guy.png', 150, 150);
     game.load.spritesheet('enemy', 'assets/test_guy.png', 150, 150);
     game.load.image('earth', 'assets/scorched_earth.png');
     // game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
     
+    game.load.image('shotgunPowerup', 'assets/Shotgun.png');
+    game.load.image('riflePowerup', 'assets/AK47Pixel.png')
     // small bullet. the anchoring is different for each bullet!
     // game.load.image('bullet', 'assets/bullet4.png');
     
@@ -339,14 +341,23 @@ function preload () {
 
 function create () {
 	game.physics.startSystem(Phaser.Physics.ARCADE);
-	map = game.add.tilemap('simplemap');
-	layer = map.createLayer('Tile Layer 1');
-	map.addTilesetImage('desert64', 'desert64');
-	map.addTilesetImage('wall64', 'wall64');
-	map.setCollision([2]);
-	layer.resizeWorld();
-	layer.bouncePadding = 0;
+	map = game.add.tilemap('map');
+	map.addTilesetImage('newtiles', 'newtiles');
+	
+	floor = map.createLayer('Tile Layer 1');
+	walls = map.createLayer('Tile Layer 2');
+	
+	game.physics.arcade.enable(walls);
+
+	walls.resizeWorld();
+	walls.bouncePadding = 0;
 	map.fixedToCamera = true;
+	
+	this.powerups = game.add.group();
+    this.powerups.enableBody = true;
+    this.powerups.physicsBodyType = Phaser.Physics.ARCADE;
+    this.powerups.create(300, 300, 'shotgunPowerup', true);
+
 
     
     playersList = {};
@@ -358,9 +369,12 @@ function create () {
 	localPlayerSprite.y=0;
 
 
+	
     localPlayerSprite.bringToTop();
 
     game.camera.follow(localPlayerSprite);
+    
+
     // game.camera.deadzone = new Phaser.Rectangle(150, 150, 300, 300);
     // game.camera.focusOnXY(0, 0);
 
@@ -430,8 +444,7 @@ function update () {
                 var targetPlayer = playersList[j].playerSprite;
                 // game.physics.arcade.collide(player, playersList[i].player);
                 game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
-                game.physics.arcade.collide(curBullets, layer, bulletHitWall, null, this);
-            
+                game.physics.arcade.overlap(curBullets, this.walls, consoleLog, null, this);
             }
         }
     }
@@ -443,14 +456,20 @@ function update () {
                 playersList[i].update();
             }           
     }
-    
-    game.physics.arcade.collide(localPlayerSprite, layer);
-    // game.physics.arcade.collide(localPlayerSprite.children[0], layer);
-    
+    	  game.physics.arcade.overlap(localPlayerSprite, map.walls, consoleLog, null, this);
+    	  game.physics.arcade.overlap(localPlayerSprite, powerups, consoleLog, null, this);
+
+	game.physics.arcade.overlap(powerups, localPlayerSprite, collectPowerup, null, this);
+
 }
 
-function bulletHitWall (bullet) {
-    bullet.kill();
+function consoleLog (bullet) {
+	console.log('overlap')
+}
+
+function collectPowerup (player,powerup){
+	powerup.kill();
+	console.log("Got powerup")
 }
 
 function bulletHitPlayer (player, bullet) {
