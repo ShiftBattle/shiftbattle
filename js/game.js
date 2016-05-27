@@ -152,7 +152,7 @@ function Player(index, game, user, x, y) {
 
     this.playerSprite.id = index;
     game.physics.enable(this.playerSprite, Phaser.Physics.ARCADE);
-    this.playerSprite.body.setSize(40, 40);
+    this.playerSprite.body.setSize(100, 100, 25, 25);
     this.playerSprite.body.immovable = false;
     this.playerSprite.body.collideWorldBounds = true;
     this.playerSprite.body.bounce.setTo(0, 0);
@@ -317,8 +317,15 @@ Player.prototype.destroy = function() {
 var game = new Phaser.Game(1200, 800, Phaser.AUTO, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 function preload () {
-    game.load.tilemap('map', 'assets/map2.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('newtiles', 'assets/newtiles.png');
+    // game.load.tilemap('map', 'assets/map2.json', null, Phaser.Tilemap.TILED_JSON);
+    // game.load.image('newtiles', 'assets/newtiles.png');
+
+
+	 game.load.tilemap('fixedmap', 'assets/fixedmap.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.image('desert32', 'assets/desert32.png');
+    game.load.image('wall32', 'assets/wall32.png');
+    game.load.image('actuallyfloor', 'assets/actuallyfloor.png');
+
 
     game.load.spritesheet('player', 'assets/test_guy.png', 150, 150);
     game.load.spritesheet('enemy', 'assets/test_guy.png', 150, 150);
@@ -341,12 +348,13 @@ function preload () {
 
 function create () {
 	game.physics.startSystem(Phaser.Physics.ARCADE);
-	map = game.add.tilemap('map');
-	map.addTilesetImage('newtiles', 'newtiles');
-	
-	floor = map.createLayer('Tile Layer 1');
-	walls = map.createLayer('Tile Layer 2');
-	
+	map = game.add.tilemap('fixedmap');
+	walls = map.createLayer('Tile Layer 1');
+	map.addTilesetImage('desert32', 'desert32');
+	map.addTilesetImage('wall32', 'wall32');
+	map.addTilesetImage('actuallyfloor', 'actuallyfloor');
+	map.setCollision([1]);
+
 	game.physics.arcade.enable(walls);
 
 	walls.resizeWorld();
@@ -444,7 +452,8 @@ function update () {
                 var targetPlayer = playersList[j].playerSprite;
                 // game.physics.arcade.collide(player, playersList[i].player);
                 game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
-                game.physics.arcade.overlap(curBullets, this.walls, consoleLog, null, this);
+                game.physics.arcade.collide(curBullets, walls, bulletHitWall, null, this);
+
             }
         }
     }
@@ -456,10 +465,9 @@ function update () {
                 playersList[i].update();
             }           
     }
-    	  game.physics.arcade.overlap(localPlayerSprite, map.walls, consoleLog, null, this);
-    	  game.physics.arcade.overlap(localPlayerSprite, powerups, consoleLog, null, this);
 
 	game.physics.arcade.overlap(powerups, localPlayerSprite, collectPowerup, null, this);
+	game.physics.arcade.collide(localPlayerSprite, walls);
 
 }
 
@@ -476,6 +484,10 @@ function bulletHitPlayer (player, bullet) {
     bullet.kill();
     playersList[player.id].damage();
     
+}
+
+function bulletHitWall (bullet) {
+    bullet.kill();
 }
 
 function render () {
