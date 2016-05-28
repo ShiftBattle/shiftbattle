@@ -1,3 +1,5 @@
+/* global eurecaServer, Phaser, Player speed localPlayerSprite game*/
+
 function Player(index, game, user, x, y) {
 	this.cursor = {
 		left:false,
@@ -7,10 +9,9 @@ function Player(index, game, user, x, y) {
 		down: false,
 		alive: true,
 		visible: true,
-		exists: true
+		exists: true,
+		skin: 'handgun'
 	};
-
-	// this.weapon = 'rifle';
 
     // var x = 0;
     // var y = 0;
@@ -25,7 +26,7 @@ function Player(index, game, user, x, y) {
     this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
     
     // create 20-30 bullets per clip, maybe carry 4-5 clips and then have a reload function added
-    this.bullets.createMultiple(5, 'bullet', 0, false);
+    this.bullets.createMultiple(50, 'bullet', 0, false);
     
     
     // anchoring of the bullets for the rifle
@@ -42,20 +43,22 @@ function Player(index, game, user, x, y) {
     
     this.bullets.setAll('outOfBoundsKill', true);
     this.bullets.setAll('checkWorldBounds', true);
-    // this.bullets.setAll('alive', true);
+
 	
 	// this should be set to 500 for normal gameplay, 100 for 'Codrin' gameplay
-    this.fireRate = 100;
-    this.nextFire = 100;
-
-    this.playerSprite = game.add.sprite(x || 0, y || 0, 'shotgun-player');
-    // this.hitbox = game.add.sprite(x, y, 'hitbox');
-
+    
+    
+    this.playerSprite = game.add.sprite(x || 0, y || 0, 'final-player');
+    
     this.playerSprite.anchor.set(0.5);
     
-    this.playerSprite.animations.add('move', [0], 20, false);
-  	// this.playerSprite.animations.add('reload', [23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37], 20, false);
-  	this.playerSprite.animations.add('shoot', [1, 2, 3], 10, false);
+    this.playerSprite.animations.add('move-handgun', [0], 20, false);
+    this.playerSprite.animations.add('move-rifle', [4], 20, false);
+    this.playerSprite.animations.add('move-shotgun', [8], 20, false);
+    
+  	this.playerSprite.animations.add('shoot-handgun', [1, 2, 3], 10, false);
+  	this.playerSprite.animations.add('shoot-rifle', [5, 6, 7], 10, false);
+  	this.playerSprite.animations.add('shoot-shotgun', [9, 10, 11], 10, false);
   	
   	this.healthbar = game.add.sprite(x, y, 'healthbar');
   	this.healthbar.animations.add('5health', [5], 20, false);
@@ -68,7 +71,7 @@ function Player(index, game, user, x, y) {
     
     this.playerSprite.id = index;
     game.physics.enable(this.playerSprite, Phaser.Physics.ARCADE);
-    this.playerSprite.body.setSize(100, 100, 25, 25);
+    this.playerSprite.body.setSize(75, 75, 15, 35);
     this.playerSprite.body.immovable = false;
     this.playerSprite.body.collideWorldBounds = true;
     this.playerSprite.body.bounce.setTo(0, 0);
@@ -78,14 +81,16 @@ function Player(index, game, user, x, y) {
     //name label
     this.label = game.add.text(x, y, 'CODRIN', { font: "14px Arial", fill: "#ffffff", align: "center" });  //Creating player ID (here based on index)
 
-	this.reloadText = game.add.text(game.camera.width / 2, game.camera.height / 2, "OUT OF BULLETS!! PRESS R TO RELOAD", {font: "30px Arial", fill: "#ffffff ", stroke: '#000000 ', strokeThickness: 3});
-	this.reloadText.visible = false;
-	
+	this.reloadText = game.add.text(game.camera.width / 2, game.camera.height / 2, "OUT OF BULLETS!! PRESS R TO RELOAD", {font: "30px Arial", fill: "#ffffff ", stroke: '#000000 ', strokeThickness: 3, align: 'center'});
+	this.reloadText.exists = false;
+// 	this.reloadText.visible = false;
+// 	this.reloadText.fixedToCamera = true;
+    
     //name label
     /*player ID =>*/ //index
-    this.playerSprite.angle = 0;
+ 
     
-    console.log(this.reloadText );
+    // console.log(this.reloadText);
 }
 
 
@@ -98,50 +103,123 @@ Player.prototype.update = function() {
 		if (this.cursor.up) {
 			this.playerSprite.body.x -= speed;
 			this.playerSprite.body.y -= speed;
-			// this.playerSprite.animations.play('move');
+			if (this.playerSprite.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.playerSprite.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.playerSprite.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 		else if (this.cursor.down) {
 			this.playerSprite.body.x -= speed;
 			this.playerSprite.body.y += speed;
-			// this.playerSprite.animations.play('move');
+			if (this.playerSprite.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.playerSprite.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.playerSprite.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 		else {
 			this.playerSprite.body.x -= speed;
-			// this.playerSprite.animations.play('move');
+			if (this.playerSprite.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.playerSprite.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.playerSprite.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 	}
+	
 	else if (this.cursor.right) {
 		if (this.cursor.up) {
 			this.playerSprite.body.x += speed;
 			this.playerSprite.body.y -= speed;
-			// this.playerSprite.animations.play('move');
+			if (this.playerSprite.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.playerSprite.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.playerSprite.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 		else if (this.cursor.down) {
 			this.playerSprite.body.x += speed;
 			this.playerSprite.body.y += speed;
-			// this.playerSprite.animations.play('move');
+			if (this.playerSprite.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.playerSprite.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.playerSprite.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 		else {
 			this.playerSprite.body.x += speed;
-			// this.playerSprite.animations.play('move');
+			if (this.playerSprite.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.playerSprite.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.playerSprite.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 	}
 	else if (this.cursor.up) {
 			this.playerSprite.body.y -= speed;
-			// this.playerSprite.animations.play('move');
+			if (this.playerSprite.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.playerSprite.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.playerSprite.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 	}
 	else if (this.cursor.down) {
 		this.playerSprite.body.y += speed;
-		// this.playerSprite.animations.play('move');
-	}
+			if (this.playerSprite.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.playerSprite.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.playerSprite.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
+			}
+	
 	 if (this.cursor.fire) {
 		this.fire({
 			x: this.cursor.tx,
 			y: this.cursor.ty
 		});
-		this.playerSprite.animations.play('shoot');
+		if (this.playerSprite.skin === 'handgun') {
+				this.playerSprite.animations.play('shoot-handgun');
+			}
+			else if (this.playerSprite.skin === 'shotgun') {
+				this.playerSprite.animations.play('shoot-shotgun');
+			}
+			else if (this.playerSprite.skin === 'rifle') {
+				this.playerSprite.animations.play('shoot-rifle');
+			}
 	}
-	
 
     
     if (this.health === 5){
@@ -171,24 +249,57 @@ Player.prototype.update = function() {
     this.label.y = this.playerSprite.y;       //
     this.label.anchor.setTo(.5, -1.8);         //
     
-    
-    // this.hitbox.x = this.playerSprite.x;       //Adding player id beneath player
-    // this.hitbox.y = this.playerSprite.y;  
-    // this.hitbox.anchor.setTo(-0.3, 0.1);
-
-	// this.reloadText.anchor.setTo(0.5, 0.5);
-	this.reloadText.cameraOffset.setTo(0,0)
-	this.reloadText.fixedToCamera = true;
-	
 };
 
 Player.prototype.fire = function(target) {
 		if (!this.playerSprite.alive) return;
+		
+		// this.fireRate = 100;
+	    this.nextFire = 500;
+		
+		function rateOfFire(weaponType){
+			if (weaponType === 'rifle') {
+				// console.log('rate of fire for the rifle')
+				return 300;
+			}
+			else if (weaponType === 'shotgun') {
+				// console.log('rate of fire for the shotgun')
+				return 800;
+			}
+			else if (weaponType === 'handgun') {
+				// console.log('rate of fire for the handgun')
+				return 500;
+			}
+		};
         if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
-        	this.nextFire = this.game.time.now + game.gun.rifle.fireRate;
+        	this.nextFire = this.game.time.now + rateOfFire(this.playerSprite.skin);
         
             var bullet = this.bullets.getFirstDead();
             
+            if (this.playerSprite.skin === 'handgun') {
+            	this.fireRate = 500;
+				bullet.reset((this.playerSprite.x + (45*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (45*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
+				bullet.rotation = this.playerSprite.rotation;      
+	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 700, bullet.body.velocity); 
+	            // console.log("SHOOTING WITH THE HANDGUN")
+			}
+			else if (this.playerSprite.skin === 'shotgun') {
+				this.fireRate = 800;
+				bullet.reset((this.playerSprite.x + (60*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (60*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
+				bullet.rotation = this.playerSprite.rotation;      
+	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 700, bullet.body.velocity); 
+	            // console.log("SHOOTING WITH THE SHOTGUN")
+			}
+			else if (this.playerSprite.skin === 'rifle') {
+				this.fireRate = 300;
+				bullet.reset((this.playerSprite.x + (73*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (73*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
+				bullet.rotation = this.playerSprite.rotation;      
+	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 700, bullet.body.velocity); 
+	            // console.log("SHOOTING WITH THE RIFLE")
+			}
+        }
+        
+};    
             // bullet reset for the rifle
             // bullet.reset((this.playerSprite.x + (73*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (73*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
             
@@ -196,19 +307,31 @@ Player.prototype.fire = function(target) {
             // bullet.reset((this.playerSprite.x + (45*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (45*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 
 			// bullet reset for the shotgun
-            bullet.reset((this.playerSprite.x + (60*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (60*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
+            // bullet.reset((this.playerSprite.x + (60*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (60*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 
             
-			bullet.rotation = this.playerSprite.rotation;      
-            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 700, bullet.body.velocity); 
+			// bullet.rotation = this.playerSprite.rotation;      
+   //         game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 700, bullet.body.velocity); 
             
-        }
-        if (this.bullets.countLiving() === 5) {
-        	this.reloadText.visible = true;
-        }
+
+        // if (this.bullets.countDead() === ) {
+        // 	this.reloadText.visible = true;
+        // }
       
         
-};
+
+
+// Player.prototype.weapons = function(weaponType) {
+//     if (weaponType === 'rifle') {
+//         this.game.add.sprite(200 || 0, 200 || 0, 'rifle-player');
+//     }
+//     else if (weaponType === 'shotgun') {
+//         this.game.add.sprite(200 || 0, 200 || 0, 'shotgun-player');
+//     }
+//     else if (weaponType === 'handgun') {
+//         this.game.add.sprite(200 || 0, 200 || 0, 'handgun-player');
+//     }
+// };
 
 Player.prototype.damage = function(){
     console.log(this.playerSprite.id, " IS GETTING POUNDED BY ", localPlayerSprite.id);
@@ -217,7 +340,7 @@ Player.prototype.damage = function(){
     if (this.health <= 0) {
 
         console.log(localPlayerSprite.id, " JUST KILLED ", this.playerSprite.id);
-        console.log(this.playerSprite, " this is the playerSprite in the Player.prototype.damage function");
+        // console.log(this.playerSprite, " this is the playerSprite in the Player.prototype.damage function");
         
         this.death();
     }
@@ -225,6 +348,7 @@ Player.prototype.damage = function(){
 
 Player.prototype.death = function() {
 	var that= this;
+	console.log(this.playerSprite)
 	this.playerSprite.kill();
 	this.healthbar.kill();
 	this.label.destroy();
@@ -235,10 +359,7 @@ Player.prototype.death = function() {
 		exists: false,
 		visible: false});
 	
-	// this.text = game.add.text(game.camera.width / 2, game.camera.height / 2, "U MAD?", {font: "30px Arial", fill: "#ffffff ", stroke: '#000000 ', strokeThickness: 3});
-	// this.text.anchor.setTo(0.5, 0.5);
-	// this.text.fixedToCamera = true;
-	
+
 	setTimeout(function() {
 		
 		console.log("RESPAWN TIMEOUT FUNCTION")
@@ -248,12 +369,10 @@ Player.prototype.death = function() {
 
 Player.prototype.respawn = function() {
 	this.health = 5;
-	this.playerSprite.reset(200, 200);
+	this.playerSprite.revive();
 	this.healthbar.revive();
 	this.label = game.add.text(this.playerSprite.x, this.playerSprite.y, 'CODRIN', { font: "14px Arial", fill: "#ffffff", align: "center" });
     this.label.anchor.setTo(.5, -1.8); 
-
-    // console.log(this);
 };
 
 Player.prototype.destroy = function() {

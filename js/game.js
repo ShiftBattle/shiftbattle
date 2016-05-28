@@ -1,12 +1,9 @@
 /* global Eureca, Phaser, Player */
 
-var showDebug = true;
-
-var bullet;
 var myId=0;
 
 var map;
-var layer;
+var walls;
 	
 var localPlayerSprite;
 var localPlayer;
@@ -20,6 +17,8 @@ var eurecaServer;
 
 var keys;
 
+var powerUps;
+
 var healthView;
 
 function updatePlayerState(id, state)
@@ -32,6 +31,7 @@ function updatePlayerState(id, state)
 			playersList[id].playerSprite.y = state.y;
 			playersList[id].playerSprite.angle = state.angle;
 			playersList[id].playerSprite.rotation = state.rot;
+			playersList[id].playerSprite.skin = state.skin;
 			
 			playersList[id].update();
 		}
@@ -82,11 +82,8 @@ var eurecaClientSetup = function() {
 
 	};
 	
-	// eurecaClient.exports.updateState = function(id, state, playerAlive)
 	eurecaClient.exports.updateState = updatePlayerState;
 };
-
-
 
 
 var game = new Phaser.Game(1200, 800, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
@@ -95,26 +92,21 @@ function preload () {
 	
 	// attaching the guns to the game itself so we can access to the specs from anywhere
 	
-	
-    game.load.tilemap('simplemap', 'assets/simplemap.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('desert64', 'assets/desert64.png');
-    game.load.image('wall64', 'assets/wall64.png');
+	game.load.tilemap('fixedmap', 'assets/fixedmap.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.image('desert32', 'assets/desert32.png');
+    game.load.image('wall32', 'assets/wall32.png');
+    game.load.image('actuallyfloor', 'assets/actuallyfloor.png');
 
-    game.load.spritesheet('handgun-player', 'assets/handgun-player.png', 150, 150);
-    game.load.spritesheet('rifle-player', 'assets/rifle-player.png', 150, 150);
-    game.load.spritesheet('shotgun-player', 'assets/shotgun-player.png', 150, 150);
+    game.load.spritesheet('final-player', 'assets/finalplayer.png', 150, 150);
     
-    game.load.image('earth', 'assets/scorched_earth.png');
-
-    
-    // small bullet. the anchoring is different for each bullet!
-    // game.load.image('bullet', 'assets/bullet4.png');
-    
-    // large bullet. the anchoring is different for each bullet!
     game.load.image('bullet', 'assets/bullet2.png');
-    // game.load.image('hitbox', 'assets/63x30.png');
     
     game.load.spritesheet('healthbar', 'assets/healthbarsprite.png', 75, 10);
+    
+	game.load.image('shotgunPowerup', 'assets/Shotgun.png');
+	game.load.image('riflePowerup', 'assets/Ak47Pixel.png')
+    
+    
 }
 
 
@@ -122,15 +114,16 @@ function preload () {
 function create () {
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 	
-	map = game.add.tilemap('simplemap');
-	layer = map.createLayer('Tile Layer 1');
-	map.addTilesetImage('desert64', 'desert64');
-	map.addTilesetImage('wall64', 'wall64');
-	map.setCollision([2]);
-	layer.resizeWorld();
-	layer.bouncePadding = 0;
-	map.fixedToCamera = true;
+	map = game.add.tilemap('fixedmap');
+    walls = map.createLayer('Tile Layer 1');
+    map.addTilesetImage('desert32', 'desert32');
+    map.addTilesetImage('wall32', 'wall32');
+    map.addTilesetImage('actuallyfloor', 'actuallyfloor');
+    map.setCollision([1]);
+
+	walls.resizeWorld();
 	
+	map.fixedToCamera = true;
 	
 
     playersList = {};
@@ -141,17 +134,12 @@ function create () {
 	localPlayerSprite.x=0;
 	localPlayerSprite.y=0;
 
-    // localPlayer.hitbox.enableBody = true;
-    // localPlayer.hitbox.physicsBodyType = Phaser.Physics.ARCADE;
-    // console.log(localPlayer)
-	// console.log(localPlayer.hitbox);
- 
+  	this.powerUps = game.add.group();
+    this.powerUps.enableBody = true;
+    this.powerUps.physicsBodyType = Phaser.Physics.ARCADE;
+    this.powerUps.create(300, 300, 'shotgunPowerup', true);
 
-
-    
     localPlayerSprite.bringToTop();
-    // localPlayer.hitbox.bringToTop();
-
 
     game.camera.follow(localPlayerSprite);
 
@@ -161,28 +149,12 @@ function create () {
 		down: game.input.keyboard.addKey(Phaser.Keyboard.S),
 		left: game.input.keyboard.addKey(Phaser.Keyboard.A),
 		right: game.input.keyboard.addKey(Phaser.Keyboard.D),
-		reload: game.input.keyboard.addKey(Phaser.Keyboard.R)
+		reload: game.input.keyboard.addKey(Phaser.Keyboard.R),
+		key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
+		key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
+		key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE)
+		
 	};
-	
-
-
-// gun stats
-
-game.gun = {
-		rifle: {
-			fireRate: 100
-		},
-		shotgun: {
-			fireRate: 800
-		},
-		handgun: {
-			fireRate: 500
-		}
-	};
-
-
-
-
 
 
 }
@@ -190,7 +162,9 @@ game.gun = {
 function update () {
 	//do not update if client not ready
 	if (!ready) return;
+	
 	game.stage.disableVisibilityChange = true;
+	
 	var input = {
 		left: keys.left.isDown,
 		right: keys.right.isDown,
@@ -201,17 +175,22 @@ function update () {
 		ty: game.input.y + game.camera.y
 	};
 	
-	if (keys.reload.isDown) {
-    	if (localPlayer.bullets.countLiving() === 5) {
-        		localPlayer.bullets.setAll('alive', false);
-        		localPlayer.reloadText.visible = false;
-    	}
+	if (keys.key1.isDown) {
+		localPlayer.playerSprite.skin = 'handgun';
+		eurecaServer.handleKeys({skin: 'handgun'});
+		
 	}
-	
-	
-	
+	else if (keys.key2.isDown){
+		localPlayer.playerSprite.skin = 'shotgun';
+		eurecaServer.handleKeys({skin: 'shotgun'});
+	}
+	else if (keys.key3.isDown){
+		localPlayer.playerSprite.skin = 'rifle';
+		eurecaServer.handleKeys({skin: 'rifle'});
+	}
+
+
 	localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
-    // localPlayer.hitbox.rotation = localPlayerSprite.rotation;
     
 	var inputChanged = (
 		localPlayer.cursor.left != input.left ||
@@ -231,6 +210,7 @@ function update () {
 		input.y = localPlayerSprite.y;
 		input.angle = localPlayerSprite.angle;
 		input.rot = localPlayerSprite.rotation;
+		input.skin = localPlayerSprite.skin;
 
 		eurecaServer.handleKeys(input);
 		localPlayer.cursor = input;
@@ -242,9 +222,6 @@ function update () {
         if (!playersList[i]) continue;
         var curBullets = playersList[i].bullets;
         var curPlayer = playersList[i].playerSprite;
-        // var hitbox = playersList[i].hitbox;
-		// console.log(hitbox)
-		// console.log(curBullets)
         for (var j in playersList)
         {
             if (!playersList[j]) continue;
@@ -254,9 +231,8 @@ function update () {
                 var targetPlayer = playersList[j].playerSprite;
                 // game.physics.arcade.collide(player, playersList[i].player);
                 game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
-                game.physics.arcade.collide(curBullets, layer, bulletHitWall, null, this);
-                // game.physics.arcade.overlap(hitbox, layer, bounceBack, null, this);
-                // console.log(hitbox)
+                game.physics.arcade.collide(curBullets, walls, bulletHitWall, null, this);
+
             
             }
         }
@@ -270,33 +246,29 @@ function update () {
             }           
     }
     
-    game.physics.arcade.collide(localPlayerSprite, layer);
-    // game.physics.arcade.overlap(localPlayer.hitbox, layer, bounceBack, null, this);
+    game.physics.arcade.overlap(powerUps, localPlayerSprite, collectPowerup, null, this);
+    game.physics.arcade.collide(localPlayerSprite, walls);
 
 }
 
-// function bounceBack() {
-// 	console.log('the hitbox collides with the wall')
-// }
+function collectPowerup (player,powerup){
+    powerup.kill();
+    console.log("Got powerup");
+}
 
 
 function bulletHitWall (bullet) {
-	console.log('bullet has hit the wall')
-    bullet.alive = true;
-    bullet.exists = false;
+	// console.log('bullet has hit the wall');
+	bullet.kill();
     
 }
 
 function bulletHitPlayer (player, bullet) {
-    bullet.alive = true;
-    bullet.exists = false;
-    // bullet.visible= false;
     playersList[player.id].damage();
+    bullet.kill();
     
 }
 
 function render () {
-	
-	game.debug.body('shotgun-player');
 
 }
