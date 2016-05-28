@@ -77,6 +77,12 @@ eurecaServer.exports.handshake = function(connId)
 		clients[cc].remote.spawnEnemy(connId, 0, 0);
 	}
 	
+	//Loop through powerups in the world
+	//	localPlayer = new Player(myId, game, localPlayerSprite);
+	//	playersList[myId] = localPlayer;
+	//	localPlayerSprite = localPlayer.playerSprite;
+
+	
 
 }
 
@@ -95,4 +101,20 @@ eurecaServer.exports.handleKeys = function (keys) {
 		clients[c].laststate = keys;
 	}
 }
+
+eurecaServer.exports.handlePowerups = function (powerupLocsAndChanges) {
+	var conn = this.connection;
+	var updatedClient = clients[conn.id];
+	
+	for (var c in clients)
+	{
+		var remote = clients[c].remote;
+		remote.updatePowerups(updatedClient.id, powerupLocsAndChanges);
+		
+		//keep last known state so we can send it to new connected clients
+		clients[c].laststate = powerupLocsAndChanges;
+	}
+}
+
+
 server.listen(process.env.PORT);
