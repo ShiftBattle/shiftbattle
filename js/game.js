@@ -76,7 +76,7 @@ var eurecaClientSetup = function() {
 		if (i === myId) return; //this is me
 		
 		console.log('SPAWN', i);
-		var plyr = new Player(i, game, localPlayerSprite, x, y);
+		var plyr = new Player(i, game, localPlayerSprite);
 		playersList[i] = plyr;
 		plyr.update();
 
@@ -131,8 +131,8 @@ function create () {
 	localPlayer = new Player(myId, game, localPlayerSprite);
 	playersList[myId] = localPlayer;
 	localPlayerSprite = localPlayer.playerSprite;
-	localPlayerSprite.x=0;
-	localPlayerSprite.y=0;
+	// localPlayerSprite.x=0;
+	// localPlayerSprite.y=0;	//Originally made us spawn at 0,0
 
   	this.powerUps = game.add.group();
     this.powerUps.enableBody = true;
