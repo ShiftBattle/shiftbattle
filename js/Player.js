@@ -254,7 +254,6 @@ Player.prototype.update = function() {
 
 Player.prototype.fire = function(target) {
 		if (!this.playerSprite.alive) return;
-
         if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
         	
             var bullet = this.bullets.getFirstExists(false);
