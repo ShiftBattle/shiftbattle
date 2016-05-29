@@ -73,6 +73,7 @@ eurecaServer.exports.handshake = function(connId)
 		// send current player to new player
 		remote.spawnEnemy(clients[cc].id, x, y);
 		
+		
 		// send new player spawn to current player
 		clients[cc].remote.spawnEnemy(connId, 0, 0);
 	}

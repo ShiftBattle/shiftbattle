@@ -278,7 +278,7 @@ Player.prototype.damage = function(){
 
 Player.prototype.death = function() {
 	var that= this;
-	console.log(this.playerSprite)
+	// console.log(this.playerSprite)
 	this.playerSprite.kill();
 	this.healthbar.kill();
 	this.label.destroy();

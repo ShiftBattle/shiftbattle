@@ -89,8 +89,7 @@ var eurecaClientSetup = function() {
 var game = new Phaser.Game(1200, 800, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 function preload () {
-	
-	// attaching the guns to the game itself so we can access to the specs from anywhere
+
 	
 	game.load.tilemap('fixedmap', 'assets/fixedmap.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.image('desert32', 'assets/desert32.png');
