@@ -1,4 +1,4 @@
-/* global Eureca, Phaser, Player */
+/* global Eureca, Phaser, Player populatePowerUps, activateThreeRandom, checkActivePowerUps */
 
 var myId=0;
 
@@ -7,7 +7,7 @@ var walls;
 	
 var localPlayerSprite;
 var localPlayer;
-var playersList;
+var playersList = {};
 // var explosions;
 
 var speed = 5;
@@ -17,13 +17,11 @@ var eurecaServer;
 
 var keys;
 
-var powerUps;
-
-var healthView;
+var powerUpsActive;
 
 function updatePlayerState(id, state)
 	{
-		
+
 		if (playersList[id] && id != myId)  {
 
 			playersList[id].cursor = state;
@@ -37,13 +35,12 @@ function updatePlayerState(id, state)
 		}
 	}
 
-
 //this function will handle client communication with the server
 var eurecaClientSetup = function() {
 	//create an instance of eureca.io client
 	var eurecaClient = new Eureca.Client();
 	
-	eurecaClient.ready(function (proxy) {		
+	eurecaClient.ready(function (proxy) {	
 		eurecaServer = proxy;
 	});
 	
@@ -56,7 +53,8 @@ var eurecaClientSetup = function() {
 		create();
 		eurecaServer.handshake(myId);
 		ready = true;
-	};
+	
+	}
 
 	
 	eurecaClient.exports.kill = function(id)
@@ -69,24 +67,51 @@ var eurecaClientSetup = function() {
 		}
 	};
 	
+	eurecaClient.exports.updatePowerUps = function(toRevive, toKill){
+		if(!toKill) {
+			// console.log()
+			game.powerUps.children[toRevive[0]].revive();
+			game.powerUps.children[toRevive[1]].revive();
+			game.powerUps.children[toRevive[2]].revive();
+		}
+		
+		if(!toRevive) {
+			game.powerUps.children[toKill].kill();
+		}
+		if (toRevive && toKill){
+		game.powerUps.children[toRevive].revive();
+		game.powerUps.children[toKill].kill();
+		}
+	}
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y)
 	{
-
+	
+		
+		
+		
 		if (i === myId) return; //this is me
 		
 		console.log('SPAWN', i);
 		var plyr = new Player(i, game, localPlayerSprite, x, y);
 		playersList[i] = plyr;
 		plyr.update();
-
-	};
+		eurecaServer.powerUpUpdate(powerUpsActive);
+		
+		
+		};
+		
 	
 	eurecaClient.exports.updateState = updatePlayerState;
+
 };
 
 
-var game = new Phaser.Game(1200, 800, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+
+
+// var game = new Phaser.Game(1200, 800, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+var game = new Phaser.Game(4000, 3000, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+
 
 function preload () {
 
@@ -103,8 +128,7 @@ function preload () {
     game.load.spritesheet('healthbar', 'assets/healthbarsprite.png', 75, 10);
     
 	game.load.image('shotgunPowerup', 'assets/Shotgun.png');
-	game.load.image('riflePowerup', 'assets/Ak47Pixel.png')
-    
+	game.load.image('riflePowerup', 'assets/Ak47Pixel.png');
     
 }
 
@@ -133,11 +157,6 @@ function create () {
 	localPlayerSprite.x=0;
 	localPlayerSprite.y=0;
 
-  	this.powerUps = game.add.group();
-    this.powerUps.enableBody = true;
-    this.powerUps.physicsBodyType = Phaser.Physics.ARCADE;
-    this.powerUps.create(300, 300, 'shotgunPowerup', true);
-
     localPlayerSprite.bringToTop();
 
     game.camera.follow(localPlayerSprite);
@@ -154,8 +173,8 @@ function create () {
 		key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE)
 		
 	};
-
-
+	
+	populatePowerUps();
 }
 
 function update () {
@@ -198,7 +217,7 @@ function update () {
 		localPlayer.cursor.down != input.down ||
 		localPlayer.cursor.fire != input.fire ||
 		localPlayer.cursor.rot != localPlayerSprite.rotation ||
-		localPlayer.cursor.alive != localPlayer.alive
+		localPlayer.cursor.alive != localPlayerSprite.alive
 		
 	);
 	
@@ -210,6 +229,7 @@ function update () {
 		input.angle = localPlayerSprite.angle;
 		input.rot = localPlayerSprite.rotation;
 		input.skin = localPlayerSprite.skin;
+		input.health = localPlayer.cursor.health
 
 		eurecaServer.handleKeys(input);
 		localPlayer.cursor = input;
@@ -244,14 +264,15 @@ function update () {
                 playersList[i].update();
             }           
     }
-    
-    game.physics.arcade.overlap(powerUps, localPlayerSprite, collectPowerup, null, this);
+
+    game.physics.arcade.overlap(this.game.powerUps, localPlayerSprite, collectPowerup, null, this);
     game.physics.arcade.collide(localPlayerSprite, walls);
 
 }
 
-function collectPowerup (player,powerup){
-    powerup.kill();
+function collectPowerup (player, powerup){
+	powerup.kill();
+    eurecaServer.killPowerUp(powerup.z);
     console.log("Got powerup");
 }
 
@@ -263,9 +284,8 @@ function bulletHitWall (bullet) {
 }
 
 function bulletHitPlayer (player, bullet) {
+	bullet.kill();
     playersList[player.id].damage();
-    bullet.kill();
-    
 }
 
 function render () {

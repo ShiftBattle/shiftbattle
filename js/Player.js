@@ -1,4 +1,4 @@
-/* global eurecaServer, Phaser, Player speed localPlayerSprite game*/
+/* global eurecaServer, Phaser, Player, speed, localPlayerSprite, game*/
 
 function Player(index, game, user, x, y) {
 	this.cursor = {
@@ -10,11 +10,12 @@ function Player(index, game, user, x, y) {
 		alive: true,
 		visible: true,
 		exists: true,
-		skin: 'handgun'
-	};
+		skin: 'handgun',
+		health: 5
+		};
 
     this.game = game;
-    this.health = 5;
+    this.cursor.health = 5;
     this.user = user;
     this.alive = true;
     this.nextFire = 0;
@@ -197,22 +198,22 @@ Player.prototype.update = function() {
 	}
 
     
-    if (this.health === 5){
+    if (this.cursor.health === 5){
       		this.healthbar.animations.play('5health');
     }
-    else if (this.health === 4){
+    else if (this.cursor.health === 4){
       		this.healthbar.animations.play('4health');
     }
-    else if (this.health === 3){
+    else if (this.cursor.health === 3){
       		this.healthbar.animations.play('3health');
     }
-    else if (this.health === 2){
+    else if (this.cursor.health === 2){
       		this.healthbar.animations.play('2health');
     }
-    else if (this.health === 1){
+    else if (this.cursor.health === 1){
       		this.healthbar.animations.play('1health');
     }
-    else if (this.health === 0){
+    else if (this.cursor.health === 0){
       		this.healthbar.animations.play('0health');
     }
     
@@ -268,9 +269,11 @@ Player.prototype.fire = function(target) {
 
 Player.prototype.damage = function(){
     console.log(this.playerSprite.id, " IS GETTING POUNDED BY ", localPlayerSprite.id);
-    this.health--;
+    this.cursor.health--;
+    eurecaServer.handleKeys({
+		health: this.cursor.health});
 
-    if (this.health <= 0) {
+    if (this.cursor.health <= 0) {
         console.log(localPlayerSprite.id, " JUST KILLED ", this.playerSprite.id);
         this.death();
     }
@@ -296,7 +299,7 @@ Player.prototype.death = function() {
 };
 
 Player.prototype.respawn = function() {
-	this.health = 5;
+	this.cursor.health = 5;
 	this.playerSprite.revive();
 	this.healthbar.revive();
 	this.label = game.add.text(this.playerSprite.x, this.playerSprite.y, 'CODRIN', { font: "14px Arial", fill: "#ffffff", align: "center" });
