@@ -25,7 +25,7 @@ function Player(index, game, user, x, y) {
     this.bullets.enableBody = true;
     this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
 
-    this.bullets.createMultiple(5, 'bullet', 0, false);
+    this.bullets.createMultiple(30, 'bullet', 0, false);
     this.bullets.setAll('outOfBoundsKill', true);
     this.bullets.setAll('checkWorldBounds', true);
     
@@ -241,7 +241,7 @@ Player.prototype.fire = function(target) {
     			this.bullets.setAll('anchor.y', -0.7);
 				bullet.reset((this.playerSprite.x + (45*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (45*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 				bullet.rotation = this.playerSprite.rotation;      
-	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1000, bullet.body.velocity); 
+	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet.body.velocity); 
 
 			}
 			else if (this.playerSprite.skin === 'shotgun') {
@@ -251,7 +251,7 @@ Player.prototype.fire = function(target) {
     			this.bullets.setAll('anchor.y', -0.4);
 				bullet.reset((this.playerSprite.x + (60*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (60*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 				bullet.rotation = this.playerSprite.rotation;      
-	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1000, bullet.body.velocity); 
+	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet.body.velocity); 
 
 			}
 			else if (this.playerSprite.skin === 'rifle') {
@@ -261,7 +261,7 @@ Player.prototype.fire = function(target) {
 				this.bullets.setAll('anchor.y', -0.4);
 				bullet.reset((this.playerSprite.x + (73*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (73*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 				bullet.rotation = this.playerSprite.rotation;      
-	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1000, bullet.body.velocity);
+	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet.body.velocity);
 			}
         }
 };    

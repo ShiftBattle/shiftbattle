@@ -77,36 +77,28 @@ eurecaServer.exports.powerUpUpdate = function(powerUpList){
     }
     
     var pool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    var index = Math.floor(pool.length * Math.random());
+    var index2 = Math.floor(pool.length * Math.random());
+    var index3 = Math.floor(pool.length * Math.random());
+    var drawn = pool.splice(index, 1);
+    var drawn2 = pool.splice(index2, 1);
+    var drawn3 = pool.splice(index3, 1);
     
     
     if (updatedPowers.length === 0) {
-        
-    	var index = Math.floor(pool.length * Math.random());
-		var drawn = pool.splice(index, 1);
 		updatedPowers.push(drawn[0]);
-	    var index2 = Math.floor(pool.length * Math.random());
-	    var drawn2 = pool.splice(index2, 1);
 		updatedPowers.push(drawn2[0]);
-		var index3 = Math.floor(pool.length * Math.random());
-	    var drawn3 = pool.splice(index3, 1);
 		updatedPowers.push(drawn3[0]);
+		
 		}
     if (updatedPowers.length === 1) {
-      
         pool.splice(updatedPowers[0], 1);
-    	var index = Math.floor(pool.length * Math.random());
-		var drawn = pool.splice(index, 1);
 		updatedPowers.push(drawn[0]);
-	    var index2 = Math.floor(pool.length * Math.random());
-	    var drawn2 = pool.splice(index2, 1);
 		updatedPowers.push(drawn2[0]);
 		}
     if (updatedPowers.length === 2) {
-
         pool.splice(updatedPowers[0], 1);
         pool.splice(updatedPowers[1], 1);
-    	var index = Math.floor(pool.length * Math.random());
-		var drawn = pool.splice(index, 1);
 		updatedPowers.push(drawn[0]);
     }
     var conn = this.connection;
