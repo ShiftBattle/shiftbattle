@@ -70,63 +70,137 @@ eurecaServer.exports.handshake = function(connId)
 };
 
 eurecaServer.exports.powerUpUpdate = function(powerUpList){
- 
     var list = [].slice.call(arguments);
     if (list[0] !== null) {
         updatedPowers = powerUpList;
     }
-    
-    var pool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-    var index = Math.floor(pool.length * Math.random());
-    var index2 = Math.floor(pool.length * Math.random());
-    var index3 = Math.floor(pool.length * Math.random());
-    var drawn = pool.splice(index, 1);
-    var drawn2 = pool.splice(index2, 1);
-    var drawn3 = pool.splice(index3, 1);
-    
-    
+   
     if (updatedPowers.length === 0) {
-		updatedPowers.push(drawn[0]);
-		updatedPowers.push(drawn2[0]);
-		updatedPowers.push(drawn3[0]);
-		
+        var pool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        var index = Math.floor(pool.length * Math.random());
+        var drawn = pool.splice(index, 1);
+        var index2 = Math.floor(pool.length * Math.random());
+        var drawn2 = pool.splice(index2, 1);
+        var index3 = Math.floor(pool.length * Math.random());
+        var drawn3 = pool.splice(index3, 1);
+    
+        var powerUpType = ['rifle', 'shotgun', 'health', 'shield'];
+        var typeSelector = Math.floor(powerUpType.length * Math.random());
+        var typeSelector2 = Math.floor(powerUpType.length * Math.random());
+        var typeSelector3 = Math.floor(powerUpType.length * Math.random());
+        var selected = powerUpType.slice(typeSelector, typeSelector+1);
+        var selected2 = powerUpType.slice(typeSelector2, typeSelector2+1);
+        var selected3 = powerUpType.slice(typeSelector3, typeSelector3+1);
+        var numb1 = drawn[0];
+        var numb2 = drawn2[0];
+        var numb3 = drawn3[0];
+    
+        var arr1 = [];
+        arr1.push(numb1, selected[0]);
+        var arr2 = [];
+        arr2.push(numb2, selected2[0]);
+        var arr3 = [];
+        arr3.push(numb3, selected3[0]);
+        
+		updatedPowers.push(arr1);
+		updatedPowers.push(arr2);
+		updatedPowers.push(arr3);
+// 		console.log(updatedPowers, 'after pushing 3 items to the array of powerups');
 		}
     if (updatedPowers.length === 1) {
-        pool.splice(updatedPowers[0], 1);
-		updatedPowers.push(drawn[0]);
-		updatedPowers.push(drawn2[0]);
+        
+        var pool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        var index = Math.floor(pool.length * Math.random());
+        var drawn = pool.splice(index, 1);
+        var index2 = Math.floor(pool.length * Math.random());
+        var drawn2 = pool.splice(index2, 1);
+
+        
+        var powerUpType = ['rifle', 'shotgun', 'health', 'shield'];
+        var typeSelector = Math.floor(powerUpType.length * Math.random());
+        var typeSelector2 = Math.floor(powerUpType.length * Math.random());
+
+        var selected = powerUpType.slice(typeSelector, typeSelector+1);
+        var selected2 = powerUpType.slice(typeSelector2, typeSelector2+1);
+
+        var numb1 = drawn[0];
+        var numb2 = drawn2[0];
+        
+        var arr1 = [];
+        arr1.push(numb1, selected[0]);
+        var arr2 = [];
+        arr2.push(numb2, selected2[0]);
+
+        pool.splice(updatedPowers[0][0], 1);
+        
+		updatedPowers.push(arr1);
+		updatedPowers.push(arr2);
+// 		console.log(updatedPowers, 'after pushing 2 items to the array of powerups');
 		}
     if (updatedPowers.length === 2) {
-        pool.splice(updatedPowers[0], 1);
-        pool.splice(updatedPowers[1], 1);
-		updatedPowers.push(drawn[0]);
+        var pool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        var index = Math.floor(pool.length * Math.random());
+        var drawn = pool.splice(index, 1);
+        
+        var powerUpType = ['rifle', 'shotgun', 'health', 'shield'];
+        var typeSelector = Math.floor(powerUpType.length * Math.random());
+        
+        var selected = powerUpType.slice(typeSelector, typeSelector+1);
+        
+        var numb1 = drawn[0];
+        
+        var arr1 = [];
+        arr1.push(numb1, selected[0]);
+        
+        pool.splice(updatedPowers[0][0], 1);
+        pool.splice(updatedPowers[1][0], 1);
+		updatedPowers.push(arr1);
+// 		console.log(updatedPowers, 'after pushing 1 item to the array of powerups');
     }
+    
+    // console.log(updatedPowers, 'before sending the array to all the players');
     var conn = this.connection;
     var updatedClient = clients[conn.id];
     for (var c in clients) {
         var remote = clients[c].remote;
-
+        
         remote.updatePowerUps(updatedPowers, null);
     
     }
 }
 
 eurecaServer.exports.killPowerUp = function(powerUpToKill){
-    var index = updatedPowers.indexOf(powerUpToKill);
-    updatedPowers.splice(index, 1);
-
+    // console.log(powerUpToKill, 'the powerup to kill');
+    var num = [];
+    var arr1 = updatedPowers.forEach(function(arr) {
+        num.push(arr.indexOf(powerUpToKill[0]));
+    });
+    var pos = num.indexOf(0);
+    // console.log(updatedPowers, 'before the splice')
+    updatedPowers.splice(pos, 1);
+    // console.log(updatedPowers, 'after the splice')
+ 
     var pool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-    pool.splice(updatedPowers[0], 1);
-    pool.splice(updatedPowers[1], 1);
+    pool.splice(updatedPowers[0][0], 1);
+    pool.splice(updatedPowers[1][0], 1);
     var number = Math.floor(pool.length * Math.random());
 	var drawn = pool.splice(number, 1);
-	updatedPowers.push(drawn[0]);
-
+	
+	var powerUpType = ['rifle', 'shotgun', 'health', 'shield'];
+    var typeSelector = Math.floor(powerUpType.length * Math.random());
+    var selected = powerUpType.slice(typeSelector, typeSelector+1);
+    var numb1 = drawn[0];
+    var arr = [];
+    arr.push(numb1, selected[0]);
+    
+   
+	updatedPowers.push(arr);
+    // console.log(arr, powerUpToKill, 'before sending the data to all the players');
     var conn = this.connection;
     var updatedClient = clients[conn.id];
     for (var c in clients) {
         var remote = clients[c].remote;
-        remote.updatePowerUps(drawn, powerUpToKill);
+        remote.updatePowerUps(arr, powerUpToKill);
     }
 };
 

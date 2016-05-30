@@ -28,7 +28,6 @@ function updatePlayerState(id, state)
 			playersList[id].playerSprite.y = state.y;
 			playersList[id].playerSprite.angle = state.angle;
 			playersList[id].playerSprite.rotation = state.rot;
-			playersList[id].playerSprite.skin = state.skin;
 			
 			playersList[id].update();
 		}
@@ -62,17 +61,74 @@ var eurecaClientSetup = function() {
 	// sends the powerups that are currently active to all players
 	eurecaClient.exports.updatePowerUps = function(toRevive, toKill){
 		if(!toKill) {
+			console.log(toRevive, toKill, 'array inside of !toKill')
+			game.powerUps.children[toRevive[0][0]].revive();
+			game.powerUps.children[toRevive[0][0]].type = toRevive[0][1];
+				if (game.powerUps.children[toRevive[0][0]].type === 'shotgun') {
+					game.powerUps.children[toRevive[0][0]].play('shotgun');
+				}
+				if (game.powerUps.children[toRevive[0][0]].type === 'rifle') {
+					game.powerUps.children[toRevive[0][0]].play('rifle');
+				}
+				if (game.powerUps.children[toRevive[0][0]].type === 'health') {
+					game.powerUps.children[toRevive[0][0]].play('health');
+				}
+				if (game.powerUps.children[toRevive[0][0]].type === 'shield') {
+					game.powerUps.children[toRevive[0][0]].play('shield');
+				}
+			game.powerUps.children[toRevive[1][0]].revive();
+			game.powerUps.children[toRevive[1][0]].type = toRevive[1][1];
+				if (game.powerUps.children[toRevive[1][0]].type === 'shotgun') {
+					game.powerUps.children[toRevive[1][0]].play('shotgun');
+				}
+				if (game.powerUps.children[toRevive[1][0]].type === 'rifle') {
+					game.powerUps.children[toRevive[1][0]].play('rifle');
+				}
+				if (game.powerUps.children[toRevive[1][0]].type === 'health') {
+					game.powerUps.children[toRevive[1][0]].play('health');
+				}
+				if (game.powerUps.children[toRevive[1][0]].type === 'shield') {
+					game.powerUps.children[toRevive[1][0]].play('shield');
+				}
+			game.powerUps.children[toRevive[2][0]].revive();
+			game.powerUps.children[toRevive[2][0]].type = toRevive[2][1];
+				if (game.powerUps.children[toRevive[2][0]].type === 'shotgun') {
+					game.powerUps.children[toRevive[2][0]].play('shotgun');
+				}
+				if (game.powerUps.children[toRevive[2][0]].type === 'rifle') {
+					game.powerUps.children[toRevive[2][0]].play('rifle');
+				}
+				if (game.powerUps.children[toRevive[2][0]].type === 'health') {
+					game.powerUps.children[toRevive[2][0]].play('health');
+				}
+				if (game.powerUps.children[toRevive[2][0]].type === 'shield') {
+					game.powerUps.children[toRevive[2][0]].play('shield');
+				}
+			
+				
+				
+		}
+		else if(!toRevive) {
+			console.log(toRevive, toKill, 'array inside of !toRevive')
+			game.powerUps.children[toKill[0]].kill();
+		}
+		else if (toRevive && toKill){
+			console.log(toRevive, toKill, 'array inside of toRevive && toKill')
+			game.powerUps.children[toKill[0]].kill();
 			game.powerUps.children[toRevive[0]].revive();
-			game.powerUps.children[toRevive[1]].revive();
-			game.powerUps.children[toRevive[2]].revive();
-		}
-		
-		if(!toRevive) {
-			game.powerUps.children[toKill].kill();
-		}
-		if (toRevive && toKill){
-		game.powerUps.children[toRevive].revive();
-		game.powerUps.children[toKill].kill();
+			game.powerUps.children[toRevive[0]].type = toRevive[1];
+				if (game.powerUps.children[toRevive[0]].type === 'shotgun') {
+					game.powerUps.children[toRevive[0]].play('shotgun');
+				}
+				if (game.powerUps.children[toRevive[0]].type === 'rifle') {
+					game.powerUps.children[toRevive[0]].play('rifle');
+				}
+				if (game.powerUps.children[toRevive[0]].type === 'health') {
+					game.powerUps.children[toRevive[0]].play('health');
+				}
+				if (game.powerUps.children[toRevive[0]].type === 'shield') {
+					game.powerUps.children[toRevive[0]].play('shield');
+				}
 		}
 	}
 	
@@ -106,8 +162,8 @@ function preload () {
     
     game.load.spritesheet('healthbar', 'assets/healthbarsprite.png', 75, 10);
     
-	game.load.image('shotgunPowerup', 'assets/Shotgun.png');
-	game.load.image('riflePowerup', 'assets/Ak47Pixel.png');
+	game.load.spritesheet('powerups', 'assets/powerups.png', 75, 75);
+	// game.load.image('riflePowerup', 'assets/Ak47Pixel.png');
 }
 
 function create () {
@@ -167,18 +223,19 @@ function update () {
 	};
 	
 	if (keys.key1.isDown) {
-		localPlayer.playerSprite.skin = 'handgun';
+		localPlayer.cursor.skin = 'handgun';
 		eurecaServer.handleKeys({skin: 'handgun'});
 		
 	}
 	else if (keys.key2.isDown){
-		localPlayer.playerSprite.skin = 'shotgun';
+		localPlayer.cursor.skin = 'shotgun';
 		eurecaServer.handleKeys({skin: 'shotgun'});
 	}
 	else if (keys.key3.isDown){
-		localPlayer.playerSprite.skin = 'rifle';
+		localPlayer.cursor.skin = 'rifle';
 		eurecaServer.handleKeys({skin: 'rifle'});
 	}
+
 
 
 	localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
@@ -199,7 +256,7 @@ function update () {
 		input.y = localPlayerSprite.y;
 		input.angle = localPlayerSprite.angle;
 		input.rot = localPlayerSprite.rotation;
-		input.skin = localPlayerSprite.skin;
+		input.skin = localPlayer.cursor.skin;
 		input.health = localPlayer.cursor.health
 
 		eurecaServer.handleKeys(input);
@@ -238,13 +295,38 @@ function update () {
 
 function collectPowerup (player, powerup){
 	powerup.kill();
-    eurecaServer.killPowerUp(powerup.z);
-    console.log("Got powerup");
+	if (powerup.type === 'shotgun') {
+		localPlayer.cursor.skin = 'shotgun';
+		eurecaServer.handleKeys({
+			skin: 'shotgun'
+		});
+	}
+	else if (powerup.type === 'rifle') {
+		localPlayer.cursor.skin = 'rifle';
+		eurecaServer.handleKeys({
+			skin: 'rifle'
+		});
+	}
+	else if (powerup.type === 'health') {
+		localPlayer.cursor.health = 5;
+		eurecaServer.handleKeys({
+			health: 5
+		});
+	}
+	else if (powerup.type === 'shield') {
+		console.log('picked up the shield')
+	}
+
+	
+    eurecaServer.killPowerUp([powerup.z, powerup.type]);
+    
+    
+    console.log(player.id, "picked up a", powerup.type, "powerup!");
 }
 
 
 function bulletHitWall (bullet) {
-	// console.log('bullet has hit the wall');
+	console.log(bullet, 'bullet has hit the wall');
 	bullet.kill();
     
 }
