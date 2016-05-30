@@ -11,7 +11,9 @@ function Player(index, game, user, x, y) {
 		visible: true,
 		exists: true,
 		skin: 'handgun',
-		health: 5
+		health: 5,
+		kills: [],
+		deaths: []
 		};
 
     this.game = game;
@@ -19,6 +21,7 @@ function Player(index, game, user, x, y) {
     this.user = user;
     this.alive = true;
     this.nextFire = 0;
+    
    
     // create 20-30 bullets per clip, maybe carry 4-5 clips and then have a reload function added
     this.bullets = game.add.group();
@@ -270,12 +273,19 @@ Player.prototype.fire = function(target) {
 Player.prototype.damage = function(){
     console.log(this.playerSprite.id, " IS GETTING POUNDED BY ", localPlayerSprite.id);
     this.cursor.health--;
+    
+   // eurecaServer.killUpdate(localPlayerSprite.id, this.playerSprite.id)
+    console.log(this.playerSprite.id, localPlayerSprite)
     eurecaServer.handleKeys({
 		health: this.cursor.health});
 
     if (this.cursor.health <= 0) {
-        console.log(localPlayerSprite.id, " JUST KILLED ", this.playerSprite.id);
+    	var killer = this.playerSprite.id
+    	var victim = localPlayerSprite.id
+    	var packge = {killer: killer, victim: victim}
+        eurecaServer.killUpdate(packge)
         this.death();
+
     }
 };
 

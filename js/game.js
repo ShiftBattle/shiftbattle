@@ -9,7 +9,7 @@ var localPlayerSprite;
 var localPlayer;
 var playersList = {};
 // var explosions;
-
+var holder;
 var speed = 5;
 
 var ready = false;
@@ -59,6 +59,7 @@ var eurecaClientSetup = function() {
 			console.log('Removing ', id, playersList[id], " from the game");
 		}
 	};
+	
 	// sends the powerups that are currently active to all players
 	eurecaClient.exports.updatePowerUps = function(toRevive, toKill){
 		if(!toKill) {
@@ -75,6 +76,28 @@ var eurecaClientSetup = function() {
 		game.powerUps.children[toKill].kill();
 		}
 	}
+	
+	eurecaClient.exports.printKillText = function(obj){
+	console.log(obj)			//I'm sending the whole totakills list
+	//Object {killer: "TMcHd9OLjWsok7dAAAAC", victim: "nV4-1PMvLNPiqV0LAAAD"}
+	var victim = obj[0].victim
+	
+	/*var thirdMostRecent = game.add.text(20, 20, "You killed" + victim, { font: "32px Arial", fill: "#ffffff", align: "center" });
+	var secondMostRecent = game.add.text(20, 20, "You killed" + victim, { font: "32px Arial", fill: "#ffffff", align: "center" });
+	var mostRecentKill = game.add.text(30, 30, "You killed" + victim, { font: "32px Arial", fill: "#ffffff", align: "center" });*/
+	
+	var t = game.add.text(0, 0, "You killed" + victim, { font: "20px Arial", fill: "#ffffff", align: "center" });
+	t.fixedToCamera = true
+	setTimeout(function() {
+		
+		
+		t.destroy();
+	}, 2000);
+	}
+	
+	
+	
+	
 	
 	eurecaClient.exports.spawnEnemy = function(i, x, y)
 	{
@@ -135,6 +158,7 @@ function create () {
     localPlayerSprite.bringToTop();
 
     game.camera.follow(localPlayerSprite);
+    holder = game.add.sprite(0,0, "bullet")
 
 	keys = { 
 		up: game.input.keyboard.addKey(Phaser.Keyboard.W),
@@ -250,6 +274,7 @@ function bulletHitWall (bullet) {
 }
 
 function bulletHitPlayer (player, bullet) {
+	console.log(bullet)
 	bullet.kill();
     playersList[player.id].damage();
 }

@@ -1,81 +1,84 @@
-var express = require('express')
-  , app = express(app)
-  , server = require('http').createServer(app);
+var express = require('express'),
+    app = express(app),
+    server = require('http').createServer(app);
 // serve static files from the current directory
 app.use(express.static(__dirname));
 //we'll keep clients data here
 var clients = {};
 var updatedPowers = [];
+var totalKills = []
 
 //get EurecaServer class
 var EurecaServer = require('eureca.io').EurecaServer;
 //create an instance of EurecaServer
-var eurecaServer = new EurecaServer({allow:['setId', 'spawnEnemy', 'kill', 'updateState', 'updatePowerUps']});
+var eurecaServer = new EurecaServer({
+    allow: ['setId', 'spawnEnemy', 'kill', 'updateState', 'updatePowerUps', 'killUpdate', 'printKillText']
+});
 //attach eureca.io to our http server
 eurecaServer.attach(server);
 //eureca.io provides events to detect clients connect/disconnect
 //detect client connection
-eurecaServer.onConnect(function (conn) {    
+eurecaServer.onConnect(function(conn) {
     console.log('New Client id=%s ', conn.id, conn.remoteAddress);
-    
+
     //the getClient method provide a proxy allowing us to call remote client functions
-    var remote = eurecaServer.getClient(conn.id);    
-    
+    var remote = eurecaServer.getClient(conn.id);
+
     //register the client
-    clients[conn.id] = {id:conn.id, remote:remote};
-    
+    clients[conn.id] = {
+        id: conn.id,
+        remote: remote
+    };
+
     //here we call setId (defined in the client side)
-    remote.setId(conn.id);  
-    
+    remote.setId(conn.id);
+
 });
 //detect client disconnection
-eurecaServer.onDisconnect(function (conn) {    
+eurecaServer.onDisconnect(function(conn) {
     console.log('Client disconnected ', conn.id);
-    
+
     var removeId = clients[conn.id].id;
-    
+
     delete clients[conn.id];
-    
-    for (var c in clients)
-    {
-        
+
+    for (var c in clients) {
+
         var remote = clients[c].remote;
-        
+
         //here we call kill() method defined in the client side
         remote.kill(conn.id);
-    }   
+    }
 });
 
-eurecaServer.exports.handshake = function(connId)
-{
+eurecaServer.exports.handshake = function(connId) {
     var remote = clients[connId].remote;
-    
+
     // loop thru all players
-    for (var cc in clients)
-    {
-        
+    for (var cc in clients) {
+
         if (cc === connId) {
             continue;
         }
         //send latest known position
-        var x = clients[cc].laststate ? clients[cc].laststate.x:  0;
-        var y = clients[cc].laststate ? clients[cc].laststate.y:  0;
-        
+        var x = clients[cc].laststate ? clients[cc].laststate.x : 0;
+        var y = clients[cc].laststate ? clients[cc].laststate.y : 0;
+
         // send current player to new player
         remote.spawnEnemy(clients[cc].id, x, y);
-        
+
         // send new player spawn to current player
         clients[cc].remote.spawnEnemy(connId, 0, 0);
     }
 };
 
-eurecaServer.exports.powerUpUpdate = function(powerUpList){
- 
+eurecaServer.exports.powerUpUpdate = function(powerUpList) {
+
     var list = [].slice.call(arguments);
     if (list[0] !== null) {
         updatedPowers = powerUpList;
     }
-    
+
     var pool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     var index = Math.floor(pool.length * Math.random());
     var index2 = Math.floor(pool.length * Math.random());
@@ -83,23 +86,23 @@ eurecaServer.exports.powerUpUpdate = function(powerUpList){
     var drawn = pool.splice(index, 1);
     var drawn2 = pool.splice(index2, 1);
     var drawn3 = pool.splice(index3, 1);
-    
-    
+
+
     if (updatedPowers.length === 0) {
-		updatedPowers.push(drawn[0]);
-		updatedPowers.push(drawn2[0]);
-		updatedPowers.push(drawn3[0]);
-		
-		}
+        updatedPowers.push(drawn[0]);
+        updatedPowers.push(drawn2[0]);
+        updatedPowers.push(drawn3[0]);
+
+    }
     if (updatedPowers.length === 1) {
         pool.splice(updatedPowers[0], 1);
-		updatedPowers.push(drawn[0]);
-		updatedPowers.push(drawn2[0]);
-		}
+        updatedPowers.push(drawn[0]);
+        updatedPowers.push(drawn2[0]);
+    }
     if (updatedPowers.length === 2) {
         pool.splice(updatedPowers[0], 1);
         pool.splice(updatedPowers[1], 1);
-		updatedPowers.push(drawn[0]);
+        updatedPowers.push(drawn[0]);
     }
     var conn = this.connection;
     var updatedClient = clients[conn.id];
@@ -107,11 +110,11 @@ eurecaServer.exports.powerUpUpdate = function(powerUpList){
         var remote = clients[c].remote;
 
         remote.updatePowerUps(updatedPowers, null);
-    
+
     }
 }
 
-eurecaServer.exports.killPowerUp = function(powerUpToKill){
+eurecaServer.exports.killPowerUp = function(powerUpToKill) {
     var index = updatedPowers.indexOf(powerUpToKill);
     updatedPowers.splice(index, 1);
 
@@ -119,8 +122,8 @@ eurecaServer.exports.killPowerUp = function(powerUpToKill){
     pool.splice(updatedPowers[0], 1);
     pool.splice(updatedPowers[1], 1);
     var number = Math.floor(pool.length * Math.random());
-	var drawn = pool.splice(number, 1);
-	updatedPowers.push(drawn[0]);
+    var drawn = pool.splice(number, 1);
+    updatedPowers.push(drawn[0]);
 
     var conn = this.connection;
     var updatedClient = clients[conn.id];
@@ -130,21 +133,36 @@ eurecaServer.exports.killPowerUp = function(powerUpToKill){
     }
 };
 
+eurecaServer.exports.killUpdate = function(packge) {
+    totalKills.push(packge)
 
-eurecaServer.exports.handleKeys = function (keys) {
-    
-        
     var conn = this.connection;
     var updatedClient = clients[conn.id];
-    
-    for (var c in clients)
-    {
+
+    for (var c in clients) {
+        
+        
         var remote = clients[c].remote;
-        
+        remote.printKillText(totalKills);
+
+    }
+}
+
+
+eurecaServer.exports.handleKeys = function(keys) {
+
+
+    var conn = this.connection;
+    var updatedClient = clients[conn.id];
+
+    for (var c in clients) {
+        var remote = clients[c].remote;
+
         remote.updateState(updatedClient.id, keys);
-        
+
         //keep last known state so we can send it to new connected clients
         clients[c].laststate = keys;
     }
 };
+console.log(totalKills)
 server.listen(process.env.PORT);
