@@ -149,6 +149,8 @@ var eurecaClientSetup = function() {
 
 var game = new Phaser.Game(1200, 800, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 // var game = new Phaser.Game(4000, 3000, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+// var game = new Phaser.Game(window.width, window.height, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+
 
 function preload () {
 	game.load.tilemap('fixedmap', 'assets/fixedmap.json', null, Phaser.Tilemap.TILED_JSON);
@@ -161,9 +163,9 @@ function preload () {
     game.load.image('bullet', 'assets/bullet2.png');
     
     game.load.spritesheet('healthbar', 'assets/healthbarsprite.png', 75, 10);
-    
 	game.load.spritesheet('powerups', 'assets/powerups.png', 75, 75);
-	// game.load.image('riflePowerup', 'assets/Ak47Pixel.png');
+	game.load.spritesheet('shield3', 'assets/shield3.png', 138, 109);
+
 }
 
 function create () {
@@ -185,8 +187,8 @@ function create () {
 	localPlayer = new Player(myId, game, localPlayerSprite);
 	playersList[myId] = localPlayer;
 	localPlayerSprite = localPlayer.playerSprite;
-	localPlayerSprite.x=0;
-	localPlayerSprite.y=0;
+	// localPlayerSprite.x=0;
+	// localPlayerSprite.y=0;
 
     localPlayerSprite.bringToTop();
 
@@ -204,6 +206,7 @@ function create () {
 	};
 	
 	populatePowerUps();
+	// console.log(localPlayer.powerUps.children);
 }
 
 function update () {
@@ -222,19 +225,20 @@ function update () {
 		ty: game.input.y + game.camera.y
 	};
 	
-	if (keys.key1.isDown) {
-		localPlayer.cursor.skin = 'handgun';
-		eurecaServer.handleKeys({skin: 'handgun'});
+	// if (keys.key1.isDown) {
+	// 	localPlayer.cursor.skin = 'handgun';
+	// 	console.log(game.powerUps.children);
+	// 	eurecaServer.handleKeys({skin: 'handgun'});
 		
-	}
-	else if (keys.key2.isDown){
-		localPlayer.cursor.skin = 'shotgun';
-		eurecaServer.handleKeys({skin: 'shotgun'});
-	}
-	else if (keys.key3.isDown){
-		localPlayer.cursor.skin = 'rifle';
-		eurecaServer.handleKeys({skin: 'rifle'});
-	}
+	// }
+	// else if (keys.key2.isDown){
+	// 	localPlayer.cursor.skin = 'shotgun';
+	// 	eurecaServer.handleKeys({skin: 'shotgun'});
+	// }
+	// else if (keys.key3.isDown){
+	// 	localPlayer.cursor.skin = 'rifle';
+	// 	eurecaServer.handleKeys({skin: 'rifle'});
+	// }
 
 
 
@@ -326,7 +330,7 @@ function collectPowerup (player, powerup){
 
 
 function bulletHitWall (bullet) {
-	console.log(bullet, 'bullet has hit the wall');
+	// console.log(bullet, 'bullet has hit the wall');
 	bullet.kill();
     
 }

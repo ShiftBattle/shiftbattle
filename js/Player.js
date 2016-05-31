@@ -1,5 +1,30 @@
 /* global eurecaServer, Phaser, Player, speed, localPlayerSprite, game*/
 
+var playerSpawns = {
+1: [180, 170],
+2: [155, 1080],
+3: [119, 1355],
+4: [129, 2420],
+5: [890, 1981],
+6: [1170, 1985],
+7: [1500, 2423],
+8: [2435, 2421],
+9: [1778, 1971],
+10: [2475, 1360],
+11: [1474, 1554],
+12: [2449, 124],
+13: [1872, 364]
+}
+
+function countObjectKeys(obj) { 
+    return Object.keys(obj).length; 
+}
+
+function randomize (spawnObject) {
+	return Math.floor((Math.random() * countObjectKeys(spawnObject)) + 1);
+}
+
+
 function Player(index, game, user, x, y) {
 	this.cursor = {
 		left:false,
@@ -30,7 +55,9 @@ function Player(index, game, user, x, y) {
     this.bullets.setAll('outOfBoundsKill', true);
     this.bullets.setAll('checkWorldBounds', true);
     
-    this.playerSprite = game.add.sprite(x || 0, y || 0, 'final-player');
+    
+   	var loc = playerSpawns[randomize(playerSpawns)];
+    this.playerSprite = game.add.sprite(loc[0], loc[1], 'final-player');
     this.playerSprite.anchor.set(0.5);
     
     this.playerSprite.animations.add('move-handgun', [0], 20, false);
@@ -56,12 +83,28 @@ function Player(index, game, user, x, y) {
   	this.healthbar.animations.add('2health', [2], 20, false);
   	this.healthbar.animations.add('1health', [1], 20, false);
     this.healthbar.animations.add('0health', [0], 20, false);
+    
+    // this.shield = game.add.sprite(x, y, 'shield3');
+    // this.shield.animations.add('shield3', [0], 20, false);
+    // Phaser.Physics.Arcade.Body = function (shield3) {
+    // 	this.shield3 = shield3;
+    // 	this.type = Phaser.Physics.ARCADE;
+    // 	this.enable = true;
+    // 	this.bounce = new Phaser.Point();
+    // 	this.bounce.x = 1;
+    // 	this.bounce.y = 1
+    // };
+    // this.shield.enableBody = true;
+    // this.shield.physicsBodyType = Phaser.Physics.ARCADE;
+    // this.shield.body.bounce.setTo(1,1);
+    
+    // console.log(this.shield)
 
     //name label
     this.label = game.add.text(x, y, 'CODRIN', { font: "14px Arial", fill: "#ffffff", align: "center" });  //Creating player ID (here based on index)
 
-	this.reloadText = game.add.text(game.camera.width / 2, game.camera.height / 2, "OUT OF BULLETS!! PRESS R TO RELOAD", {font: "30px Arial", fill: "#ffffff ", stroke: '#000000 ', strokeThickness: 3, align: 'center'});
-	this.reloadText.exists = false;
+	// this.reloadText = game.add.text(game.camera.width / 2, game.camera.height / 2, "OUT OF BULLETS!! PRESS R TO RELOAD", {font: "30px Arial", fill: "#ffffff ", stroke: '#000000 ', strokeThickness: 3, align: 'center'});
+	// this.reloadText.exists = false;
 	
 	// this.reloadText.visible = false;
 	// this.reloadText.fixedToCamera = true;
@@ -221,6 +264,10 @@ Player.prototype.update = function() {
     this.healthbar.y = this.playerSprite.y; 
     this.healthbar.anchor.setTo(.5, -5.5);
     
+   	// this.shield.x = this.playerSprite.x;
+    // this.shield.y = this.playerSprite.y; 
+    // this.shield.anchor.setTo(0.5, 0.5);
+    
 	this.label.x = this.playerSprite.x;       //Adding player id beneath player
     this.label.y = this.playerSprite.y;       //
     this.label.anchor.setTo(.5, -1.8);         //
@@ -290,9 +337,10 @@ Player.prototype.damage = function(){
 Player.prototype.death = function() {
 	var that= this;
 	// console.log(this.playerSprite)
-	this.playerSprite.kill();
 	this.healthbar.kill();
-	this.label.destroy();
+	this.label.kill();
+	// this.label.destroy();
+	this.playerSprite.kill();
 
 	eurecaServer.handleKeys({
 		alive: false,
@@ -300,8 +348,7 @@ Player.prototype.death = function() {
 		visible: false});
 	
 	setTimeout(function() {
-		
-		console.log("RESPAWN TIMEOUT FUNCTION")
+		console.log("RESPAWN TIMEOUT FUNCTION");
 		that.respawn();
 	}, 5000);
 };
@@ -309,10 +356,15 @@ Player.prototype.death = function() {
 Player.prototype.respawn = function() {
 	this.cursor.health = 5;
 	this.cursor.skin = 'handgun';
+	var loc = playerSpawns[randomize(playerSpawns)];
+	this.playerSprite.x = loc[0];
+	this.playerSprite.y = loc[1];
+	// this.label = game.add.text(this.playerSprite.x, this.playerSprite.y, 'CODRIN', { font: "14px Arial", fill: "#ffffff", align: "center" });
+ //   this.label.anchor.setTo(.5, -1.8);
 	this.playerSprite.revive();
+	this.label.revive();
 	this.healthbar.revive();
-	this.label = game.add.text(this.playerSprite.x, this.playerSprite.y, 'CODRIN', { font: "14px Arial", fill: "#ffffff", align: "center" });
-    this.label.anchor.setTo(.5, -1.8); 
+	
 };
 
 Player.prototype.destroy = function() {

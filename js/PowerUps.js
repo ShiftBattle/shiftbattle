@@ -26,15 +26,17 @@
 		this.game.powerUps.callAll('animations.add', 'animations', 'rifle', [0], 20, false); 
 		this.game.powerUps.callAll('animations.add', 'animations', 'shotgun', [1], 20, false); 
 		this.game.powerUps.callAll('animations.add', 'animations', 'health', [2], 20, false); 
-		this.game.powerUps.callAll('animations.add', 'animations', 'shield', [3], 20, false); 
+		// this.game.powerUps.callAll('animations.add', 'animations', 'shield', [3], 20, false); 
 		
 
-		this.game.powerUps.children.map(function(each, index) {
-			each.x = locs[index][0];
-			each.y = locs[index][1];
+		this.game.powerUps.children.forEach(function(item, index) {
+			item.x = locs[index][0];
+			item.y = locs[index][1];
+			// console.log(item.x, 'x for each');
+			// console.log(item.y, 'y for each');
 		});
 	}
-
+	
 	function activateThreeRandom(active) {
 	    var pool = [];
 	    var list = [].slice.call(arguments);
