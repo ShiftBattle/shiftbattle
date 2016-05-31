@@ -8,7 +8,6 @@ var walls;
 var localPlayerSprite;
 var localPlayer;
 var playersList = {};
-// var explosions;
 
 var speed = 5;
 
@@ -31,6 +30,18 @@ function updatePlayerState(id, state)
 			
 			playersList[id].update();
 		}
+		
+	}
+
+function updatePowerups(newPowerups){
+		console.log(game.camera.x, game.camera.y)
+		console.log(newPowerups);
+		newPowerups.forEach(function(pu, idx) {
+			var powerUpSprite = game.powerUps.children[idx];
+			powerUpSprite.reset(pu[0][0], pu[0][1]);
+			powerUpSprite.type = pu[1];
+		});
+		
 	}
 
 //this function will handle client communication with the server
@@ -44,10 +55,12 @@ var eurecaClientSetup = function() {
 	
 	//methods defined under "exports" namespace become available in the server side
 	
-	eurecaClient.exports.setId = function(id) {
+	eurecaClient.exports.setInfo = function(info) {
 		//create() is moved here to make sure nothing is created before unique id assignation
-		myId = id;
+		myId = info.id;
 		create();
+		updatePowerups(info.powerups);
+		// call powerup display with info.powerups
 		eurecaServer.handshake(myId);
 		ready = true;
 	}
@@ -58,93 +71,24 @@ var eurecaClientSetup = function() {
 			console.log('Removing ', id, playersList[id], " from the game");
 		}
 	};
-	// sends the powerups that are currently active to all players
-	eurecaClient.exports.updatePowerUps = function(toRevive, toKill){
-		if(!toKill) {
-			console.log(toRevive, toKill, 'array inside of !toKill')
-			game.powerUps.children[toRevive[0][0]].revive();
-			game.powerUps.children[toRevive[0][0]].type = toRevive[0][1];
-				if (game.powerUps.children[toRevive[0][0]].type === 'shotgun') {
-					game.powerUps.children[toRevive[0][0]].play('shotgun');
-				}
-				if (game.powerUps.children[toRevive[0][0]].type === 'rifle') {
-					game.powerUps.children[toRevive[0][0]].play('rifle');
-				}
-				if (game.powerUps.children[toRevive[0][0]].type === 'health') {
-					game.powerUps.children[toRevive[0][0]].play('health');
-				}
-				if (game.powerUps.children[toRevive[0][0]].type === 'shield') {
-					game.powerUps.children[toRevive[0][0]].play('shield');
-				}
-			game.powerUps.children[toRevive[1][0]].revive();
-			game.powerUps.children[toRevive[1][0]].type = toRevive[1][1];
-				if (game.powerUps.children[toRevive[1][0]].type === 'shotgun') {
-					game.powerUps.children[toRevive[1][0]].play('shotgun');
-				}
-				if (game.powerUps.children[toRevive[1][0]].type === 'rifle') {
-					game.powerUps.children[toRevive[1][0]].play('rifle');
-				}
-				if (game.powerUps.children[toRevive[1][0]].type === 'health') {
-					game.powerUps.children[toRevive[1][0]].play('health');
-				}
-				if (game.powerUps.children[toRevive[1][0]].type === 'shield') {
-					game.powerUps.children[toRevive[1][0]].play('shield');
-				}
-			game.powerUps.children[toRevive[2][0]].revive();
-			game.powerUps.children[toRevive[2][0]].type = toRevive[2][1];
-				if (game.powerUps.children[toRevive[2][0]].type === 'shotgun') {
-					game.powerUps.children[toRevive[2][0]].play('shotgun');
-				}
-				if (game.powerUps.children[toRevive[2][0]].type === 'rifle') {
-					game.powerUps.children[toRevive[2][0]].play('rifle');
-				}
-				if (game.powerUps.children[toRevive[2][0]].type === 'health') {
-					game.powerUps.children[toRevive[2][0]].play('health');
-				}
-				if (game.powerUps.children[toRevive[2][0]].type === 'shield') {
-					game.powerUps.children[toRevive[2][0]].play('shield');
-				}
-			
-				
-				
-		}
-		else if(!toRevive) {
-			console.log(toRevive, toKill, 'array inside of !toRevive')
-			game.powerUps.children[toKill[0]].kill();
-		}
-		else if (toRevive && toKill){
-			console.log(toRevive, toKill, 'array inside of toRevive && toKill')
-			game.powerUps.children[toKill[0]].kill();
-			game.powerUps.children[toRevive[0]].revive();
-			game.powerUps.children[toRevive[0]].type = toRevive[1];
-				if (game.powerUps.children[toRevive[0]].type === 'shotgun') {
-					game.powerUps.children[toRevive[0]].play('shotgun');
-				}
-				if (game.powerUps.children[toRevive[0]].type === 'rifle') {
-					game.powerUps.children[toRevive[0]].play('rifle');
-				}
-				if (game.powerUps.children[toRevive[0]].type === 'health') {
-					game.powerUps.children[toRevive[0]].play('health');
-				}
-				if (game.powerUps.children[toRevive[0]].type === 'shield') {
-					game.powerUps.children[toRevive[0]].play('shield');
-				}
-		}
-	}
-	
+	// sends the powerups that are currently active to all players and spawns a new one if one of them is picked up
+	eurecaClient.exports.updatePowerUps = updatePowerups;
+
 	eurecaClient.exports.spawnEnemy = function(i, x, y)
 	{
 		if (i === myId) return; //this is me
-		
+
 		console.log('SPAWN', i);
 		var plyr = new Player(i, game, localPlayerSprite, x, y);
 		playersList[i] = plyr;
 		plyr.update();
-		eurecaServer.powerUpUpdate(powerUpsActive);
-		
 		};
-		
+
 	eurecaClient.exports.updateState = updatePlayerState;
+	
+	eurecaClient.exports.killPowerups = function() {
+		game.powerUps.children.forEach(function(pu) {pu.kill()});
+	}
 };
 
 var game = new Phaser.Game(1200, 800, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
@@ -162,9 +106,9 @@ function preload () {
     
     game.load.image('bullet', 'assets/bullet2.png');
     
-    game.load.spritesheet('healthbar', 'assets/healthbarsprite.png', 75, 10);
+    game.load.spritesheet('healthbar', 'assets/healthbarfinal.png', 74.9, 10);
 	game.load.spritesheet('powerups', 'assets/powerups.png', 75, 75);
-	game.load.spritesheet('shield3', 'assets/shield3.png', 138, 109);
+	game.load.spritesheet('shield', 'assets/shield.png', 130, 128);
 
 }
 
@@ -199,15 +143,37 @@ function create () {
 		down: game.input.keyboard.addKey(Phaser.Keyboard.S),
 		left: game.input.keyboard.addKey(Phaser.Keyboard.A),
 		right: game.input.keyboard.addKey(Phaser.Keyboard.D),
-		reload: game.input.keyboard.addKey(Phaser.Keyboard.R),
-		key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
-		key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
-		key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE)
+		// reload: game.input.keyboard.addKey(Phaser.Keyboard.R),
+		// key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
+		// key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
+		// key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE)
 	};
 	
 	populatePowerUps();
 	// console.log(localPlayer.powerUps.children);
+	
+	game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+	
+	var fullscreen = game.input.keyboard.addKey(Phaser.Keyboard.ONE);
+	
+	fullscreen.onDown.add(gofull, this);
+
 }
+
+
+function gofull() {
+
+    if (game.scale.isFullScreen)
+    {
+        game.scale.stopFullScreen();
+    }
+    else
+    {
+        game.scale.startFullScreen(false);
+    }
+
+}
+
 
 function update () {
 	//do not update if client not ready
@@ -292,7 +258,7 @@ function update () {
             }           
     }
 
-    game.physics.arcade.overlap(this.game.powerUps, localPlayerSprite, collectPowerup, null, this);
+    game.physics.arcade.overlap(game.powerUps, localPlayerSprite, collectPowerup, null, this);
     game.physics.arcade.collide(localPlayerSprite, walls);
 
 }
@@ -312,17 +278,21 @@ function collectPowerup (player, powerup){
 		});
 	}
 	else if (powerup.type === 'health') {
-		localPlayer.cursor.health = 5;
+		localPlayer.cursor.health = 10;
 		eurecaServer.handleKeys({
-			health: 5
+			health: 10
 		});
 	}
 	else if (powerup.type === 'shield') {
-		console.log('picked up the shield')
+		localPlayer.shield.visible = true;
+		localPlayer.cursor.shield = 5;
+		localPlayer.shield.animations.play('shield');
+		eurecaServer.handleKeys({
+			shield: 5
+		});
 	}
 
-	
-    eurecaServer.killPowerUp([powerup.z, powerup.type]);
+    eurecaServer.pickupPowerUp();
     
     
     console.log(player.id, "picked up a", powerup.type, "powerup!");

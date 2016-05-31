@@ -14,7 +14,7 @@ var playerSpawns = {
 11: [1474, 1554],
 12: [2449, 124],
 13: [1872, 364]
-}
+};
 
 function countObjectKeys(obj) { 
     return Object.keys(obj).length; 
@@ -36,14 +36,16 @@ function Player(index, game, user, x, y) {
 		visible: true,
 		exists: true,
 		skin: 'handgun',
-		health: 5
+		health: 10,
+		shield: 0
 		};
 
     this.game = game;
     this.user = user;
     this.alive = true;
     this.nextFire = 0;
-    this.cursor.health = 5;
+    this.cursor.health = 10;
+    this.cursor.shield = 0;
     this.cursor.skin = 'handgun';
    
     // create 20-30 bullets per clip, maybe carry 4-5 clips and then have a reload function added
@@ -54,7 +56,6 @@ function Player(index, game, user, x, y) {
     this.bullets.createMultiple(30, 'bullet', 0, false);
     this.bullets.setAll('outOfBoundsKill', true);
     this.bullets.setAll('checkWorldBounds', true);
-    
     
    	var loc = playerSpawns[randomize(playerSpawns)];
     this.playerSprite = game.add.sprite(loc[0], loc[1], 'final-player');
@@ -77,31 +78,23 @@ function Player(index, game, user, x, y) {
     this.playerSprite.angle = 0;
     
     this.healthbar = game.add.sprite(x, y, 'healthbar');
-  	this.healthbar.animations.add('5health', [5], 20, false);
-  	this.healthbar.animations.add('4health', [4], 20, false);
-  	this.healthbar.animations.add('3health', [3], 20, false);
-  	this.healthbar.animations.add('2health', [2], 20, false);
-  	this.healthbar.animations.add('1health', [1], 20, false);
-    this.healthbar.animations.add('0health', [0], 20, false);
-    
-    // this.shield = game.add.sprite(x, y, 'shield3');
-    // this.shield.animations.add('shield3', [0], 20, false);
-    // Phaser.Physics.Arcade.Body = function (shield3) {
-    // 	this.shield3 = shield3;
-    // 	this.type = Phaser.Physics.ARCADE;
-    // 	this.enable = true;
-    // 	this.bounce = new Phaser.Point();
-    // 	this.bounce.x = 1;
-    // 	this.bounce.y = 1
-    // };
-    // this.shield.enableBody = true;
-    // this.shield.physicsBodyType = Phaser.Physics.ARCADE;
-    // this.shield.body.bounce.setTo(1,1);
-    
-    // console.log(this.shield)
+  	this.healthbar.animations.add('10health', [9], 20, false);    
+  	this.healthbar.animations.add('9health', [8], 20, false);    
+  	this.healthbar.animations.add('8health', [7], 20, false);    
+  	this.healthbar.animations.add('7health', [6], 20, false);    
+  	this.healthbar.animations.add('6health', [5], 20, false);
+  	this.healthbar.animations.add('5health', [4], 20, false);   
+  	this.healthbar.animations.add('4health', [3], 20, false);
+  	this.healthbar.animations.add('3health', [2], 20, false);
+  	this.healthbar.animations.add('2health', [1], 20, false);
+  	this.healthbar.animations.add('1health', [0], 20, false);
 
+    this.shield = game.add.sprite(x, y, 'shield');
+    this.shield.animations.add('shield', [0, 1, 2, 3], 10, true);
+    this.shield.visible = false;
+    
     //name label
-    this.label = game.add.text(x, y, 'CODRIN', { font: "14px Arial", fill: "#ffffff", align: "center" });  //Creating player ID (here based on index)
+    this.label = game.add.text(x, y, '' + this.playerSprite.id + '', { font: "14px Arial", fill: "#ffffff", align: "center" });  //Creating player ID (here based on index)
 
 	// this.reloadText = game.add.text(game.camera.width / 2, game.camera.height / 2, "OUT OF BULLETS!! PRESS R TO RELOAD", {font: "30px Arial", fill: "#ffffff ", stroke: '#000000 ', strokeThickness: 3, align: 'center'});
 	// this.reloadText.exists = false;
@@ -239,9 +232,22 @@ Player.prototype.update = function() {
 				this.playerSprite.animations.play('shoot-rifle');
 			}
 	}
-
-    
-    if (this.cursor.health === 5){
+    if (this.cursor.health === 10){
+      		this.healthbar.animations.play('10health');
+    }
+    else if (this.cursor.health === 9){
+      		this.healthbar.animations.play('9health');
+    }
+    else if (this.cursor.health === 8){
+      		this.healthbar.animations.play('8health');
+    }
+    else if (this.cursor.health === 7){
+      		this.healthbar.animations.play('7health');
+    }
+    else if (this.cursor.health === 6){
+      		this.healthbar.animations.play('6health');
+    }
+    else if (this.cursor.health === 5){
       		this.healthbar.animations.play('5health');
     }
     else if (this.cursor.health === 4){
@@ -256,17 +262,14 @@ Player.prototype.update = function() {
     else if (this.cursor.health === 1){
       		this.healthbar.animations.play('1health');
     }
-    else if (this.cursor.health === 0){
-      		this.healthbar.animations.play('0health');
-    }
     
     this.healthbar.x = this.playerSprite.x;
     this.healthbar.y = this.playerSprite.y; 
     this.healthbar.anchor.setTo(.5, -5.5);
     
-   	// this.shield.x = this.playerSprite.x;
-    // this.shield.y = this.playerSprite.y; 
-    // this.shield.anchor.setTo(0.5, 0.5);
+   	this.shield.x = this.playerSprite.x;
+    this.shield.y = this.playerSprite.y; 
+    this.shield.anchor.setTo(0.5, 0.5);
     
 	this.label.x = this.playerSprite.x;       //Adding player id beneath player
     this.label.y = this.playerSprite.y;       //
@@ -324,10 +327,22 @@ Player.prototype.fire = function(target) {
 
 Player.prototype.damage = function(){
     console.log(this.playerSprite.id, " IS GETTING POUNDED BY ", localPlayerSprite.id);
-    this.cursor.health--;
+    if (this.cursor.shield > 0) {
+    	console.log(this.cursor.shield, 'inside if statement on damage')
+    this.cursor.shield--;
     eurecaServer.handleKeys({
+		shield: this.cursor.shield});
+    }
+    else {
+    	console.log(this.cursor.shield, 'inside else  statement on damage')
+    	this.cursor.health--;
+    	eurecaServer.handleKeys({
 		health: this.cursor.health});
-
+    }
+    if (this.cursor.shield <= 0) {
+    	this.cursor.shield.visible = false;
+    }
+    
     if (this.cursor.health <= 0) {
         console.log(localPlayerSprite.id, " JUST KILLED ", this.playerSprite.id);
         this.death();
@@ -337,6 +352,7 @@ Player.prototype.damage = function(){
 Player.prototype.death = function() {
 	var that= this;
 	// console.log(this.playerSprite)
+	this.shield.kill();
 	this.healthbar.kill();
 	this.label.kill();
 	// this.label.destroy();
@@ -354,16 +370,22 @@ Player.prototype.death = function() {
 };
 
 Player.prototype.respawn = function() {
-	this.cursor.health = 5;
+	this.cursor.health = 10;
 	this.cursor.skin = 'handgun';
 	var loc = playerSpawns[randomize(playerSpawns)];
 	this.playerSprite.x = loc[0];
 	this.playerSprite.y = loc[1];
-	// this.label = game.add.text(this.playerSprite.x, this.playerSprite.y, 'CODRIN', { font: "14px Arial", fill: "#ffffff", align: "center" });
- //   this.label.anchor.setTo(.5, -1.8);
 	this.playerSprite.revive();
 	this.label.revive();
 	this.healthbar.revive();
+	eurecaServer.handleKeys({
+		alive: true,
+		exists: true,
+		visible: true,
+		skin: 'handgun',
+		health: 10,
+		shield: 0
+	});
 	
 };
 
