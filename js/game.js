@@ -42,7 +42,7 @@ function updatePowerups(newPowerups) {
 	});
 }
 
-function updatePlayerHealth(playerShotandShooter) {
+function updatePlayerHealth(playerShotandShooter, allNames) {
 	var victim = playerShotandShooter[Object.keys(playerShotandShooter)[0]]
 	var shooter = playerShotandShooter[Object.keys(playerShotandShooter)[1]]
 	if (playersList[victim].shield.health > 0) {
@@ -89,7 +89,7 @@ function updatePlayerHealth(playerShotandShooter) {
 			playersList[victim].cursor.health = 10;
 			playersList[victim].cursor.skin = 'handgun';
 		}, 5000);
-    }
+	}
 }
 
 //this function will handle client communication with the server
@@ -103,25 +103,36 @@ var eurecaClientSetup = function() {
 
 	//methods defined under "exports" namespace become available in the server side
 	eurecaClient.exports.nameChange = function(id, name, allNames) {
-		for(var player in playersList){
+		for (var player in playersList) {
 			playersList[id].label.destroy();
-			playersList[id].label = game.add.text(playersList[id].playerSprite.x, playersList[id].playerSprite.y, '' + name + '', { font: "14px Arial", fill: "#ffffff", align: "center" });
+			playersList[id].label = game.add.text(playersList[id].playerSprite.x, playersList[id].playerSprite.y, '' + name + '', {
+				font: "14px Arial",
+				fill: "#ffffff",
+				align: "center"
+			});
 			playersList[id].displayName = name;
-			playersList[id].label.anchor.setTo(.5, -1.7);  
+			playersList[id].label.anchor.setTo(.5, -1.7);
 			playersList[id].playerSprite.bringToTop();
-			}
-			
-		for(var player in playersList){
-			allNames.forEach(function(names) {
-				if (playersList[player].playerSprite.id === names[0]){
-					playersList[player].displayName = names[1];
+		}
+
+		for (var player in playersList) {
+			allNames.forEach(function(playerName) {
+				console.log(playerName)
+				if (playersList[player].playerSprite.id === playerName.id) {
+					console.log(playersList[player].displayName);
+					playersList[player].displayName = playerName.name;
+					console.log(playersList[player].displayName);
 					playersList[player].label.destroy();
-					playersList[player].label = game.add.text(playersList[player].playerSprite.x, playersList[player].playerSprite.y, '' + playersList[player].displayName + '', { font: "14px Arial", fill: "#ffffff", align: "center" });
-					playersList[player].label.anchor.setTo(.5, -1.7);  
+					playersList[player].label = game.add.text(playersList[player].playerSprite.x, playersList[player].playerSprite.y, '' + playersList[player].displayName + '', {
+						font: "14px Arial",
+						fill: "#ffffff",
+						align: "center"
+					});
+					playersList[player].label.anchor.setTo(.5, -1.7);
 				}
-				
+
 			})
-			
+
 		}
 	};
 
@@ -143,14 +154,28 @@ var eurecaClientSetup = function() {
 		}
 	};
 
-	eurecaClient.exports.printKillText = function(obj) {
-		console.log(obj)
-		var killer = obj.killer
-		var victim = obj.victim
+	eurecaClient.exports.printKillText = function(obj, allNames) {
+		// console.log(obj) //{killer: ID, victim: ID}
+		// console.log(allNames, 'allNames') //[{ID, name}, {ID, name}, {ID, name}]
+		
+		var killer;
+		var victim;
+		
+		allNames.forEach(function(each) {
+			if (obj.killer === each.id) {
+				 killer = each.name
+			}
+			else if (obj.victim === each.id) {
+				 victim = each.name
+			}
+		});
+		// console.log(killer, victim, 'killervictim')
 
-		for (var each in playersList) {
-			console.log(playersList[each].playerSprite.id, victim, "print kill text")
-			if (playersList[each].playerSprite.id === victim && victim === myId) {
+		//var victim = playerShotandShooter[Object.keys(playerShotandShooter)
+
+		for (var i in playersList) {
+			console.log(playersList[i].playerSprite.id, victim, "print kill text")
+			if ((playersList[i].playerSprite.id === obj.victim) && (obj.victim === myId)) {
 				var t = game.add.text(0, 0, "Fragged by " + killer, {
 					font: "20px Arial",
 					fill: "#ffffff",
@@ -158,16 +183,14 @@ var eurecaClientSetup = function() {
 				});
 				t.fixedToCamera = true
 				setTimeout(function() {
-
-
 					t.destroy();
 				}, 2000)
 			}
-			console.log(each, 'each')
-			console.log(playersList[each].playerSprite.id, 'playerId before if')
-			console.log(killer, 'killer before if')
-			if (playersList[each].playerSprite.id === killer && killer === myId) {
-				console.log('made it to if')
+			// console.log(i, 'each')
+			// console.log(playersList[i].playerSprite.id, 'playerId before if')
+			// console.log(killer, 'killer before if')
+			if (playersList[i].playerSprite.id === obj.killer && obj.killer === myId) {
+				// console.log('made it to if')
 				var t = game.add.text(0, 0, "You fragged " + victim, {
 					font: "20px Arial",
 					fill: "#ffffff",
@@ -175,8 +198,6 @@ var eurecaClientSetup = function() {
 				});
 				t.fixedToCamera = true
 				setTimeout(function() {
-
-
 					t.destroy();
 				}, 2000)
 			}

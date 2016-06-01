@@ -46,7 +46,19 @@ eurecaServer.onDisconnect(function(conn) {
     console.log('Client disconnected ', conn.id);
     var removeId = clients[conn.id].id;
     delete clients[conn.id];
-
+    
+    var index;
+    allNames.forEach(function(each, i){
+        if(each.id === conn.id) {
+            console.log(i)
+            index = i
+        }
+    })
+    console.log(allNames, 'before splice'); 
+    console.log(index, 'index')
+    allNames.splice(index, 1);
+    console.log(allNames, 'after splice');
+    
     for (var c in clients) {
         var remote = clients[c].remote;
         //here we call kill() method defined in the client side
@@ -145,7 +157,7 @@ eurecaServer.exports.killUpdate = function(packge) {
 
     for (var c in clients) {
         var remote = clients[c].remote;
-        remote.printKillText(packge);
+        remote.printKillText(packge, allNames);
     }
 }
 
