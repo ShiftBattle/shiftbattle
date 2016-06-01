@@ -1,4 +1,4 @@
-/* global Eureca, Phaser, Player populatePowerUps, activateThreeRandom, checkActivePowerUps */
+/* global Eureca, Phaser, Player populatePowerUps, playerSpawns, randomize*/
 
 var myId=0;
 
@@ -28,7 +28,6 @@ function updatePlayerState(id, state){
 			playersList[id].playerSprite.angle = state.angle;
 			playersList[id].playerSprite.rotation = state.rot;
 
-			
 			playersList[id].update();
 		}
 		
@@ -44,8 +43,59 @@ function updatePowerups(newPowerups){
 			powerUpSprite.play(pu[1]);
 			console.log(pu[1]);
 		});
-		
 	}
+	
+function updatePlayerHealth(playerShotandShooter){
+	var victim = playerShotandShooter[Object.keys(playerShotandShooter)[0]]
+	console.log('before updating to all players')
+	console.log(playerShotandShooter, 'the object being passed on')
+	console.log(victim, 'the victim')
+	console.log(playersList[victim].playerSprite, 'from the playerList')
+	if (playersList[victim].shield.health > 0) {
+    	
+    	playersList[victim].shield.health--;
+    }
+    else {
+    	console.log(playersList[victim].shield.health, 'inside else statement on damage');
+    	playersList[victim].shield.kill();
+    	playersList[victim].cursor.health--;
+    	playersList[victim].cursor.shield = false;
+
+    }
+    if (playersList[victim].cursor.health <= 0) {
+        // console.log(localPlayerSprite.id, " JUST KILLED ", player.id);
+       
+        playersList[victim].shield.kill();
+        playersList[victim].healthbar.kill();
+        playersList[victim].label.kill();
+        playersList[victim].playerSprite.kill();
+        playersList[victim].cursor.alive = false;
+        playersList[victim].cursor.exists = false;
+        playersList[victim].cursor.visible = false;
+        playersList[victim].cursor.shield = false;
+
+		setTimeout(function() {
+			console.log("RESPAWN TIMEOUT FUNCTION");
+		
+			var loc = playerSpawns[randomize(playerSpawns)];
+			playersList[victim].playerSprite.x = loc[0];
+			playersList[victim].playerSprite.y = loc[1];
+			playersList[victim].playerSprite.revive();
+			playersList[victim].label.revive();
+			playersList[victim].healthbar.revive();
+			
+			playersList[victim].cursor.alive = true;
+			playersList[victim].cursor.exists = true;
+			playersList[victim].cursor.visible = true;
+			playersList[victim].cursor.health = 10;
+			playersList[victim].cursor.skin = 'handgun';
+			
+		}, 5000);
+    
+        
+    }
+    
+    }
 
 //this function will handle client communication with the server
 var eurecaClientSetup = function() {
@@ -64,7 +114,6 @@ var eurecaClientSetup = function() {
 			}
 		}
     }
-	
 	
 	eurecaClient.exports.setInfo = function(info) {
 		//create() is moved here to make sure nothing is created before unique id assignation
@@ -97,6 +146,7 @@ var eurecaClientSetup = function() {
 		};
 
 	eurecaClient.exports.updateState = updatePlayerState;
+	eurecaClient.exports.removePlayerHealth = updatePlayerHealth;
 	
 	eurecaClient.exports.killPowerups = function() {
 		game.powerUps.children.forEach(function(pu) {pu.kill()});
@@ -320,8 +370,10 @@ function bulletHitWall (bullet) {
 
 function bulletHitPlayer (player, bullet) {
 	bullet.kill();
-    playersList[player.id].damage();
-}
+	
+	if (localPlayer.playerSprite.id === player.id)
+		playersList[player.id].damage(bullet);
+	}
 
 function render () {
 

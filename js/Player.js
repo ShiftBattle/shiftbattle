@@ -49,14 +49,8 @@ function Player(index, game, user, x, y) {
     this.cursor.shield = false;
    
     // create 20-30 bullets per clip, maybe carry 4-5 clips and then have a reload function added
-    this.bullets = game.add.group();
-    this.bullets.enableBody = true;
-    this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
-
-    this.bullets.createMultiple(30, 'bullet', 0, false);
-    this.bullets.setAll('outOfBoundsKill', true);
-    this.bullets.setAll('checkWorldBounds', true);
     
+
    	var loc = playerSpawns[randomize(playerSpawns)];
     this.playerSprite = game.add.sprite(loc[0], loc[1], 'final-player');
     this.playerSprite.anchor.set(0.5);
@@ -76,6 +70,15 @@ function Player(index, game, user, x, y) {
     this.playerSprite.body.collideWorldBounds = true;
     this.playerSprite.body.bounce.setTo(0, 0);
     this.playerSprite.angle = 0;
+    
+    this.bullets = game.add.group();
+    this.bullets.enableBody = true;
+    this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
+
+    this.bullets.createMultiple(30, 'bullet', 0, false);
+    this.bullets.setAll('outOfBoundsKill', true);
+    this.bullets.setAll('checkWorldBounds', true);
+    this.bullets.setAll('key', this.playerSprite.id);
     
     this.healthbar = game.add.sprite(x, y, 'healthbar');
   	this.healthbar.animations.add('10health', [9], 20, false);    
@@ -340,67 +343,54 @@ Player.prototype.fire = function(target) {
 };    
       
 
-Player.prototype.damage = function(){
-	
-    console.log(this.playerSprite.id, " IS GETTING POUNDED BY ", localPlayerSprite.id);
-    if (this.shield.health > 0) {
-    	console.log(this.shield.health, 'inside if statement on damage');
-    	this.shield.health--;
-    }
-    else {
-    	console.log(this.shield.health, 'inside else statement on damage');
-    	this.shield.kill();
-    	this.cursor.health--;
-    	eurecaServer.handleKeys({
-		health: this.cursor.health,
-    	shield: false
-    	});
-    }
-    if (this.cursor.health <= 0) {
-        console.log(localPlayerSprite.id, " JUST KILLED ", this.playerSprite.id);
-        this.death();
-    }
+Player.prototype.damage = function(bullet){
+	var that = this;
+    console.log(this.playerSprite, 'player being shot')
+    console.log(localPlayerSprite, 'the shooter')
+	eurecaServer.bulletHitsPlayer({
+		playerShot: that.playerSprite.id,
+		shooter: bullet.key});
 };
 
-Player.prototype.death = function() {
-	var that= this;
-	// console.log(this.playerSprite)
-	this.shield.kill();
-	this.healthbar.kill();
-	this.label.kill();
-	// this.label.destroy();
-	this.playerSprite.kill();
+// Player.prototype.death = function() {
+// 	var that= this;
+// 	// console.log(this.playerSprite)
+// 	this.shield.kill();
+// 	this.healthbar.kill();
+// 	this.label.kill();
+// 	// this.label.destroy();
+// 	this.playerSprite.kill();
 
-	eurecaServer.handleKeys({
-		alive: false,
-		exists: false,
-		visible: false});
-		shield: false;
+// 	eurecaServer.handleKeys({
+// 		alive: false,
+// 		exists: false,
+// 		visible: false});
+// 		shield: false;
 	
-	setTimeout(function() {
-		console.log("RESPAWN TIMEOUT FUNCTION");
-		that.respawn();
-	}, 5000);
-};
+// 	setTimeout(function() {
+// 		console.log("RESPAWN TIMEOUT FUNCTION");
+// 		that.respawn();
+// 	}, 5000);
+// };
 
-Player.prototype.respawn = function() {
-	this.cursor.health = 10;
-	this.cursor.skin = 'handgun';
-	var loc = playerSpawns[randomize(playerSpawns)];
-	this.playerSprite.x = loc[0];
-	this.playerSprite.y = loc[1];
-	this.playerSprite.revive();
-	this.label.revive();
-	this.healthbar.revive();
-	eurecaServer.handleKeys({
-		alive: true,
-		exists: true,
-		visible: true,
-		skin: 'handgun',
-		health: 10
-	});
+// Player.prototype.respawn = function() {
+// 	this.cursor.health = 10;
+// 	this.cursor.skin = 'handgun';
+// 	var loc = playerSpawns[randomize(playerSpawns)];
+// 	this.playerSprite.x = loc[0];
+// 	this.playerSprite.y = loc[1];
+// 	this.playerSprite.revive();
+// 	this.label.revive();
+// 	this.healthbar.revive();
+// 	eurecaServer.handleKeys({
+// 		alive: true,
+// 		exists: true,
+// 		visible: true,
+// 		skin: 'handgun',
+// 		health: 10
+// 	});
 	
-};
+// };
 
 Player.prototype.destroy = function() {
 	console.log("Destroying ", this);

@@ -11,7 +11,7 @@ powerUpUpdate();
 //get EurecaServer class
 var EurecaServer = require('eureca.io').EurecaServer;
 //create an instance of EurecaServer
-var eurecaServer = new EurecaServer({allow:['killPowerups', 'setInfo', 'spawnEnemy', 'kill', 'updateState', 'updatePowerUps', 'nameChange']});
+var eurecaServer = new EurecaServer({allow:['killPowerups', 'setInfo', 'spawnEnemy', 'kill', 'updateState', 'updatePowerUps', 'nameChange', 'removePlayerHealth']});
 //attach eureca.io to our http server
 eurecaServer.attach(server);
 //eureca.io provides events to detect clients connect/disconnect
@@ -101,6 +101,16 @@ eurecaServer.exports.assignName = function(id, name) {
     for (var c in clients) {
         var remote = clients[c].remote;
         remote.nameChange(id, name);
+    }
+}
+
+
+eurecaServer.exports.bulletHitsPlayer = function(playerShotandShooter){
+    console.log(playerShotandShooter.shooter, 'the player being shot')
+    console.log(playerShotandShooter.playerShot, 'the shooter')
+    for (var c in clients) {
+        var remote = clients[c].remote;
+        remote.removePlayerHealth(playerShotandShooter);
     }
 }
 
