@@ -34,21 +34,17 @@ function updatePlayerState(id, state){
 	}
 
 function updatePowerups(newPowerups){
-		console.log(game.camera.x, game.camera.y)
-		console.log(newPowerups);
 		newPowerups.forEach(function(pu, idx) {
 			var powerUpSprite = game.powerUps.children[idx];
 			powerUpSprite.reset(pu[0][0], pu[0][1]);
 			powerUpSprite.type = pu[1];
 			powerUpSprite.play(pu[1]);
-			console.log(pu[1]);
 		});
 	}
 	
 function updatePlayerHealth(playerShotandShooter){
 	var victim = playerShotandShooter[Object.keys(playerShotandShooter)[0]]
 	if (playersList[victim].shield.health > 0) {
-    	
     	playersList[victim].shield.health--;
     }
     else {
@@ -56,10 +52,8 @@ function updatePlayerHealth(playerShotandShooter){
     	playersList[victim].shield.kill();
     	playersList[victim].cursor.health--;
     	playersList[victim].cursor.shield = false;
-
     }
     if (playersList[victim].cursor.health <= 0) {
-        // console.log(localPlayerSprite.id, " JUST KILLED ", player.id);
        
         playersList[victim].shield.kill();
         playersList[victim].healthbar.kill();
