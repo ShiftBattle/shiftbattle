@@ -81,7 +81,7 @@ var locs = [
 		[2261, 234],
 		[1296, 815]
 	];
-         var powerUpType = ['rifle', 'shotgun', 'health', 'shield'];
+        var powerUpType = ['rifle', 'shotgun', 'health', 'shield'];
         updatedPowers = [];
         for (var i = 0; i < 3; i++) {
             var pu = updatedPowers[i] = [
@@ -106,8 +106,8 @@ eurecaServer.exports.assignName = function(id, name) {
 
 
 eurecaServer.exports.bulletHitsPlayer = function(playerShotandShooter){
-    console.log(playerShotandShooter.shooter, 'the player being shot')
-    console.log(playerShotandShooter.playerShot, 'the shooter')
+    // console.log(playerShotandShooter.shooter, 'the player being shot')
+    // console.log(playerShotandShooter.playerShot, 'the shooter')
     for (var c in clients) {
         var remote = clients[c].remote;
         remote.removePlayerHealth(playerShotandShooter);

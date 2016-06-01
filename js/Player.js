@@ -1,4 +1,4 @@
-/* global eurecaServer, Phaser, Player, speed, localPlayerSprite, game*/
+/* global eurecaServer, Phaser, Player, speed, localPlayerSprite, game, playersList*/
 
 var playerSpawns = {
 1: [180, 170],
@@ -293,6 +293,8 @@ Player.prototype.update = function() {
     	this.shield.visible = false;
     }
     
+   
+  
 };
 
 Player.prototype.fire = function(target) {
@@ -345,52 +347,10 @@ Player.prototype.fire = function(target) {
 
 Player.prototype.damage = function(bullet){
 	var that = this;
-    console.log(this.playerSprite, 'player being shot')
-    console.log(localPlayerSprite, 'the shooter')
 	eurecaServer.bulletHitsPlayer({
 		playerShot: that.playerSprite.id,
 		shooter: bullet.key});
 };
-
-// Player.prototype.death = function() {
-// 	var that= this;
-// 	// console.log(this.playerSprite)
-// 	this.shield.kill();
-// 	this.healthbar.kill();
-// 	this.label.kill();
-// 	// this.label.destroy();
-// 	this.playerSprite.kill();
-
-// 	eurecaServer.handleKeys({
-// 		alive: false,
-// 		exists: false,
-// 		visible: false});
-// 		shield: false;
-	
-// 	setTimeout(function() {
-// 		console.log("RESPAWN TIMEOUT FUNCTION");
-// 		that.respawn();
-// 	}, 5000);
-// };
-
-// Player.prototype.respawn = function() {
-// 	this.cursor.health = 10;
-// 	this.cursor.skin = 'handgun';
-// 	var loc = playerSpawns[randomize(playerSpawns)];
-// 	this.playerSprite.x = loc[0];
-// 	this.playerSprite.y = loc[1];
-// 	this.playerSprite.revive();
-// 	this.label.revive();
-// 	this.healthbar.revive();
-// 	eurecaServer.handleKeys({
-// 		alive: true,
-// 		exists: true,
-// 		visible: true,
-// 		skin: 'handgun',
-// 		health: 10
-// 	});
-	
-// };
 
 Player.prototype.destroy = function() {
 	console.log("Destroying ", this);

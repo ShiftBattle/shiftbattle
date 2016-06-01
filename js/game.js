@@ -47,10 +47,6 @@ function updatePowerups(newPowerups){
 	
 function updatePlayerHealth(playerShotandShooter){
 	var victim = playerShotandShooter[Object.keys(playerShotandShooter)[0]]
-	console.log('before updating to all players')
-	console.log(playerShotandShooter, 'the object being passed on')
-	console.log(victim, 'the victim')
-	console.log(playersList[victim].playerSprite, 'from the playerList')
 	if (playersList[victim].shield.health > 0) {
     	
     	playersList[victim].shield.health--;
@@ -108,12 +104,13 @@ var eurecaClientSetup = function() {
 	
 	//methods defined under "exports" namespace become available in the server side
 	eurecaClient.exports.nameChange = function(id, name) {
-		for(var prop in playersList){
-			if(playersList[id] === id){
-				playersList[id].label.setText(name);
+		for(var player in playersList){
+			playersList[id].label.destroy();
+			playersList[id].label = game.add.text(playersList[id].playerSprite.x, playersList[id].playerSprite.y, '' + name + '', { font: "14px Arial", fill: "#ffffff", align: "center" });
+			playersList[id].label.anchor.setTo(.5, -1.7);  
+			playersList[id].playerSprite.bringToTop();
 			}
-		}
-    }
+	};
 	
 	eurecaClient.exports.setInfo = function(info) {
 		//create() is moved here to make sure nothing is created before unique id assignation
