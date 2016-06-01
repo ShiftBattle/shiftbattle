@@ -6,6 +6,7 @@ app.use(express.static(__dirname));
 //we'll keep clients data here
 var clients = {};
 var updatedPowers = [];
+var allNames = [];
 powerUpUpdate();
 
 //get EurecaServer class
@@ -97,10 +98,13 @@ var locs = [
 }
 
 eurecaServer.exports.assignName = function(id, name) {
+    allNames.push({id, name});
+    console.log(allNames)
+    
     console.log(name, 'To add a name')
     for (var c in clients) {
         var remote = clients[c].remote;
-        remote.nameChange(id, name);
+        remote.nameChange(id, name, allNames);
     }
 }
 
