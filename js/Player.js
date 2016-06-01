@@ -49,8 +49,6 @@ function Player(index, game, user, x, y) {
     this.cursor.shield = false;
    
     // create 20-30 bullets per clip, maybe carry 4-5 clips and then have a reload function added
-    
-
    	var loc = playerSpawns[randomize(playerSpawns)];
     this.playerSprite = game.add.sprite(loc[0], loc[1], 'final-player');
     this.playerSprite.anchor.set(0.5);
@@ -293,7 +291,6 @@ Player.prototype.update = function() {
     	this.shield.visible = false;
     }
     
-   
   
 };
 

@@ -88,12 +88,8 @@ function updatePlayerHealth(playerShotandShooter) {
 			playersList[victim].cursor.visible = true;
 			playersList[victim].cursor.health = 10;
 			playersList[victim].cursor.skin = 'handgun';
-
 		}, 5000);
-
-
-	}
-
+    }
 }
 
 //this function will handle client communication with the server
@@ -106,16 +102,26 @@ var eurecaClientSetup = function() {
 	});
 
 	//methods defined under "exports" namespace become available in the server side
-	eurecaClient.exports.nameChange = function(id, name) {
-		for (var player in playersList) {
+	eurecaClient.exports.nameChange = function(id, name, allNames) {
+		for(var player in playersList){
 			playersList[id].label.destroy();
-			playersList[id].label = game.add.text(playersList[id].playerSprite.x, playersList[id].playerSprite.y, '' + name + '', {
-				font: "14px Arial",
-				fill: "#ffffff",
-				align: "center"
-			});
-			playersList[id].label.anchor.setTo(.5, -1.7);
+			playersList[id].label = game.add.text(playersList[id].playerSprite.x, playersList[id].playerSprite.y, '' + name + '', { font: "14px Arial", fill: "#ffffff", align: "center" });
+			playersList[id].displayName = name;
+			playersList[id].label.anchor.setTo(.5, -1.7);  
 			playersList[id].playerSprite.bringToTop();
+			}
+			
+		for(var player in playersList){
+			allNames.forEach(function(names) {
+				if (playersList[player].playerSprite.id === names[0]){
+					playersList[player].displayName = names[1];
+					playersList[player].label.destroy();
+					playersList[player].label = game.add.text(playersList[player].playerSprite.x, playersList[player].playerSprite.y, '' + playersList[player].displayName + '', { font: "14px Arial", fill: "#ffffff", align: "center" });
+					playersList[player].label.anchor.setTo(.5, -1.7);  
+				}
+				
+			})
+			
 		}
 	};
 
