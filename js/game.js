@@ -18,8 +18,8 @@ var keys;
 
 var powerUpsActive;
 
-function updatePlayerState(id, state)
-	{
+function updatePlayerState(id, state){
+	// {console.log(state)
 		if (playersList[id] && id != myId)  {
 
 			playersList[id].cursor = state;
@@ -27,6 +27,7 @@ function updatePlayerState(id, state)
 			playersList[id].playerSprite.y = state.y;
 			playersList[id].playerSprite.angle = state.angle;
 			playersList[id].playerSprite.rotation = state.rot;
+
 			
 			playersList[id].update();
 		}
@@ -40,6 +41,8 @@ function updatePowerups(newPowerups){
 			var powerUpSprite = game.powerUps.children[idx];
 			powerUpSprite.reset(pu[0][0], pu[0][1]);
 			powerUpSprite.type = pu[1];
+			powerUpSprite.play(pu[1]);
+			console.log(pu[1]);
 		});
 		
 	}
@@ -54,12 +57,21 @@ var eurecaClientSetup = function() {
 	});
 	
 	//methods defined under "exports" namespace become available in the server side
+	eurecaClient.exports.nameChange = function(id, name) {
+		for(var prop in playersList){
+			if(playersList[id] === id){
+				playersList[id].label.setText(name);
+			}
+		}
+    }
+	
 	
 	eurecaClient.exports.setInfo = function(info) {
 		//create() is moved here to make sure nothing is created before unique id assignation
 		myId = info.id;
 		create();
 		updatePowerups(info.powerups);
+		console.log(info.powerups)
 		// call powerup display with info.powerups
 		eurecaServer.handshake(myId);
 		ready = true;
@@ -88,7 +100,7 @@ var eurecaClientSetup = function() {
 	
 	eurecaClient.exports.killPowerups = function() {
 		game.powerUps.children.forEach(function(pu) {pu.kill()});
-	}
+	};
 };
 
 var game = new Phaser.Game(1200, 800, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
@@ -227,7 +239,8 @@ function update () {
 		input.angle = localPlayerSprite.angle;
 		input.rot = localPlayerSprite.rotation;
 		input.skin = localPlayer.cursor.skin;
-		input.health = localPlayer.cursor.health
+		input.health = localPlayer.cursor.health;
+		input.shield = localPlayer.cursor.shield
 
 		eurecaServer.handleKeys(input);
 		localPlayer.cursor = input;
@@ -284,17 +297,17 @@ function collectPowerup (player, powerup){
 		});
 	}
 	else if (powerup.type === 'shield') {
-		localPlayer.shield.visible = true;
-		localPlayer.cursor.shield = 5;
+		localPlayer.cursor.shield = true;
+		localPlayer.shield.health = 5;
 		localPlayer.shield.animations.play('shield');
 		eurecaServer.handleKeys({
-			shield: 5
+			shield: true
 		});
 	}
 
     eurecaServer.pickupPowerUp();
     
-    
+    console.log(powerup)
     console.log(player.id, "picked up a", powerup.type, "powerup!");
 }
 

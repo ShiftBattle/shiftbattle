@@ -37,7 +37,7 @@ function Player(index, game, user, x, y) {
 		exists: true,
 		skin: 'handgun',
 		health: 10,
-		shield: 0
+		shield: false
 		};
 
     this.game = game;
@@ -45,8 +45,8 @@ function Player(index, game, user, x, y) {
     this.alive = true;
     this.nextFire = 0;
     this.cursor.health = 10;
-    this.cursor.shield = 0;
     this.cursor.skin = 'handgun';
+    this.cursor.shield = false;
    
     // create 20-30 bullets per clip, maybe carry 4-5 clips and then have a reload function added
     this.bullets = game.add.group();
@@ -91,6 +91,7 @@ function Player(index, game, user, x, y) {
 
     this.shield = game.add.sprite(x, y, 'shield');
     this.shield.animations.add('shield', [0, 1, 2, 3], 10, true);
+    // this.shield.health = 0;
     this.shield.visible = false;
     
     //name label
@@ -102,6 +103,18 @@ function Player(index, game, user, x, y) {
 	// this.reloadText.visible = false;
 	// this.reloadText.fixedToCamera = true;
     
+	this.healthbar.x = this.playerSprite.x;
+    this.healthbar.y = this.playerSprite.y; 
+    this.healthbar.anchor.setTo(.5, -5.5);
+    
+   	this.shield.x = this.playerSprite.x;
+    this.shield.y = this.playerSprite.y; 
+    this.shield.anchor.setTo(0.5, 0.5);
+    
+	this.label.x = this.playerSprite.x;       //Adding player id beneath player
+    this.label.y = this.playerSprite.y;       //
+    this.label.anchor.setTo(.5, -1.8);  
+
 
 }
 
@@ -109,7 +122,13 @@ function Player(index, game, user, x, y) {
 Player.prototype.update = function() {
 	
 	//cursor value is now updated by eurecaClient.exports.updateState method
-	
+	this.healthbar.x = this.playerSprite.x;
+    this.healthbar.y = this.playerSprite.y; 
+    this.shield.x = this.playerSprite.x;
+    this.shield.y = this.playerSprite.y; 
+    this.label.x = this.playerSprite.x;  
+    this.label.y = this.playerSprite.y;  
+    
 	
 	if (this.cursor.left) {
 		if (this.cursor.up) {
@@ -263,17 +282,13 @@ Player.prototype.update = function() {
       		this.healthbar.animations.play('1health');
     }
     
-    this.healthbar.x = this.playerSprite.x;
-    this.healthbar.y = this.playerSprite.y; 
-    this.healthbar.anchor.setTo(.5, -5.5);
-    
-   	this.shield.x = this.playerSprite.x;
-    this.shield.y = this.playerSprite.y; 
-    this.shield.anchor.setTo(0.5, 0.5);
-    
-	this.label.x = this.playerSprite.x;       //Adding player id beneath player
-    this.label.y = this.playerSprite.y;       //
-    this.label.anchor.setTo(.5, -1.8);         //
+    if (this.cursor.shield === true) {
+    	this.shield.visible = true;
+    	this.shield.animations.play('shield');
+    }
+    if (this.cursor.shield === false) {
+    	this.shield.visible = false;
+    }
     
 };
 
@@ -326,23 +341,21 @@ Player.prototype.fire = function(target) {
       
 
 Player.prototype.damage = function(){
+	
     console.log(this.playerSprite.id, " IS GETTING POUNDED BY ", localPlayerSprite.id);
-    if (this.cursor.shield > 0) {
-    	console.log(this.cursor.shield, 'inside if statement on damage')
-    this.cursor.shield--;
-    eurecaServer.handleKeys({
-		shield: this.cursor.shield});
+    if (this.shield.health > 0) {
+    	console.log(this.shield.health, 'inside if statement on damage');
+    	this.shield.health--;
     }
     else {
-    	console.log(this.cursor.shield, 'inside else  statement on damage')
+    	console.log(this.shield.health, 'inside else statement on damage');
+    	this.shield.kill();
     	this.cursor.health--;
     	eurecaServer.handleKeys({
-		health: this.cursor.health});
+		health: this.cursor.health,
+    	shield: false
+    	});
     }
-    if (this.cursor.shield <= 0) {
-    	this.cursor.shield.visible = false;
-    }
-    
     if (this.cursor.health <= 0) {
         console.log(localPlayerSprite.id, " JUST KILLED ", this.playerSprite.id);
         this.death();
@@ -362,6 +375,7 @@ Player.prototype.death = function() {
 		alive: false,
 		exists: false,
 		visible: false});
+		shield: false;
 	
 	setTimeout(function() {
 		console.log("RESPAWN TIMEOUT FUNCTION");
@@ -383,8 +397,7 @@ Player.prototype.respawn = function() {
 		exists: true,
 		visible: true,
 		skin: 'handgun',
-		health: 10,
-		shield: 0
+		health: 10
 	});
 	
 };
@@ -394,4 +407,5 @@ Player.prototype.destroy = function() {
 	this.playerSprite.destroy();
 	this.healthbar.destroy();
 	this.label.destroy();
+	this.shield.destroy();
 };
