@@ -157,7 +157,11 @@ var eurecaClientSetup = function() {
 					t.destroy();
 				}, 2000)
 			}
+			console.log(each, 'each')
+			console.log(playersList[each].playerSprite.id, 'playerId before if')
+			console.log(killer, 'killer before if')
 			if (playersList[each].playerSprite.id === killer && killer === myId) {
+				console.log('made it to if')
 				var t = game.add.text(0, 0, "You fragged " + victim, {
 					font: "20px Arial",
 					fill: "#ffffff",
@@ -276,10 +280,10 @@ function create() {
 		left: game.input.keyboard.addKey(Phaser.Keyboard.A),
 		right: game.input.keyboard.addKey(Phaser.Keyboard.D),
 		tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB)
-		// reload: game.input.keyboard.addKey(Phaser.Keyboard.R),
-		// key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
-		// key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
-		// key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE)
+			// reload: game.input.keyboard.addKey(Phaser.Keyboard.R),
+			// key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
+			// key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
+			// key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE)
 	};
 
 	populatePowerUps();
