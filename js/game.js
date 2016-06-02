@@ -339,7 +339,6 @@ function create() {
 			left: game.input.keyboard.addKey(Phaser.Keyboard.LEFT),
 			right: game.input.keyboard.addKey(Phaser.Keyboard.RIGHT),
 			tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB),
-			m: game.input.keyboard.addKey(Phaser.Keyboard.M),
 			key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
 			key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
 			key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE),
@@ -373,7 +372,6 @@ function update() {
 			left: game.input.keyboard.addKey(Phaser.Keyboard.A),
 			right: game.input.keyboard.addKey(Phaser.Keyboard.D),
 			tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB),
-			m: game.input.keyboard.addKey(Phaser.Keyboard.M),
 			key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
 			key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
 			key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE),
@@ -431,9 +429,6 @@ function update() {
 		eurecaServer.scoreDisplay(localPlayerSprite.id);
 	}
 
-	if (keys.m.isDown) {
-		console.log(game);
-	}
 	localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
 
 	var inputChanged = (
