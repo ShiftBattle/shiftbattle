@@ -55,7 +55,7 @@ function Player(index, game, user, x, y) {
     this.playerSprite.animations.add('move-rifle', [4], 20, false);
     this.playerSprite.animations.add('move-shotgun', [8], 20, false);
     this.playerSprite.animations.add('move-twoguns', [12], 20, false);
-    this.playerSprite.animations.add('move-rocket', [13], 20, false);
+    this.playerSprite.animations.add('move-rocket', [14], 20, false);
     
   	this.playerSprite.animations.add('shoot-handgun', [1, 2, 3], 7, false);
   	this.playerSprite.animations.add('shoot-rifle', [5, 6, 7], 10, false);
@@ -135,48 +135,51 @@ Player.prototype.update = function() {
     
     var speed;
     
-    if (this.cursor.skin === 'handgun') {
+    if (this.cursor.skin === 'handgun' || this.cursor.skin === 'two-guns') {
     	speed = 6;
     }
     else {
     	speed = 5;
     }
     
-    var moveAnim;
-    
-    if (this.cursor.skin === 'handgun') {
-    	moveAnim = this.playerSprite.animations.play('move-handgun');
-    }
-    else if (this.cursor.skin === 'shotgun') {
-    	moveAnim = this.playerSprite.animations.play('move-shotgun');
-    }
-    else if (this.cursor.skin === 'rifle') {
-    	moveAnim = this.playerSprite.animations.play('move-rifle');
-    }
-    else if (this.cursor.skin === 'two-guns') {
-    	moveAnim = this.playerSprite.animations.play('move-twoguns');
-    }
-    else if (this.cursor.skin === 'rocket') {
-    	moveAnim = this.playerSprite.animations.play('move-rocket');
- 
-    }
-
-    
-    
-	if (this.cursor.left) {
+    if (this.cursor.left) {
 		if (this.cursor.up) {
 			this.playerSprite.body.x -= speed;
 			this.playerSprite.body.y -= speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 		else if (this.cursor.down) {
 			this.playerSprite.body.x -= speed;
 			this.playerSprite.body.y += speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 		else {
 			this.playerSprite.body.x -= speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 	}
 	
@@ -184,25 +187,65 @@ Player.prototype.update = function() {
 		if (this.cursor.up) {
 			this.playerSprite.body.x += speed;
 			this.playerSprite.body.y -= speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 		else if (this.cursor.down) {
 			this.playerSprite.body.x += speed;
 			this.playerSprite.body.y += speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 		else {
 			this.playerSprite.body.x += speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 	}
 	else if (this.cursor.up) {
 			this.playerSprite.body.y -= speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 	}
 	else if (this.cursor.down) {
 		this.playerSprite.body.y += speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 			}
 	
 	 if (this.cursor.fire) {
@@ -210,7 +253,17 @@ Player.prototype.update = function() {
 			x: this.cursor.tx,
 			y: this.cursor.ty
 		});
+		if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('shoot-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('shoot-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('shoot-rifle');
+			}
 	}
+	
 	
     if (this.cursor.health === 10){
       		this.healthbar.animations.play('10health');
@@ -302,7 +355,7 @@ Player.prototype.fire = function(target) {
 	            rifleshot.play();
 			}
 			else if (this.cursor.skin === 'two-guns') {
-				this.fireRate = 200;
+				this.fireRate = 400;
 				this.nextFire = this.game.time.now + this.fireRate;
 				bullet.anchor.x = 0;
 				bullet.anchor.y = -0.6;

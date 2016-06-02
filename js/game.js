@@ -200,10 +200,8 @@ var eurecaClientSetup = function() {
 					fill: "#ffffff",
 					align: "center"
 				});
-				t.fixedToCamera = true
-				setTimeout(function() {
-					t.destroy();
-				}, 2000)
+				t.fixedToCamera = true;
+				t.lifespan = 2000;
 			}
 			// console.log(i, 'each')
 			// console.log(playersList[i].playerSprite.id, 'playerId before if')
@@ -215,7 +213,7 @@ var eurecaClientSetup = function() {
 					fill: "#ffffff",
 					align: "center"
 				});
-				t.fixedToCamera = true
+				t.fixedToCamera = true;
 				t.lifespan = 2000;
 
 			}
@@ -274,8 +272,6 @@ var game = new Phaser.Game(1200, 800, Phaser.AUTO, 'playDiv', {
 	update: update,
 	render: render
 });
-// var game= new Phaser.Game(4000, 3000, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
-// var game= new Phaser.Game(window.width, window.height, Phaser.CANVAS, 'phaser-example', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 
 function preload() {
@@ -284,12 +280,12 @@ function preload() {
 	game.load.image('wall32', 'assets/wall32.png');
 	game.load.image('actuallyfloor', 'assets/actuallyfloor.png');
 
-	game.load.spritesheet('finalplayer', 'assets/finalplayer.png', 150, 150);
+	game.load.spritesheet('finalplayer', 'assets/rocketman3.png', 150, 150);
 
 	game.load.image('bullet', 'assets/bullet2.png');
 	game.load.image('rocket', 'assets/justrocket.png');
 
-	game.load.spritesheet('healthbar', 'assets/healthbarfinal.png', 74.9, 10);
+	game.load.spritesheet('healthbar', 'assets/healthbarfinal.png', 75, 10);
 	game.load.spritesheet('powerups', 'assets/powerups.png', 75, 75);
 	game.load.spritesheet('shield', 'assets/shield.png', 130, 128);
 
@@ -316,7 +312,6 @@ function create() {
 	shotgunshot = game.add.audio('shotgunshot');
 	rifleshot = game.add.audio('rifleshot');
 	rocketlaunch = game.add.audio('rocketlaunch');
-
 
 	walls.resizeWorld();
 
@@ -376,9 +371,12 @@ function update() {
 			right: game.input.keyboard.addKey(Phaser.Keyboard.D),
 			tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB),
 			m: game.input.keyboard.addKey(Phaser.Keyboard.M),
-			// key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
-			// key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
-			// key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE)
+			key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
+			key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
+			key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE),
+			key4: game.input.keyboard.addKey(Phaser.Keyboard.FOUR),
+			key5: game.input.keyboard.addKey(Phaser.Keyboard.FIVE),
+
 		}
 	}
 
