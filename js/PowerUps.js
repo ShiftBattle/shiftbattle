@@ -13,7 +13,8 @@
 		this.game.powerUps.callAll('animations.add', 'animations', 'shotgun', [1], 20, false); 
 		this.game.powerUps.callAll('animations.add', 'animations', 'health', [2], 20, false); 
 		this.game.powerUps.callAll('animations.add', 'animations', 'shield', [3], 20, false); 
-		
+		this.game.powerUps.callAll('animations.add', 'animations', 'two-guns', [5], 20, false); 
+		this.game.powerUps.callAll('animations.add', 'animations', 'rocket', [4], 20, false); 		
 	}
 	
 	// function activateThreeRandom(active) {

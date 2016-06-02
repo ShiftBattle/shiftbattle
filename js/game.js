@@ -9,16 +9,15 @@ var localPlayerSprite;
 var localPlayer;
 var playersList = {};
 
-var speed = 5;
-
 var ready = false;
 var eurecaServer;
 
 var keys;
 
-var powerUpsActive;
+var explosions, bigExplosion;
 
 function updatePlayerState(id, state) {
+	if (!playersList[id] || !playersList[id].alive) return;
 	// {console.log(state)
 	if (playersList[id] && id != myId) {
 
@@ -30,7 +29,6 @@ function updatePlayerState(id, state) {
 
 		playersList[id].update();
 	}
-
 }
 
 function updatePowerups(newPowerups) {
@@ -43,52 +41,63 @@ function updatePowerups(newPowerups) {
 }
 
 function updatePlayerHealth(playerShotandShooter, allNames) {
-	var victim = playerShotandShooter[Object.keys(playerShotandShooter)[0]]
-	var shooter = playerShotandShooter[Object.keys(playerShotandShooter)[1]]
+	var victim = playerShotandShooter.playerShot;
+	var shooter = playerShotandShooter.shooter;
+	var bullet = playerShotandShooter.type;
 	if (playersList[victim].shield.health > 0) {
+		if(bullet === 'rocket'){
+			playersList[victim].shield.kill();
+			playersList[victim].cursor.shield = false;
+			return;
+		}
+		
 		playersList[victim].shield.health--;
+		if (playersList[victim].shield.health <= 0){
+			playersList[victim].shield.kill();
+			playersList[victim].cursor.shield = false;
+		}
 	}
 	else {
-		console.log(playersList[victim].shield.health, 'inside else statement on damage');
-		playersList[victim].shield.kill();
-		playersList[victim].cursor.health--;
-		playersList[victim].cursor.shield = false;
-	}
-	if (playersList[victim].cursor.health <= 0) {
-
-		playersList[victim].shield.kill();
-		playersList[victim].healthbar.kill();
-		playersList[victim].label.kill();
-		playersList[victim].playerSprite.kill();
-		playersList[victim].cursor.alive = false;
-		playersList[victim].cursor.exists = false;
-		playersList[victim].cursor.visible = false;
-		playersList[victim].cursor.shield = false;
-		for (var each in playersList) {
-			console.log(playersList[each].playerSprite.id, victim, "THY SHIT BE HERE")
-			if ((playersList[each].playerSprite.id === victim) && (victim === myId)) {
-				eurecaServer.killUpdate({
-					killer: shooter,
-					victim: victim
-				})
-			}
+		if(bullet === 'bullet'){
+			playersList[victim].cursor.health--;
+			playersList[victim].cursor.shield = false;
 		}
-		setTimeout(function() {
-			console.log("RESPAWN TIMEOUT FUNCTION");
-
-			var loc = playerSpawns[randomize(playerSpawns)];
-			playersList[victim].playerSprite.x = loc[0];
-			playersList[victim].playerSprite.y = loc[1];
-			playersList[victim].playerSprite.revive();
-			playersList[victim].label.revive();
-			playersList[victim].healthbar.revive();
-
-			playersList[victim].cursor.alive = true;
-			playersList[victim].cursor.exists = true;
-			playersList[victim].cursor.visible = true;
-			playersList[victim].cursor.health = 10;
-			playersList[victim].cursor.skin = 'handgun';
-		}, 5000);
+		if(bullet === 'rocket' || playersList[victim].cursor.health <= 0) {
+					playersList[victim].shield.kill();
+					playersList[victim].healthbar.kill();
+					playersList[victim].label.kill();
+					playersList[victim].playerSprite.kill();
+					playersList[victim].cursor.alive = false;
+					playersList[victim].cursor.exists = false;
+					playersList[victim].cursor.visible = false;
+					playersList[victim].cursor.shield = false;
+					for (var each in playersList) {
+						console.log(playersList[each].playerSprite.id, victim, "THY SHIT BE HERE")
+						if ((playersList[each].playerSprite.id === victim) && (victim === myId)) {
+							eurecaServer.killUpdate({
+								killer: shooter,
+								victim: victim
+							})
+						}
+					}
+					setTimeout(function() {
+						console.log("RESPAWN TIMEOUT FUNCTION");
+					
+						var loc = playerSpawns[randomize(playerSpawns)];
+						playersList[victim].playerSprite.x = loc[0];
+						playersList[victim].playerSprite.y = loc[1];
+						playersList[victim].playerSprite.revive();
+						playersList[victim].label.revive();
+						playersList[victim].healthbar.revive();
+					
+						playersList[victim].cursor.alive = true;
+						playersList[victim].cursor.exists = true;
+						playersList[victim].cursor.visible = true;
+						playersList[victim].cursor.health = 10;
+						playersList[victim].cursor.skin = 'handgun';
+					}, 5000);
+					
+					}
 	}
 }
 
@@ -117,11 +126,11 @@ var eurecaClientSetup = function() {
 
 		for (var player in playersList) {
 			allNames.forEach(function(playerName) {
-				console.log(playerName)
+				// console.log(playerName)
 				if (playersList[player].playerSprite.id === playerName.id) {
-					console.log(playersList[player].displayName);
+					// console.log(playersList[player].displayName);
 					playersList[player].displayName = playerName.name;
-					console.log(playersList[player].displayName);
+					// console.log(playersList[player].displayName);
 					playersList[player].label.destroy();
 					playersList[player].label = game.add.text(playersList[player].playerSprite.x, playersList[player].playerSprite.y, '' + playersList[player].displayName + '', {
 						font: "14px Arial",
@@ -265,14 +274,16 @@ function preload() {
 	game.load.image('wall32', 'assets/wall32.png');
 	game.load.image('actuallyfloor', 'assets/actuallyfloor.png');
 
-	game.load.spritesheet('final-player', 'assets/finalplayer.png', 150, 150);
+	game.load.spritesheet('finalplayer', 'assets/finalplayer.png', 150, 150);
 
 	game.load.image('bullet', 'assets/bullet2.png');
+	game.load.image('rocket', 'assets/justrocket.png');
 
 	game.load.spritesheet('healthbar', 'assets/healthbarfinal.png', 74.9, 10);
 	game.load.spritesheet('powerups', 'assets/powerups.png', 75, 75);
 	game.load.spritesheet('shield', 'assets/shield.png', 130, 128);
-
+	game.load.spritesheet('big-explosion', 'assets/big-explosion.png', 96, 96, 16);
+	game.load.spritesheet('small-explosion', 'assets/small-explosion.png', 64, 64, 16);
 }
 
 function create() {
@@ -306,35 +317,58 @@ function create() {
 		down: game.input.keyboard.addKey(Phaser.Keyboard.S),
 		left: game.input.keyboard.addKey(Phaser.Keyboard.A),
 		right: game.input.keyboard.addKey(Phaser.Keyboard.D),
-		tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB)
-			// reload: game.input.keyboard.addKey(Phaser.Keyboard.R),
-			// key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
-			// key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
-			// key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE)
+		tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB),
+		key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
+		key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
+		key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE),
+		key4: game.input.keyboard.addKey(Phaser.Keyboard.FOUR),
+		key5: game.input.keyboard.addKey(Phaser.Keyboard.FIVE),
 	};
-
+	
+	explosions = game.add.sprite(64, 64, 'small-explosion');
+	explosions.kill();
+	explosions.animations.add('explode');
+	
+	bigExplosion = game.add.sprite(96, 96, 'big-explosion');
+	bigExplosion.kill();
+	bigExplosion.animations.add('explode');
+	
+	
+ //   for (var i = 0; i < 16; i++)
+ //   {
+ //       var smallExplosion = explosions.create(0, 0, 'small-explosion', i, false);
+ //       // var bigExplosion = explosions.create('big-explosion', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 10, false);
+        
+ //       smallExplosion.anchor.setTo(0.5, 0.5);
+ //       smallExplosion.animations.add('small-explosion');
+        
+ //       // bigExplosion.anchor.setTo(0.5, 0.5);
+ //       // bigExplosion.animations.add('big-explosion');
+ //   }
+	
+	// console.log(explosions)
 	populatePowerUps();
 	// console.log(localPlayer.powerUps.children);
 
-	game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+// 	game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
 
-	var fullscreen = game.input.keyboard.addKey(Phaser.Keyboard.ONE);
+// 	var fullscreen = game.input.keyboard.addKey(Phaser.Keyboard.ONE);
 
-	fullscreen.onDown.add(gofull, this);
-
-}
-
-
-function gofull() {
-
-	if (game.scale.isFullScreen) {
-		game.scale.stopFullScreen();
-	}
-	else {
-		game.scale.startFullScreen(false);
-	}
+// 	fullscreen.onDown.add(gofull, this);
 
 }
+
+
+// function gofull() {
+
+// 	if (game.scale.isFullScreen) {
+// 		game.scale.stopFullScreen();
+// 	}
+// 	else {
+// 		game.scale.startFullScreen(false);
+// 	}
+
+// }
 
 
 function update() {
@@ -353,21 +387,38 @@ function update() {
 		ty: game.input.y + game.camera.y
 	};
 
-	// if (keys.key1.isDown) {
-	// 	localPlayer.cursor.skin = 'handgun';
-	// 	console.log(game.powerUps.children);
-	// 	eurecaServer.handleKeys({skin: 'handgun'});
-
-	// }
-	// else if (keys.key2.isDown){
-	// 	localPlayer.cursor.skin = 'shotgun';
-	// 	eurecaServer.handleKeys({skin: 'shotgun'});
-	// }
-	// else if (keys.key3.isDown){
-	// 	localPlayer.cursor.skin = 'rifle';
-	// 	eurecaServer.handleKeys({skin: 'rifle'});
-	// }
-
+	if (keys.key1.isDown) {
+		localPlayer.cursor.skin = 'handgun';
+		console.log(game.powerUps.children);
+		eurecaServer.handleKeys({
+			skin: 'handgun'
+		});
+	}
+	else if (keys.key2.isDown) {
+		localPlayer.cursor.skin = 'shotgun';
+		eurecaServer.handleKeys({
+			skin: 'shotgun'
+		});
+	}
+	else if (keys.key3.isDown) {
+		localPlayer.cursor.skin = 'rifle';
+		eurecaServer.handleKeys({
+			skin: 'rifle'
+		});
+	}
+	else if (keys.key4.isDown) {
+		localPlayer.cursor.skin = 'two-guns';
+		eurecaServer.handleKeys({
+			skin: 'two-guns'
+		});
+	}
+	else if (keys.key5.isDown) {
+		localPlayer.cursor.skin = 'rocket';
+		eurecaServer.handleKeys({
+			skin: 'rocket'
+		});
+	}
+	
 	if (keys.tab.isDown) {
 		eurecaServer.scoreDisplay(localPlayerSprite.id);
 	}
@@ -404,13 +455,16 @@ function update() {
 	for (var i in playersList) {
 		if (!playersList[i]) continue;
 		var curBullets = playersList[i].bullets;
+		var curRockets = playersList[i].rockets;
 		var curPlayer = playersList[i].playerSprite;
 		for (var j in playersList) {
 			if (!playersList[j]) continue;
 			if (j != i) {
 				var targetPlayer = playersList[j].playerSprite;
+				game.physics.arcade.overlap(curRockets, targetPlayer, rocketHitPlayer, null, this);
 				game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
 				game.physics.arcade.collide(curBullets, walls, bulletHitWall, null, this);
+				game.physics.arcade.collide(curRockets, walls, rocketHitWall, null, this);
 			}
 		}
 	}
@@ -455,11 +509,23 @@ function collectPowerup(player, powerup) {
 			shield: true
 		});
 	}
+	else if (powerup.type === 'two-guns') {
+		localPlayer.cursor.skin = 'two-guns';
+		eurecaServer.handleKeys({
+			skin: 'two-guns'
+		});
+	}
+	else if (powerup.type === 'rocket') {
+	localPlayer.cursor.skin = 'rocket';
+	eurecaServer.handleKeys({
+		skin: 'rocket'
+	});
+	}
 
 	eurecaServer.pickupPowerUp();
 
-	console.log(powerup)
-	console.log(player.id, "picked up a", powerup.type, "powerup!");
+	// console.log(powerup)
+	console.log(player.displayName, "picked up a", powerup.type, "powerup!");
 }
 
 
@@ -469,11 +535,26 @@ function bulletHitWall(bullet) {
 
 }
 
+function rocketHitWall(rocket) {
+	explosions.reset(rocket.x, rocket.y).animations.play('explode', 30, false);
+	rocket.kill();
+
+}
+
 function bulletHitPlayer(player, bullet) {
 	bullet.kill();
 
 	if (localPlayer.playerSprite.id === player.id)
 		playersList[player.id].damage(bullet);
+}
+
+function rocketHitPlayer(player, rocket) {
+	bigExplosion.reset(player.x,player.y).animations.play('explode', 30, false);
+	rocket.kill();
+
+
+	if (localPlayer.playerSprite.id === player.id)
+		playersList[player.id].damage(rocket);
 }
 
 function render() {
