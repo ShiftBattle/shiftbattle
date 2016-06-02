@@ -249,7 +249,7 @@ var eurecaClientSetup = function() {
 	};
 };
 
-var game = new Phaser.Game(1200, 800, Phaser.CANVAS, 'phaser-example', {
+var game = new Phaser.Game(1200, 800, Phaser.CANVAS, 'playDiv', {
 	preload: preload,
 	create: eurecaClientSetup,
 	update: update,

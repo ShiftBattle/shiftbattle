@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
     <title>ShiftBattle</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
     <script type="text/javascript" src="./js/execute.js"></script>
-    
+
     <script src="/eureca.js"></script>
     <script src="./js/phaser.js" type="text/javascript"></script>
     <script src="./js/Player.js"></script>
-    <script src="./js/game.js" myName = "" type="text/javascript"></script>
+    <script src="./js/game.js" myName="" type="text/javascript"></script>
     <script src="./js/PowerUps.js"></script>
     <script src="./js/changeName.js"></script>
     <style type="text/css">
@@ -20,23 +21,38 @@
             background: black;
             position: absolute;
             transform: translate(0%, 0%);
-            
         }
-         .gameDiv strong {
-                color: white;
-            }
+        
+        .gameDiv strong {
+            color: white;
+        }
+
+        #playDiv {
+            cursor: url(assets/origcross.png), auto;
+        }
+        
+        #playDiv:active {
+            cursor: url(assets/firing.png), auto;
+        }
+        
     </style>
 </head>
+
 <body>
-<<div class='gameDiv'>
+    <div class='gameDiv'>
         <form id="myForm">
-     <strong>Enter a username:</strong><br> <input type="text" id="username" />
-     <button id="play">Play</button>
-    </form>
+            <strong>Enter a username:</strong>
+            <br>
+            <input type="text" id="username" />
+            <button id="play">Play</button>
+        </form>
+        </div>
+    <div id='playDiv'>
+        
     </div>
-    
-    
-    <script>
-    </script>
+
+        <script>
+        </script>
 </body>
+
 </html>

@@ -46,19 +46,19 @@ eurecaServer.onDisconnect(function(conn) {
     console.log('Client disconnected ', conn.id);
     var removeId = clients[conn.id].id;
     delete clients[conn.id];
-    
+
     var index;
-    allNames.forEach(function(each, i){
-        if(each.id === conn.id) {
+    allNames.forEach(function(each, i) {
+        if (each.id === conn.id) {
             console.log(i)
             index = i
         }
     })
-    console.log(allNames, 'before splice'); 
+    console.log(allNames, 'before splice');
     console.log(index, 'index')
     allNames.splice(index, 1);
     console.log(allNames, 'after splice');
-    
+
     for (var c in clients) {
         var remote = clients[c].remote;
         //here we call kill() method defined in the client side
@@ -118,7 +118,9 @@ function powerUpUpdate() {
 }
 
 eurecaServer.exports.assignName = function(id, name) {
-    allNames.push({id, name});
+    allNames.push({
+        id, name
+    });
     console.log(allNames)
     for (var c in clients) {
         var remote = clients[c].remote;
@@ -164,36 +166,69 @@ eurecaServer.exports.killUpdate = function(packge) {
 
 
 eurecaServer.exports.scoreDisplay = function(id) { //obj = totalKills
-    console.log(totalKills, 'here is totalkills')
+    //totalKills = [{killer: ID, victim: ID}]
+    //allNames = [{id, name}] 
+    /*
+     allNames.forEach(function(each, i){
+            if(each.id === conn.id) {
+                console.log(i)
+                index = i
+            }
+        })
+    */
+    //collate ID with name. and add kill or death
+
     if (totalKills.length === 0) return;
-    var victims = []
-    totalKills.forEach(function(each) {
-        victims.push(each.victim)
+    var fullKDcount = []
+
+    allNames.forEach(function(namePair) {
+        var kdPair = []
+        var player = namePair.name;
+        var killCount = 0;
+        var deathCount = 0;
+        totalKills.forEach(function(killEvent) {
+
+
+            if (namePair.id === killEvent.killer) {
+                killCount += 1
+            }
+            if (namePair.id === killEvent.victim) {
+                deathCount += 1
+            }
+
+        })
+        kdPair[0] = player;
+        kdPair[1] = killCount;
+        kdPair[2] = deathCount;
+        fullKDcount.push(kdPair)
+
     })
-    var bodycount = {}
-    victims.forEach(function(i) {
-        bodycount[i] = (bodycount[i] || 0) + 1;
-    });
+    console.log(fullKDcount)
 
 
+    // var bodycount = {}
+    // victims.forEach(function(i) {
+    //     bodycount[i] = (bodycount[i] || 0) + 1;
+    // });
 
-    var killers = []
-    totalKills.forEach(function(each) {
-        killers.push(each.killer)
-    })
-    var score = {}
-    killers.forEach(function(i) {
-        score[i] = (score[i] || 0) + 1;
-    });
+    // var killers = []
+    // totalKills.forEach(function(each) {
+    //     killers.push(each.killer)
+    // })
+    // var score = {}
+    // killers.forEach(function(i) {
+    //     score[i] = (score[i] || 0) + 1;
+    // });
 
+    //Construct a nice string out of killers and body count once NAMES are in.
+    //ID's name . K: ID's score. D: ID's bodycount
 
-        //Construct a nice string out of killers and body count once NAMES are in.
-
+    var useableName;
 
     //we display to only the ID passed in the function to us
     for (var c in clients) {
         var remote = clients[c].remote;
-        remote.displayScoreboard(killers, id);
+        remote.displayScoreboard(fullKDcount, id);
     }
 }
 
