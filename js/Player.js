@@ -196,6 +196,9 @@ Player.prototype.update = function() {
 			else if (this.cursor.skin === 'rifle') {
 				this.playerSprite.animations.play('move-rifle');
 			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
+			}
 			else if (this.cursor.skin === 'rocket'){
 				this.playerSprite.animations.play('move-rocket')
 			}
@@ -212,6 +215,9 @@ Player.prototype.update = function() {
 			else if (this.cursor.skin === 'rifle') {
 				this.playerSprite.animations.play('move-rifle');
 			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
+			}
 			else if (this.cursor.skin === 'rocket'){
 				this.playerSprite.animations.play('move-rocket')
 			}
@@ -226,6 +232,9 @@ Player.prototype.update = function() {
 			}
 			else if (this.cursor.skin === 'rifle') {
 				this.playerSprite.animations.play('move-rifle');
+			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
 			}
 			else if (this.cursor.skin === 'rocket'){
 				this.playerSprite.animations.play('move-rocket')
@@ -243,6 +252,9 @@ Player.prototype.update = function() {
 			else if (this.cursor.skin === 'rifle') {
 				this.playerSprite.animations.play('move-rifle');
 			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
+			}
 			else if (this.cursor.skin === 'rocket'){
 				this.playerSprite.animations.play('move-rocket')
 			}
@@ -257,6 +269,9 @@ Player.prototype.update = function() {
 			}
 			else if (this.cursor.skin === 'rifle') {
 				this.playerSprite.animations.play('move-rifle');
+			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
 			}
 			else if (this.cursor.skin === 'rocket'){
 				this.playerSprite.animations.play('move-rocket')

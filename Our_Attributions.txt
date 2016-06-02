@@ -20,6 +20,9 @@ http://opengameart.org/content/10-pixel-weapons-0
 Clint Bellanger for shield graphics
 http://opengameart.org/content/shield-spell
 
+Bart for shield sounds
+http://opengameart.org/content/space-ship-shield-sounds
+
 Richard Davey for creating Phaser, our engine
 http://www.photonstorm.com/
 

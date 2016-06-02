@@ -17,6 +17,7 @@ var handgunshot;
 var shotgunshot;
 var rifleshot;
 var rocketlaunch;
+var getshield;
 
 var explosions, bigExplosion;
 
@@ -293,6 +294,7 @@ function preload() {
 	game.load.audio('shotgunshot', 'assets/sounds/shotgun.mp3');
 	game.load.audio('rifleshot', 'assets/sounds/AKshot.mp3');
 	game.load.audio('rocketlaunch', 'assets/sounds/sfx_fly.mp3');
+	game.load.audio('getshield', 'assets/sounds/shield.wav')
 
 	game.load.spritesheet('big-explosion', 'assets/big-explosion.png', 96, 96, 16);
 	game.load.spritesheet('small-explosion', 'assets/small-explosion.png', 64, 64, 16);
@@ -312,6 +314,7 @@ function create() {
 	shotgunshot = game.add.audio('shotgunshot');
 	rifleshot = game.add.audio('rifleshot');
 	rocketlaunch = game.add.audio('rocketlaunch');
+	getshield = game.add.audio('getshield')
 
 	walls.resizeWorld();
 
@@ -392,37 +395,37 @@ function update() {
 		ty: game.input.y + game.camera.y
 	};
 
-	if (keys.key1.isDown) {
-		localPlayer.cursor.skin = 'handgun';
-		console.log(game.powerUps.children);
-		eurecaServer.handleKeys({
-			skin: 'handgun'
-		});
-	}
-	else if (keys.key2.isDown) {
-		localPlayer.cursor.skin = 'shotgun';
-		eurecaServer.handleKeys({
-			skin: 'shotgun'
-		});
-	}
-	else if (keys.key3.isDown) {
-		localPlayer.cursor.skin = 'rifle';
-		eurecaServer.handleKeys({
-			skin: 'rifle'
-		});
-	}
-	else if (keys.key4.isDown) {
-		localPlayer.cursor.skin = 'two-guns';
-		eurecaServer.handleKeys({
-			skin: 'two-guns'
-		});
-	}
-	else if (keys.key5.isDown) {
-		localPlayer.cursor.skin = 'rocket';
-		eurecaServer.handleKeys({
-			skin: 'rocket'
-		});
-	}
+	// if (keys.key1.isDown) {
+	// 	localPlayer.cursor.skin = 'handgun';
+	// 	console.log(game.powerUps.children);
+	// 	eurecaServer.handleKeys({
+	// 		skin: 'handgun'
+	// 	});
+	// }
+	// else if (keys.key2.isDown) {
+	// 	localPlayer.cursor.skin = 'shotgun';
+	// 	eurecaServer.handleKeys({
+	// 		skin: 'shotgun'
+	// 	});
+	// }
+	// else if (keys.key3.isDown) {
+	// 	localPlayer.cursor.skin = 'rifle';
+	// 	eurecaServer.handleKeys({
+	// 		skin: 'rifle'
+	// 	});
+	// }
+	// else if (keys.key4.isDown) {
+	// 	localPlayer.cursor.skin = 'two-guns';
+	// 	eurecaServer.handleKeys({
+	// 		skin: 'two-guns'
+	// 	});
+	// }
+	// else if (keys.key5.isDown) {
+	// 	localPlayer.cursor.skin = 'rocket';
+	// 	eurecaServer.handleKeys({
+	// 		skin: 'rocket'
+	// 	});
+	// }
 
 	if (keys.tab.isDown) {
 		eurecaServer.scoreDisplay(localPlayerSprite.id);
@@ -509,6 +512,7 @@ function collectPowerup(player, powerup) {
 		});
 	}
 	else if (powerup.type === 'shield') {
+		getshield.play();
 		localPlayer.cursor.shield = true;
 		localPlayer.shield.health = 5;
 		localPlayer.shield.animations.play('shield');
