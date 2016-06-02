@@ -66,7 +66,7 @@ function updatePlayerHealth(playerShotandShooter, allNames) {
 		playersList[victim].cursor.shield = false;
 		for (var each in playersList) {
 			console.log(playersList[each].playerSprite.id, victim, "THY SHIT BE HERE")
-			if (playersList[each].playerSprite.id === victim && victim === myId) {
+			if ((playersList[each].playerSprite.id === victim) && (victim === myId)) {
 				eurecaServer.killUpdate({
 					killer: shooter,
 					victim: victim
@@ -157,16 +157,16 @@ var eurecaClientSetup = function() {
 	eurecaClient.exports.printKillText = function(obj, allNames) {
 		// console.log(obj) //{killer: ID, victim: ID}
 		// console.log(allNames, 'allNames') //[{ID, name}, {ID, name}, {ID, name}]
-		
+
 		var killer;
 		var victim;
-		
+
 		allNames.forEach(function(each) {
 			if (obj.killer === each.id) {
-				 killer = each.name
+				killer = each.name
 			}
 			else if (obj.victim === each.id) {
-				 victim = each.name
+				victim = each.name
 			}
 		});
 		// console.log(killer, victim, 'killervictim')
@@ -204,23 +204,23 @@ var eurecaClientSetup = function() {
 		}
 	}
 	eurecaClient.exports.displayScoreboard = function(res, id) {
-		console.log(res)
-		console.log(id, 'id');
-		console.log(myId, 'myId')
+		console.log(res, 'displayScoreboard res')
 		if (id === myId) {
+			var style = {
+				font: "40px Arial",
+				fill: "#0000FF",
+				align: "left",
+				backgroundColor: 'rgba(211,211,211,0.25)',
+				tabs: [ 400, 120 ]
+			}
+			
+			var kdTabs = ['Name', 'Kills', 'Deaths']
+			res.unshift(kdTabs)
 
-			console.log(res, 'res')
-			console.log(id, 'id')
-			var stuff = Object.keys(res)
-			var scoreboard = game.add.text(300, 300, stuff, {
-				font: "20px Arial",
-				fill: "#ffffff",
-				align: "center"
-			});
+			var scoreboard = game.add.text(250, 150, '', style);
+			scoreboard.parseList(res)
 			scoreboard.fixedToCamera = true
 			setTimeout(function() {
-
-
 				scoreboard.destroy();
 			}, 2000);
 		}
@@ -370,7 +370,6 @@ function update() {
 
 	if (keys.tab.isDown) {
 		eurecaServer.scoreDisplay(localPlayerSprite.id);
-		console.log(localPlayerSprite)
 	}
 
 
