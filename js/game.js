@@ -15,6 +15,9 @@ var ready = false;
 var eurecaServer;
 
 var keys;
+var handgunshot;
+var shotgunshot; 
+var rifleshot;
 
 var powerUpsActive;
 
@@ -117,11 +120,8 @@ var eurecaClientSetup = function() {
 
 		for (var player in playersList) {
 			allNames.forEach(function(playerName) {
-				console.log(playerName)
 				if (playersList[player].playerSprite.id === playerName.id) {
-					console.log(playersList[player].displayName);
 					playersList[player].displayName = playerName.name;
-					console.log(playersList[player].displayName);
 					playersList[player].label.destroy();
 					playersList[player].label = game.add.text(playersList[player].playerSprite.x, playersList[player].playerSprite.y, '' + playersList[player].displayName + '', {
 						font: "14px Arial",
@@ -258,7 +258,7 @@ var eurecaClientSetup = function() {
 	};
 };
 
-var game = new Phaser.Game(1200, 800, Phaser.CANVAS, 'playDiv', {
+var game = new Phaser.Game(1200, 800, Phaser.AUTO, 'playDiv', {
 	preload: preload,
 	create: eurecaClientSetup,
 	update: update,
@@ -274,13 +274,17 @@ function preload() {
 	game.load.image('wall32', 'assets/wall32.png');
 	game.load.image('actuallyfloor', 'assets/actuallyfloor.png');
 
-	game.load.spritesheet('final-player', 'assets/finalplayer.png', 150, 150);
+	game.load.spritesheet('final-player', 'assets/rocketman2.png', 150, 150);
 
 	game.load.image('bullet', 'assets/bullet2.png');
 
 	game.load.spritesheet('healthbar', 'assets/healthbarfinal.png', 74.9, 10);
 	game.load.spritesheet('powerups', 'assets/powerups.png', 75, 75);
 	game.load.spritesheet('shield', 'assets/shield.png', 130, 128);
+	
+	game.load.audio('handgunshot', 'assets/sounds/singleshot.mp3')
+	game.load.audio('shotgunshot', 'assets/sounds/shotgun.mp3')
+	game.load.audio('rifleshot', 'assets/sounds/AKshot.mp3')
 
 }
 
@@ -293,6 +297,11 @@ function create() {
 	map.addTilesetImage('wall32', 'wall32');
 	map.addTilesetImage('actuallyfloor', 'actuallyfloor');
 	map.setCollision([1]);
+	
+	handgunshot = game.add.audio('handgunshot');
+	shotgunshot = game.add.audio('shotgunshot');
+	rifleshot = game.add.audio('rifleshot');
+
 
 	walls.resizeWorld();
 
@@ -311,16 +320,16 @@ function create() {
 	game.camera.follow(localPlayerSprite);
 
 	if (!localPlayer.displayName) {
-		console.log(localPlayer.displayName, '314')
 		keys = {
 			up: game.input.keyboard.addKey(Phaser.Keyboard.UP),
 			down: game.input.keyboard.addKey(Phaser.Keyboard.DOWN),
 			left: game.input.keyboard.addKey(Phaser.Keyboard.LEFT),
 			right: game.input.keyboard.addKey(Phaser.Keyboard.RIGHT),
-			tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB)
+			tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB),
+			m: game.input.keyboard.addKey(Phaser.Keyboard.M)
 		}
 	}
-	
+
 
 	populatePowerUps();
 	// console.log(localPlayer.powerUps.children);
@@ -349,19 +358,18 @@ function gofull() {
 function update() {
 	//do not update if client not ready
 	if (!ready) return;
-	
+
 	if (localPlayer.displayName) {
-		console.log('else worked')
 		keys = {
 			up: game.input.keyboard.addKey(Phaser.Keyboard.W),
 			down: game.input.keyboard.addKey(Phaser.Keyboard.S),
 			left: game.input.keyboard.addKey(Phaser.Keyboard.A),
 			right: game.input.keyboard.addKey(Phaser.Keyboard.D),
-			tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB)
-				// reload: game.input.keyboard.addKey(Phaser.Keyboard.R),
-				// key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
-				// key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
-				// key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE)
+			tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB),
+			m: game.input.keyboard.addKey(Phaser.Keyboard.M),
+			// key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
+			// key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
+			// key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE)
 		}
 	}
 
@@ -396,7 +404,21 @@ function update() {
 		eurecaServer.scoreDisplay(localPlayerSprite.id);
 	}
 
+  //  if (keys.shift.isDown){
+  //  	// localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
+		// console.log(localPlayerSprite.rotation)
+		// game.physics.arcade.moveToPointer(localPlayerSprite, 400);
 
+		// // this.playerSprite.body.x -= speed;
+		// // 	this.playerSprite.body.y -= speed;
+		// // bullet.reset((this.playerSprite.x + (45*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (45*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
+		// // bullet.rotation = this.playerSprite.rotation;      
+	 ////   game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet.body.velocity); 
+  //  }
+
+	if (keys.m.isDown){
+		console.log(game);
+	}
 	localPlayerSprite.rotation = game.physics.arcade.angleToPointer(localPlayerSprite);
 
 	var inputChanged = (

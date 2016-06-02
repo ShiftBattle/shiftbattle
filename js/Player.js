@@ -130,7 +130,6 @@ Player.prototype.update = function() {
     this.label.x = this.playerSprite.x;  
     this.label.y = this.playerSprite.y;  
     
-	
 	if (this.cursor.left) {
 		if (this.cursor.up) {
 			this.playerSprite.body.x -= speed;
@@ -302,6 +301,16 @@ Player.prototype.fire = function(target) {
             var bullet = this.bullets.getFirstExists(false);
             
             if (this.cursor.skin === 'handgun') {
+  
+			// var shipTrail = bullet.addChild(game.add.emitter(bullet.x, bullet.y, 400));
+			// shipTrail.width = 10;
+			// shipTrail.makeParticles('bullet');
+			// shipTrail.setXSpeed(30, -30);
+			// shipTrail.setYSpeed(200, 180);
+			// shipTrail.setRotation(50, -50);
+			// shipTrail.setAlpha(1, 0.01, 800);
+			// shipTrail.setScale(0.05, 0.4, 0.05, 0.4, 2000, Phaser.Easing.Quintic.Out);
+			// shipTrail.start(false, 5000, 10);
             	this.fireRate = 500;
             	this.nextFire = this.game.time.now + this.fireRate;
      			this.bullets.setAll('anchor.x', 0);
@@ -309,7 +318,7 @@ Player.prototype.fire = function(target) {
 				bullet.reset((this.playerSprite.x + (45*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (45*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 				bullet.rotation = this.playerSprite.rotation;      
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet.body.velocity); 
-
+				handgunshot.play();
 			}
 			else if (this.cursor.skin === 'shotgun') {
 
@@ -327,7 +336,7 @@ Player.prototype.fire = function(target) {
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet.body.velocity); 
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet2.body.velocity); 
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet3.body.velocity); 
-
+	            shotgunshot.play();
 			}
 			else if (this.cursor.skin === 'rifle') {
 				this.fireRate = 200;
@@ -337,6 +346,7 @@ Player.prototype.fire = function(target) {
 				bullet.reset((this.playerSprite.x + (73*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (73*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 				bullet.rotation = this.playerSprite.rotation;      
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet.body.velocity);
+	            rifleshot.play();
 			}
         }
 };    
