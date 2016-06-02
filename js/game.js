@@ -157,7 +157,16 @@ var eurecaClientSetup = function() {
 	eurecaClient.exports.printKillText = function(obj, allNames) {
 		// console.log(obj) //{killer: ID, victim: ID}
 		// console.log(allNames, 'allNames') //[{ID, name}, {ID, name}, {ID, name}]
+		console.log(timeNow, 'timenow before update')
 
+		var yofKillText = 0
+		if (game.time.now - timeNow <= 2000) {
+			yofKillText = 100
+			console.log('if runs')
+		}
+		var timeNow = game.time.now
+		console.log(timeNow, 'timenow after update')
+		if (timeNow <= game.time.now) {}
 		var killer;
 		var victim;
 
@@ -176,7 +185,7 @@ var eurecaClientSetup = function() {
 		for (var i in playersList) {
 			console.log(playersList[i].playerSprite.id, victim, "print kill text")
 			if ((playersList[i].playerSprite.id === obj.victim) && (obj.victim === myId)) {
-				var t = game.add.text(0, 0, "Fragged by " + killer, {
+				var t = game.add.text(0, yofKillText, "Fragged by " + killer, {
 					font: "20px Arial",
 					fill: "#ffffff",
 					align: "center"
@@ -197,9 +206,8 @@ var eurecaClientSetup = function() {
 					align: "center"
 				});
 				t.fixedToCamera = true
-				setTimeout(function() {
-					t.destroy();
-				}, 2000)
+				t.lifespan = 2000;
+
 			}
 		}
 	}
@@ -211,18 +219,19 @@ var eurecaClientSetup = function() {
 				fill: "#0000FF",
 				align: "left",
 				backgroundColor: 'rgba(211,211,211,0.25)',
-				tabs: [ 400, 120 ]
+				tabs: [400, 120]
 			}
-			
+
 			var kdTabs = ['Name', 'Kills', 'Deaths']
 			res.unshift(kdTabs)
 
 			var scoreboard = game.add.text(250, 150, '', style);
 			scoreboard.parseList(res)
 			scoreboard.fixedToCamera = true
-			setTimeout(function() {
-				scoreboard.destroy();
-			}, 2000);
+				// setTimeout(function() {
+				// 	scoreboard.destroy();
+				// }, 2000);
+			scoreboard.lifespan = 2000;
 		}
 	}
 
@@ -301,17 +310,17 @@ function create() {
 
 	game.camera.follow(localPlayerSprite);
 
-	keys = {
-		up: game.input.keyboard.addKey(Phaser.Keyboard.W),
-		down: game.input.keyboard.addKey(Phaser.Keyboard.S),
-		left: game.input.keyboard.addKey(Phaser.Keyboard.A),
-		right: game.input.keyboard.addKey(Phaser.Keyboard.D),
-		tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB)
-			// reload: game.input.keyboard.addKey(Phaser.Keyboard.R),
-			// key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
-			// key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
-			// key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE)
-	};
+	if (!localPlayer.displayName) {
+		console.log(localPlayer.displayName, '314')
+		keys = {
+			up: game.input.keyboard.addKey(Phaser.Keyboard.UP),
+			down: game.input.keyboard.addKey(Phaser.Keyboard.DOWN),
+			left: game.input.keyboard.addKey(Phaser.Keyboard.LEFT),
+			right: game.input.keyboard.addKey(Phaser.Keyboard.RIGHT),
+			tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB)
+		}
+	}
+	
 
 	populatePowerUps();
 	// console.log(localPlayer.powerUps.children);
@@ -340,6 +349,21 @@ function gofull() {
 function update() {
 	//do not update if client not ready
 	if (!ready) return;
+	
+	if (localPlayer.displayName) {
+		console.log('else worked')
+		keys = {
+			up: game.input.keyboard.addKey(Phaser.Keyboard.W),
+			down: game.input.keyboard.addKey(Phaser.Keyboard.S),
+			left: game.input.keyboard.addKey(Phaser.Keyboard.A),
+			right: game.input.keyboard.addKey(Phaser.Keyboard.D),
+			tab: game.input.keyboard.addKey(Phaser.Keyboard.TAB)
+				// reload: game.input.keyboard.addKey(Phaser.Keyboard.R),
+				// key1: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
+				// key2: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
+				// key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE)
+		}
+	}
 
 	game.stage.disableVisibilityChange = true;
 

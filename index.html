@@ -7,7 +7,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
     <script type="text/javascript" src="./js/execute.js"></script>
-
+    <link href='https://fonts.googleapis.com/css?family=Revalia' rel='stylesheet' type='text/css'>
     <script src="/eureca.js"></script>
     <script src="./js/phaser.js" type="text/javascript"></script>
     <script src="./js/Player.js"></script>
@@ -27,13 +27,12 @@
             color: white;
         }
 
-        #playDiv {
-            cursor: url(assets/origcross.png), auto;
+        .gameDiv p {
+            font-family: 'Revalia', cursive;
+            color: blue;
+            font-size: 80px;
         }
         
-        #playDiv:active {
-            cursor: url(assets/firing.png), auto;
-        }
         
     </style>
 </head>
@@ -46,6 +45,7 @@
             <input type="text" id="username" />
             <button id="play">Play</button>
         </form>
+        <p>S H I F T <br>B A T T L E</p>
         </div>
     <div id='playDiv'>
         
