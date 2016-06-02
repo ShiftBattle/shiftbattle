@@ -102,7 +102,7 @@ function powerUpUpdate() {
         [2261, 234],
         [1296, 815]
     ];
-    var powerUpType = ['rifle', 'shotgun', 'health', 'shield'];
+    var powerUpType = ['rifle', 'shotgun', 'health', 'shield', 'two-guns', 'rocket'];
     updatedPowers = [];
     for (var i = 0; i < 3; i++) {
         var pu = updatedPowers[i] = [
@@ -150,10 +150,10 @@ eurecaServer.exports.pickupPowerUp = function() {
 };
 
 eurecaServer.exports.killUpdate = function(packge) {
-    console.log(totalKills, 'totalkills before push')
+    // console.log(totalKills, 'totalkills before push')
     totalKills.push(packge) //packge is the latest kill event
-    console.log(packge, 'here is package')
-    console.log(totalKills, 'totalkills after push')
+    // console.log(packge, 'here is package')
+    // console.log(totalKills, 'totalkills after push')
     var conn = this.connection;
     var updatedClient = clients[conn.id];
 
@@ -204,24 +204,6 @@ eurecaServer.exports.scoreDisplay = function(id) { //obj = totalKills
 
     })
     console.log(fullKDcount)
-
-
-    // var bodycount = {}
-    // victims.forEach(function(i) {
-    //     bodycount[i] = (bodycount[i] || 0) + 1;
-    // });
-
-    // var killers = []
-    // totalKills.forEach(function(each) {
-    //     killers.push(each.killer)
-    // })
-    // var score = {}
-    // killers.forEach(function(i) {
-    //     score[i] = (score[i] || 0) + 1;
-    // });
-
-    //Construct a nice string out of killers and body count once NAMES are in.
-    //ID's name . K: ID's score. D: ID's bodycount
 
     var useableName;
 
