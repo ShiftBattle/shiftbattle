@@ -1,5 +1,5 @@
 {
-  "name": "spawns7",
+  "name": "shiftbattle",
   "version": "1.0.0",
   "description": "\"Top-down deathmatch game\"",
   "main": "server.js",
