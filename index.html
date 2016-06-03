@@ -27,7 +27,7 @@
         .gameDiv strong {
             color: white;
         }
-
+        
         .gameDiv h1 {
             font-family: 'Revalia', cursive;
             color: blue;
@@ -50,9 +50,18 @@
             color: white;
             text-align: left;
         }
-       
         
+        #playDiv {
+            cursor: crosshair;
+        }
         
+        button {
+            background-color: #000000;
+            color: #FFFFFF;
+            border-radius: 10px;
+            width: 90px;
+            height: 40px;
+        }
     </style>
 </head>
 
@@ -61,28 +70,28 @@
         <h1>S H I F T B A T T L E</h1>
         <img src="./assets/gifs/greenknight.gif">
         <p>A <span style="color: green">Green Knight Productions</span> Game</p>
-        <div class = "smallDiv">
+        <div class="smallDiv">
             <ul>
-            <li>Instructions:</li>
-            <li>W,A,S,D to move. </li>
-            <li>Click to shoot. </li>
-            <li>TAB to see scoreboard. </li>
-            <li>Avoid rockets.</li>
+                <li>Instructions:</li>
+                <li>W,A,S,D to move. </li>
+                <li>Click to shoot. </li>
+                <li>TAB to see scoreboard. </li>
+                <li>Avoid rockets.</li>
             </ul>
         </div>
         <form id="myForm">
             <strong>Enter a username:</strong>
             <br>
-            <input type="text" id="username" />
+            <input type="text" id="username" /><br><br>
             <button id="play">Play</button>
         </form>
-        </div>
+    </div>
     <div id='playDiv'>
-        
+
     </div>
 
-        <script>
-        </script>
+    <script>
+    </script>
 </body>
 
 </html>
