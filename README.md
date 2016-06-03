@@ -2,7 +2,7 @@
 
 An action-packed top-down deathmatch shooter created by web developers John Bain and Pau Cortes.
 
-![](https://i.imgur.com/erVHYGq.png)
+![](http://i.imgur.com/mUGzPb3.png)
 
 **Technologies used:**
 * Phaser
