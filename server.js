@@ -54,10 +54,7 @@ eurecaServer.onDisconnect(function(conn) {
             index = i
         }
     })
-    console.log(allNames, 'before splice');
-    console.log(index, 'index')
     allNames.splice(index, 1);
-    console.log(allNames, 'after splice');
 
     for (var c in clients) {
         var remote = clients[c].remote;
@@ -121,7 +118,6 @@ eurecaServer.exports.assignName = function(id, name) {
     allNames.push({
         id, name
     });
-    console.log(allNames)
     for (var c in clients) {
         var remote = clients[c].remote;
         remote.nameChange(id, name, allNames);
@@ -130,8 +126,6 @@ eurecaServer.exports.assignName = function(id, name) {
 
 
 eurecaServer.exports.bulletHitsPlayer = function(playerShotandShooter) {
-    // console.log(playerShotandShooter.shooter, 'the player being shot')
-    // console.log(playerShotandShooter.playerShot, 'the shooter')
     for (var c in clients) {
         var remote = clients[c].remote;
         remote.removePlayerHealth(playerShotandShooter);
@@ -146,14 +140,11 @@ eurecaServer.exports.pickupPowerUp = function() {
     console.log('SOMEONE PICKED UP A POWERUP');
     setTimeout(function() {
         powerUpUpdate();
-    }, 5000);
+    }, 3000);
 };
 
 eurecaServer.exports.killUpdate = function(packge) {
-    // console.log(totalKills, 'totalkills before push')
     totalKills.push(packge) //packge is the latest kill event
-    // console.log(packge, 'here is package')
-    // console.log(totalKills, 'totalkills after push')
     var conn = this.connection;
     var updatedClient = clients[conn.id];
 
@@ -163,21 +154,7 @@ eurecaServer.exports.killUpdate = function(packge) {
     }
 }
 
-
-
-eurecaServer.exports.scoreDisplay = function(id) { //obj = totalKills
-    //totalKills = [{killer: ID, victim: ID}]
-    //allNames = [{id, name}] 
-    /*
-     allNames.forEach(function(each, i){
-            if(each.id === conn.id) {
-                console.log(i)
-                index = i
-            }
-        })
-    */
-    //collate ID with name. and add kill or death
-
+eurecaServer.exports.scoreDisplay = function(id) { 
     if (totalKills.length === 0) return;
     var fullKDcount = []
 
@@ -188,19 +165,17 @@ eurecaServer.exports.scoreDisplay = function(id) { //obj = totalKills
         var deathCount = 0;
         totalKills.forEach(function(killEvent) {
 
-
             if (namePair.id === killEvent.killer) {
                 killCount += 1
             }
             if (namePair.id === killEvent.victim) {
                 deathCount += 1
             }
-
         })
         kdPair[0] = player;
         kdPair[1] = killCount;
         kdPair[2] = deathCount;
-        fullKDcount.push(kdPair)
+        fullKDcount.push(kdPair);
 
     })
     console.log(fullKDcount)

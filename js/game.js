@@ -23,7 +23,6 @@ var explosions, bigExplosion;
 
 function updatePlayerState(id, state) {
 	if (!playersList[id] || !playersList[id].alive) return;
-	// {console.log(state)
 	if (playersList[id] && id != myId) {
 
 		playersList[id].cursor = state;
@@ -86,8 +85,6 @@ function updatePlayerHealth(playerShotandShooter, allNames) {
 				}
 			}
 			setTimeout(function() {
-				console.log("RESPAWN TIMEOUT FUNCTION");
-
 				var loc = playerSpawns[randomize(playerSpawns)];
 				playersList[victim].playerSprite.x = loc[0];
 				playersList[victim].playerSprite.y = loc[1];
@@ -101,7 +98,6 @@ function updatePlayerHealth(playerShotandShooter, allNames) {
 				playersList[victim].cursor.health = 10;
 				playersList[victim].cursor.skin = 'handgun';
 			}, 5000);
-
 		}
 	}
 }
@@ -141,9 +137,7 @@ var eurecaClientSetup = function() {
 					});
 					playersList[player].label.anchor.setTo(.5, -1.7);
 				}
-
 			})
-
 		}
 	};
 
@@ -152,7 +146,6 @@ var eurecaClientSetup = function() {
 			myId = info.id;
 			create();
 			updatePowerups(info.powerups);
-			console.log(info.powerups)
 				// call powerup display with info.powerups
 			eurecaServer.handshake(myId);
 			ready = true;
@@ -166,17 +159,11 @@ var eurecaClientSetup = function() {
 	};
 
 	eurecaClient.exports.printKillText = function(obj, allNames) {
-		// console.log(obj) //{killer: ID, victim: ID}
-		// console.log(allNames, 'allNames') //[{ID, name}, {ID, name}, {ID, name}]
-		console.log(timeNow, 'timenow before update')
-
 		var yofKillText = 0
 		if (game.time.now - timeNow <= 2000) {
 			yofKillText = 100
-			console.log('if runs')
 		}
 		var timeNow = game.time.now
-		console.log(timeNow, 'timenow after update')
 		if (timeNow <= game.time.now) {}
 		var killer;
 		var victim;
@@ -189,12 +176,8 @@ var eurecaClientSetup = function() {
 				victim = each.name
 			}
 		});
-		// console.log(killer, victim, 'killervictim')
-
-		//var victim= playerShotandShooter[Object.keys(playerShotandShooter)
 
 		for (var i in playersList) {
-			console.log(playersList[i].playerSprite.id, victim, "print kill text")
 			if ((playersList[i].playerSprite.id === obj.victim) && (obj.victim === myId)) {
 				var t = game.add.text(0, yofKillText, "Fragged by " + killer, {
 					font: "20px Arial",
@@ -204,11 +187,8 @@ var eurecaClientSetup = function() {
 				t.fixedToCamera = true;
 				t.lifespan = 2000;
 			}
-			// console.log(i, 'each')
-			// console.log(playersList[i].playerSprite.id, 'playerId before if')
-			// console.log(killer, 'killer before if')
+
 			if (playersList[i].playerSprite.id === obj.killer && obj.killer === myId) {
-				// console.log('made it to if')
 				var t = game.add.text(0, 0, "You fragged " + victim, {
 					font: "20px Arial",
 					fill: "#ffffff",
@@ -216,12 +196,10 @@ var eurecaClientSetup = function() {
 				});
 				t.fixedToCamera = true;
 				t.lifespan = 2000;
-
 			}
 		}
 	}
 	eurecaClient.exports.displayScoreboard = function(res, id) {
-		console.log(res, 'displayScoreboard res')
 		if (id === myId) {
 			var style = {
 				font: "40px Arial",
@@ -233,25 +211,17 @@ var eurecaClientSetup = function() {
 
 			var kdTabs = ['Name', 'Kills', 'Deaths']
 			res.unshift(kdTabs)
-
 			var scoreboard = game.add.text(250, 150, '', style);
 			scoreboard.parseList(res)
 			scoreboard.fixedToCamera = true
-				// setTimeout(function() {
-				// 	scoreboard.destroy();
-				// }, 2000);
 			scoreboard.lifespan = 2000;
 		}
 	}
 
-
-	// sends the powerups that are currently active to all players and spawns a new one if one of them is picked up
 	eurecaClient.exports.updatePowerUps = updatePowerups;
 
 	eurecaClient.exports.spawnEnemy = function(i, x, y) {
-		if (i === myId) return; //this is me
-
-		console.log('SPAWN', i);
+		if (i === myId) return; 
 		var plyr = new Player(i, game, localPlayerSprite, x, y);
 		playersList[i] = plyr;
 		plyr.update();
@@ -273,7 +243,6 @@ var game = new Phaser.Game(1200, 800, Phaser.AUTO, 'playDiv', {
 	update: update,
 	render: render
 });
-
 
 function preload() {
 	game.load.tilemap('fixedmap', 'assets/fixedmap.json', null, Phaser.Tilemap.TILED_JSON);
@@ -325,8 +294,6 @@ function create() {
 	localPlayer = new Player(myId, game, localPlayerSprite);
 	playersList[myId] = localPlayer;
 	localPlayerSprite = localPlayer.playerSprite;
-	// localPlayerSprite.x=0;
-	// localPlayerSprite.y=0;
 
 	localPlayerSprite.bringToTop();
 
@@ -355,14 +322,11 @@ function create() {
 	bigExplosion.kill();
 	bigExplosion.animations.add('explode');
 
-
 	populatePowerUps();
-
 
 }
 
 function update() {
-	//do not update if client not ready
 	if (!ready) return;
 
 	if (localPlayer.displayName) {
@@ -377,7 +341,6 @@ function update() {
 			key3: game.input.keyboard.addKey(Phaser.Keyboard.THREE),
 			key4: game.input.keyboard.addKey(Phaser.Keyboard.FOUR),
 			key5: game.input.keyboard.addKey(Phaser.Keyboard.FIVE),
-
 		}
 	}
 
@@ -456,7 +419,7 @@ function update() {
 	}
 
 
-	// This loop checks who should be killed
+	// This loop checks if anyone's bullets/rockets overlap with any other players
 	for (var i in playersList) {
 		if (!playersList[i]) continue;
 		var curBullets = playersList[i].bullets;
@@ -468,12 +431,24 @@ function update() {
 				var targetPlayer = playersList[j].playerSprite;
 				game.physics.arcade.overlap(curRockets, targetPlayer, rocketHitPlayer, null, this);
 				game.physics.arcade.overlap(curBullets, targetPlayer, bulletHitPlayer, null, this);
-				game.physics.arcade.collide(curBullets, walls, bulletHitWall, null, this);
-				game.physics.arcade.collide(curRockets, walls, rocketHitWall, null, this);
 			}
 		}
 	}
-
+	
+	// This loop checks for collision between bullets/rockets and walls
+	for (var i in playersList) {
+		if (!playersList[i]) continue;
+		var curBullets = playersList[i].bullets;
+		var curRockets = playersList[i].rockets;
+		var curPlayer = playersList[i].playerSprite;
+		for (var j in playersList) {
+			if (!playersList[j]) continue;
+				var targetPlayer = playersList[j].playerSprite;
+				game.physics.arcade.collide(curBullets, walls, bulletHitWall, null, this);
+				game.physics.arcade.collide(curRockets, walls, rocketHitWall, null, this);
+		}
+	}
+	
 	// This loop updates all the players
 	for (var i in playersList) {
 		if (playersList[i].alive) {
@@ -486,6 +461,7 @@ function update() {
 
 }
 
+// When picking a powerup, the information is sent to the server and the player's skin is changed, or shield/health is added to the player
 function collectPowerup(player, powerup) {
 	powerup.kill();
 	if (powerup.type === 'shotgun') {
@@ -529,14 +505,10 @@ function collectPowerup(player, powerup) {
 	}
 
 	eurecaServer.pickupPowerUp();
-
-	// console.log(powerup)
-	console.log(player.displayName, "picked up a", powerup.type, "powerup!");
 }
 
 
 function bulletHitWall(bullet) {
-	// console.log(bullet, 'bullet has hit the wall');
 	bullet.kill();
 
 }
@@ -557,7 +529,6 @@ function bulletHitPlayer(player, bullet) {
 function rocketHitPlayer(player, rocket) {
 	bigExplosion.reset(player.x, player.y).animations.play('explode', 30, false);
 	rocket.kill();
-
 
 	if (localPlayer.playerSprite.id === player.id)
 		playersList[player.id].damage(rocket);

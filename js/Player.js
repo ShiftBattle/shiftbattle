@@ -1,5 +1,6 @@
 /* global eurecaServer, Phaser, Player, speed, localPlayerSprite, game, playersList*/
 
+// list of random spawn points
 var playerSpawns = {
 1: [180, 170],
 2: [155, 1080],
@@ -24,6 +25,7 @@ function randomize (spawnObject) {
 	return Math.floor((Math.random() * countObjectKeys(spawnObject)) + 1);
 }
 
+// the player creator
 function Player(index, game, user, x, y) {
 	this.cursor = {
 		left:false,
@@ -155,6 +157,12 @@ Player.prototype.update = function() {
 			else if (this.cursor.skin === 'rifle') {
 				this.playerSprite.animations.play('move-rifle');
 			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
+			}
+			else if (this.cursor.skin === 'rocket'){
+				this.playerSprite.animations.play('move-rocket')
+			}
 		}
 		else if (this.cursor.down) {
 			this.playerSprite.body.x -= speed;
@@ -168,6 +176,12 @@ Player.prototype.update = function() {
 			else if (this.cursor.skin === 'rifle') {
 				this.playerSprite.animations.play('move-rifle');
 			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
+			}
+			else if (this.cursor.skin === 'rocket'){
+				this.playerSprite.animations.play('move-rocket')
+			}
 		}
 		else {
 			this.playerSprite.body.x -= speed;
@@ -179,6 +193,12 @@ Player.prototype.update = function() {
 			}
 			else if (this.cursor.skin === 'rifle') {
 				this.playerSprite.animations.play('move-rifle');
+			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
+			}
+			else if (this.cursor.skin === 'rocket'){
+				this.playerSprite.animations.play('move-rocket')
 			}
 		}
 	}
@@ -348,7 +368,6 @@ Player.prototype.fire = function(target) {
 			var rocket = this.rockets.getRandom();
             
             if (this.cursor.skin === 'handgun') {
-  
             	this.fireRate = 500;
             	this.nextFire = this.game.time.now + this.fireRate;
      			this.bullets.setAll('anchor.x', 0);
@@ -413,9 +432,7 @@ Player.prototype.fire = function(target) {
         }
 };    
       
-
 Player.prototype.damage = function(bullet){
-
 	eurecaServer.bulletHitsPlayer({
 	playerShot: this.playerSprite.id,
 	shooter: bullet.key,
