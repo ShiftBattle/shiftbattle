@@ -2,6 +2,8 @@
 
 An action-packed top-down deathmatch shooter created by web developers John Bain and Pau Cortes.
 
+![](https://i.imgur.com/erVHYGq.png)
+
 **Technologies used:**
 * Phaser
 * Engine.io
