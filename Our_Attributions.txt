@@ -1,0 +1,31 @@
+ATTRIBUTIONS
+
+Thanks to
+
+rileygombart on OpenGameArt for top down survivor player
+http://opengameart.org/content/animated-top-down-survivor-player
+
+Cuzco on OpenGameArt for rocket explosion graphics
+http://opengameart.org/content/explosion
+
+The Free Firearm Sound Library for firearm sounds
+http://opengameart.org/content/the-free-firearm-sound-library
+
+Blender Foundation for rocket sound
+http://opengameart.org/content/fly-launch-jet-yo-frankie
+
+PixelMannen for power-up sprites
+http://opengameart.org/content/10-pixel-weapons-0
+
+Clint Bellanger for shield graphics
+http://opengameart.org/content/shield-spell
+
+Bart for shield sounds
+http://opengameart.org/content/space-ship-shield-sounds
+
+Richard Davey for creating Phaser, our engine
+http://www.photonstorm.com/
+
+Ezealia for creating Eureca.io, our client-server library, and for creating Multiplayer Tanks, the game on which ours was originally based.
+https://github.com/Ezelia/eureca.io
+http://ezelia.com/2014/tutorial-creating-basic-multiplayer-game-phaser-eureca-io

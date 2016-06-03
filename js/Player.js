@@ -135,48 +135,51 @@ Player.prototype.update = function() {
     
     var speed;
     
-    if (this.cursor.skin === 'handgun') {
+    if (this.cursor.skin === 'handgun' || this.cursor.skin === 'two-guns') {
     	speed = 6;
     }
     else {
     	speed = 5;
     }
     
-    var moveAnim;
-    
-    if (this.cursor.skin === 'handgun') {
-    	moveAnim = this.playerSprite.animations.play('move-handgun');
-    }
-    else if (this.cursor.skin === 'shotgun') {
-    	moveAnim = this.playerSprite.animations.play('move-shotgun');
-    }
-    else if (this.cursor.skin === 'rifle') {
-    	moveAnim = this.playerSprite.animations.play('move-rifle');
-    }
-    else if (this.cursor.skin === 'two-guns') {
-    	moveAnim = this.playerSprite.animations.play('move-twoguns');
-    }
-    else if (this.cursor.skin === 'rocket') {
-    	moveAnim = this.playerSprite.animations.play('move-rocket');
- 
-    }
-
-    
-    
-	if (this.cursor.left) {
+    if (this.cursor.left) {
 		if (this.cursor.up) {
 			this.playerSprite.body.x -= speed;
 			this.playerSprite.body.y -= speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 		else if (this.cursor.down) {
 			this.playerSprite.body.x -= speed;
 			this.playerSprite.body.y += speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 		else {
 			this.playerSprite.body.x -= speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
 		}
 	}
 	
@@ -184,25 +187,95 @@ Player.prototype.update = function() {
 		if (this.cursor.up) {
 			this.playerSprite.body.x += speed;
 			this.playerSprite.body.y -= speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
+			}
+			else if (this.cursor.skin === 'rocket'){
+				this.playerSprite.animations.play('move-rocket')
+			}
 		}
 		else if (this.cursor.down) {
 			this.playerSprite.body.x += speed;
 			this.playerSprite.body.y += speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
+			}
+			else if (this.cursor.skin === 'rocket'){
+				this.playerSprite.animations.play('move-rocket')
+			}
 		}
 		else {
 			this.playerSprite.body.x += speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
+			}
+			else if (this.cursor.skin === 'rocket'){
+				this.playerSprite.animations.play('move-rocket')
+			}
 		}
 	}
 	else if (this.cursor.up) {
 			this.playerSprite.body.y -= speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
+			}
+			else if (this.cursor.skin === 'rocket'){
+				this.playerSprite.animations.play('move-rocket')
+			}
 	}
 	else if (this.cursor.down) {
 		this.playerSprite.body.y += speed;
-			moveAnim;
+			if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('move-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('move-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('move-rifle');
+			}
+			else if (this.cursor.skin === 'two-guns'){
+				this.playerSprite.animations.play('move-twoguns')
+			}
+			else if (this.cursor.skin === 'rocket'){
+				this.playerSprite.animations.play('move-rocket')
+			}
 			}
 	
 	 if (this.cursor.fire) {
@@ -210,7 +283,20 @@ Player.prototype.update = function() {
 			x: this.cursor.tx,
 			y: this.cursor.ty
 		});
+		if (this.cursor.skin === 'handgun') {
+				this.playerSprite.animations.play('shoot-handgun');
+			}
+			else if (this.cursor.skin === 'shotgun') {
+				this.playerSprite.animations.play('shoot-shotgun');
+			}
+			else if (this.cursor.skin === 'rifle') {
+				this.playerSprite.animations.play('shoot-rifle');
+			}
+			else if (this.cursor.skin === 'rocket'){
+				this.playerSprite.animations.play('shoot-rocket')
+			}
 	}
+	
 	
     if (this.cursor.health === 10){
       		this.healthbar.animations.play('10health');
@@ -262,6 +348,7 @@ Player.prototype.fire = function(target) {
 			var rocket = this.rockets.getRandom();
             
             if (this.cursor.skin === 'handgun') {
+  
             	this.fireRate = 500;
             	this.nextFire = this.game.time.now + this.fireRate;
      			this.bullets.setAll('anchor.x', 0);
@@ -269,8 +356,7 @@ Player.prototype.fire = function(target) {
 				bullet.reset((this.playerSprite.x + (45*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (45*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 				bullet.rotation = this.playerSprite.rotation;      
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet.body.velocity); 
-	            this.playerSprite.animations.play('shoot-handgun');
-
+				handgunshot.play();
 			}
 			else if (this.cursor.skin === 'shotgun') {
 				this.fireRate = 800;
@@ -286,7 +372,7 @@ Player.prototype.fire = function(target) {
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet.body.velocity); 
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation +0.1, 1200, bullet2.body.velocity); 
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation -0.1, 1200, bullet3.body.velocity); 
-	            this.playerSprite.animations.play('shoot-shotgun');
+	            shotgunshot.play();
 			}
 			else if (this.cursor.skin === 'rifle') {
 				this.fireRate = 200;
@@ -296,10 +382,10 @@ Player.prototype.fire = function(target) {
 				bullet.reset((this.playerSprite.x + (73*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (73*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 				bullet.rotation = this.playerSprite.rotation;      
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet.body.velocity);
-	            this.playerSprite.animations.play('shoot-rifle');
+	            rifleshot.play();
 			}
 			else if (this.cursor.skin === 'two-guns') {
-				this.fireRate = 200;
+				this.fireRate = 400;
 				this.nextFire = this.game.time.now + this.fireRate;
 				bullet.anchor.x = 0;
 				bullet.anchor.y = -0.6;
@@ -311,7 +397,8 @@ Player.prototype.fire = function(target) {
 				bullet2.rotation = this.playerSprite.rotation;  
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet.body.velocity);
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 1200, bullet2.body.velocity);
-	            this.playerSprite.animations.play('move-twoguns');
+	            handgunshot.play();
+	            handgunshot.play();
 			}
 			else if (this.cursor.skin === 'rocket') {
 				this.fireRate = 1000;
@@ -321,7 +408,7 @@ Player.prototype.fire = function(target) {
 				rocket.reset((this.playerSprite.x + (60*Math.cos(this.playerSprite.rotation))), (this.playerSprite.y + (60*Math.sin(this.playerSprite.rotation))), this.playerSprite.rotation);
 				rocket.rotation = this.playerSprite.rotation;      
 	            game.physics.arcade.velocityFromRotation(this.playerSprite.rotation, 600, rocket.body.velocity);
-	            this.playerSprite.animations.play('shoot-rocket');
+	            rocketlaunch.play();
 			}
         }
 };    

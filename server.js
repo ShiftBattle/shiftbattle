@@ -104,7 +104,7 @@ function powerUpUpdate() {
     ];
     var powerUpType = ['rifle', 'shotgun', 'health', 'shield', 'two-guns', 'rocket'];
     updatedPowers = [];
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < 5; i++) {
         var pu = updatedPowers[i] = [
             locs.splice(Math.floor(locs.length * Math.random()), 1)[0],
             powerUpType[Math.floor(powerUpType.length * Math.random())]

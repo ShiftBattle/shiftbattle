@@ -1,0 +1,26 @@
+{
+  "name": "spawns7",
+  "version": "1.0.0",
+  "description": "\"Top-down deathmatch game\"",
+  "main": "server.js",
+  "dependencies": {
+    "engine.io": "^1.6.9",
+    "express": "^4.13.4",
+    "eureca.io": "^0.6.42"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShiftBattle/shiftbattle.git"
+  },
+  "author": "John Bain and Pau Cortes",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ShiftBattle/shiftbattle/issues"
+  },
+  "homepage": "https://github.com/ShiftBattle/shiftbattle#readme"
+}
