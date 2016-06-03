@@ -76,7 +76,6 @@ function updatePlayerHealth(playerShotandShooter, allNames) {
 			playersList[victim].cursor.visible = false;
 			playersList[victim].cursor.shield = false;
 			for (var each in playersList) {
-				console.log(playersList[each].playerSprite.id, victim, "THY SHIT BE HERE")
 				if ((playersList[each].playerSprite.id === victim) && (victim === myId)) {
 					eurecaServer.killUpdate({
 						killer: shooter,

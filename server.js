@@ -50,7 +50,6 @@ eurecaServer.onDisconnect(function(conn) {
     var index;
     allNames.forEach(function(each, i) {
         if (each.id === conn.id) {
-            console.log(i)
             index = i
         }
     })
@@ -137,7 +136,6 @@ eurecaServer.exports.pickupPowerUp = function() {
         var remote = clients[c].remote;
         remote.killPowerups();
     }
-    console.log('SOMEONE PICKED UP A POWERUP');
     setTimeout(function() {
         powerUpUpdate();
     }, 3000);
@@ -178,7 +176,6 @@ eurecaServer.exports.scoreDisplay = function(id) {
         fullKDcount.push(kdPair);
 
     })
-    console.log(fullKDcount)
 
     var useableName;
 
